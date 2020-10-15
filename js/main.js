@@ -1,6 +1,7 @@
 import GameScene from "./GameScene.js"
 import WelcomeScene from "./WelcomeScene.js"
 import InterfaceScene from "./InterfaceScene.js"
+import PreloaderScene from "./PreloaderScene.js"
 
 
 const config = {
