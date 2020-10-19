@@ -1,7 +1,8 @@
-// import Phaser from 'phaser'
-
 import BaseScene from "./BaseScene.js"
 import globalEvents from "./helpers/globalEvents.js"
+import createDebugSwitch from "./interface/debug.js"
+
+import createTextBox from "./interface/textBox.js"
 
 export default class InterfaceScene extends BaseScene
 {
@@ -10,10 +11,19 @@ export default class InterfaceScene extends BaseScene
 
 	}
 	preload(){
+		// the version from PreloaderScene does not seem available. 
         this.load.spritesheet('things2bis', 
         'assets/things2.png',
         { frameWidth: 16, frameHeight: 16 }
-        )    
+		)    
+		this.load.scenePlugin({
+            key: 'rexuiplugin',
+            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+            sceneKey: 'rexUI'
+        })
+ 
+        this.load.image('nextPage', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png')		
+
 	}
 
 	handleTransactionsChange(nbTransactions){
@@ -38,6 +48,13 @@ export default class InterfaceScene extends BaseScene
 				this.invGraphics.visible = true
 		}, this)
 
+		//// Debugging shortcuts       
+		createDebugSwitch(this)
+
+		if(DEBUG){
+
+		}
+
 		////Interfaces
 
 		// Dialog graphics 
@@ -47,7 +64,6 @@ export default class InterfaceScene extends BaseScene
 		this.dialogGraphics.strokeRect(5, 240, 350, 50);
 		this.dialogGraphics.fillRect(5, 240, 350, 50);
 		this.dialogGraphics.visible = false
-
 
 		// Inventory graphics available on pressing i
 		this.invGraphics = this.add.graphics();
@@ -74,6 +90,7 @@ export default class InterfaceScene extends BaseScene
 
 		//// Handling events
 		globalEvents.on('transaction-captured', (nb)=>this.handleTransactionsChange(nb), this)	
+		globalEvents.on('says', (message)=>createTextBox(this, message), this)
 	
 	}
 

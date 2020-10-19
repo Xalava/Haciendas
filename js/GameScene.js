@@ -1,6 +1,5 @@
 
 //// Import tools
-import {debugCollisions} from "./debug.js"
 import BaseScene from "./BaseScene.js"
 import { createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
 
@@ -9,6 +8,7 @@ import Player from "./chars/Player.js"
 import Transaction from "./object/Transaction.js"
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
+import globalEvents from "./helpers/globalEvents.js"
 
 export default class GameScene extends BaseScene {
     constructor() {
@@ -67,15 +67,14 @@ export default class GameScene extends BaseScene {
         createObjectsAnims(this.anims)
         createCharAnims(this.anims, this.currentChar)
 
-        this.quest = "catch transactions"
-        this.transactionsCaptured = 0
-
-        //// Character
+        //// Player
         this.player = this.add.player(startPosition.x, startPosition.y, 'characters', this.currentChar)
         this.player.body.setCollideWorldBounds()
-
+        // global group to add collisions from objects unless we move to a mouse interface first
+        this.actionGroup = this.physics.add.group()
+        
         ////Trying camera 
-        if (!this.physics.world.drawDebug) // debug shortcut
+        if (!DEBUG) // debug shortcut
             this.cameras.main.pan(startPosition.x, startPosition.y, 4000, 'Sine.easeInOut')
 
         //// Object on map management
@@ -143,13 +142,21 @@ export default class GameScene extends BaseScene {
         // Trick to avoid bleeding
         //this.cameras.main.roundPixels = true;
 
-        // Debug graphics 
-        this.input.keyboard.once("keydown_D", event => {
-            debugCollisions(this)
-        })
+
 
         this.input.mouse.disableContextMenu()
 
+        //// Quests (To be factorised in an object?)
+        if(DEBUG)
+            console.log(this.pnjsGroup.getChildren())
+        const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
+        console.log(andres)
+        const timeout = DEBUG ? 0 :4000
+        setTimeout(() => {
+            andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
+        }, timeout);
+        this.quest = "catch transactions"
+        this.transactionsCaptured = 0
         //// Transactions logic
         this.transactions = this.physics.add.group()
         // We bounce on underlying layer 
@@ -166,6 +173,23 @@ export default class GameScene extends BaseScene {
             loop: true
         })
 
+
+        globalEvents.on("transactions-complete", ()=>{
+                       
+            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs until you have a number below 9000. You must be the first one! ')
+            this.quest = "mine a block"
+            this.sound.play("holy")
+
+        })
+
+
+        globalEvents.on("mining-complete", ()=>{
+            
+            globalEvents.emit('says', 'Congratulations for mining ')
+            this.quest = ""
+            this.sound.play("holy")
+
+        })
     }
 
     update(t, dt) {

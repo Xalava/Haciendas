@@ -4,7 +4,7 @@
      "export":
         {
          "format":"json",
-         "target":"mining.json"
+         "target":"..\/..\/phaser\/haciendas-Draft\/maps\/mining.json"
         }
     },
  "height":80,
@@ -160,7 +160,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }, 
@@ -190,13 +190,18 @@
                 {
                  "height":0,
                  "id":11,
-                 "name":"Bob",
+                 "name":"Andr\u00e9s",
                  "point":true,
                  "properties":[
                         {
                          "name":"frame",
                          "type":"int",
                          "value":0
+                        }, 
+                        {
+                         "name":"type",
+                         "type":"string",
+                         "value":"MALE"
                         }],
                  "rotation":0,
                  "type":"",
@@ -243,7 +248,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "x":0,
          "y":0
         }],
@@ -257,7 +262,7 @@
         {
          "columns":64,
          "firstgid":1,
-         "image":"..\/..\/assets\/16\/Outside7.png",
+         "image":"..\/..\/phaser\/assets\/16\/Outside7.png",
          "imageheight":1152,
          "imagewidth":1152,
          "margin":1,

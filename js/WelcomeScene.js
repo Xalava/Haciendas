@@ -12,7 +12,7 @@ export default class WelcomeScene extends BaseScene {
 
     create () {
 
-        if(this.physics.world.drawDebug)// debug shortcut
+        if(DEBUG)// debug shortcut
             this.scene.start('gameScene')
         const element = this.add.dom(200, 150).createFromCache('form')
         element.setPerspective(800)

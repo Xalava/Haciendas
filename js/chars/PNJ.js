@@ -1,4 +1,5 @@
-// import { timeStamp } from "console"
+import globalEvents from "../helpers/globalEvents.js"
+
 export const Type = {
 	MALE: 0,
 	FEMALE: 1,
@@ -27,7 +28,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 		}
 
 		this.createPNJtalks(scene,texture,frame,name) // ! We assume that talking movement are the next 2 frames
-		this.says("hello !")
+		// this.says("hello !")
 		// scene.add.existing(this);
 
 	//	scene.physics.world.on(Phaser.Physics.Arcade.Events.TILE_COLLIDE, this.handleTileCollision, this)
@@ -51,12 +52,10 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
             hideOnComplete: false // just to remember the option
         })
 	}
-	says(scene,message){
-		// Emit talking event
-		console.log(this.name+":"+message)
-		// console.log(scene)
-		//scene.anims.play(name+ '-talks')
-		//scene.events.emit('talks', "hello! ")
+	says(message){
+		this.anims.play(this.name+ '-talks')
+		// Emits talking event
+		globalEvents.emit('says', "[i]" + this.name + "[/i]: " + message )
 	}
 
 	destroy(fromScene){
@@ -110,7 +109,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
             this.clearTint()
         }, 500);
         this.body.setVelocity(0,0)
-		this.says(this,'Ouille!')
+		this.says('Hey! That hurts!')
 		this.scene.sound.play(this.type+"-hurt")
     }
 
