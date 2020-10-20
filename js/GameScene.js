@@ -146,13 +146,21 @@ export default class GameScene extends BaseScene {
         //// Quests (To be factorised in an object?)
         if(DEBUG)
             console.log(this.pnjsGroup.getChildren())
+            
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
-        console.log(andres)
         const timeout = DEBUG ? 0 :4000
-        setTimeout(() => {
-            andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
-        }, timeout);
-        this.quest = "catch transactions"
+        if (window.localStorage.getItem('blockQuestComplete')){
+            this.quest = "get a fox"
+            setTimeout(() => {
+                andres.says("Welcome back. You should go directly talk to the fox south-east from here now")
+            }, timeout);            
+        } else {
+            this.quest = "catch transactions"
+            setTimeout(() => {
+                andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
+            }, timeout);
+                
+        }
         this.transactionsCaptured = 0
         //// Transactions logic
         this.transactions = this.physics.add.group()
@@ -181,13 +189,14 @@ export default class GameScene extends BaseScene {
 
 
         globalEvents.on("mining-complete", ()=>{
-            
+
             const eng = this.pnjsGroup.getChildren().find(p => p.name === "engineer")
             eng.says('Congratulations for mining a block! You have earned 2 Reales, an antique currency. To collect them and join the game, go east and talk to the fox')
             this.quest = "get a fox"
             this.sound.play("holy")
             const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
             this.add.overlap
+            window.localStorage.setItem('blockQuestComplete', true);
 
         })
 

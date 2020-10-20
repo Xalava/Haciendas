@@ -60,7 +60,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             //     this.ongoingAction = true
 
             this.triggered = false
-            if(this.scene.quest === "catch transactions"){
+            if(this.scene.quest === "catch transactions" ){
                 console.log("capture?")
                 // We initialise this flag to allow one capture only
                 const actionNet = this.action('actions',0)

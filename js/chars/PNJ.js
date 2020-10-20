@@ -1,5 +1,5 @@
 import globalEvents from "../helpers/globalEvents.js"
-
+import EtherHelp from "../helpers/EtherHelp.js"
 export const Type = {
 	MALE: 0,
 	FEMALE: 1,
@@ -79,7 +79,22 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 
 	contact(){
 		if(this.name == "Fox" ) {
-			this.says("Welcome stranger. You will learn to set up your wallet and collect your reales.")			
+			if(!window.ethereum){
+				this.says("Welcome stranger. You will learn to set up your wallet and collect your reales.  To start, go to http://metamask.io/ with your browser and install the extension. Once done, you will probably have to reload the page. You can come directly there after to continue")
+
+			} else {
+				this.says("Great, I see that you met already my cousin Metamask. Please connect and let's transact")
+				setTimeout(async () => {
+					
+					this.scene.eth = new EtherHelp()
+					await this.scene.eth.initialise()
+					console.log(this.scene.eth)
+					this.says(`Nice ${this.scene.eth.account}. Let me now send you 2 Reales`)
+					
+
+				}, 3800);
+			}
+
 		} else {
 			this.says("Hello! ")
 		}
