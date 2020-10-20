@@ -69,9 +69,6 @@ export default class GameScene extends BaseScene {
 
         //// Player
         this.player = this.add.player(startPosition.x, startPosition.y, 'characters', this.currentChar)
-        this.player.body.setCollideWorldBounds()
-        // global group to add collisions from objects unless we move to a mouse interface first
-        this.actionGroup = this.physics.add.group()
         
         ////Trying camera 
         if (!DEBUG) // debug shortcut
@@ -176,7 +173,7 @@ export default class GameScene extends BaseScene {
 
         globalEvents.on("transactions-complete", ()=>{
                        
-            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs until you have a number below 9000. You must be the first one! ')
+            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs [i] pressing space [/i] until you have a number below 9000. You must be the first one! ')
             this.quest = "mine a block"
             this.sound.play("holy")
 
@@ -185,11 +182,19 @@ export default class GameScene extends BaseScene {
 
         globalEvents.on("mining-complete", ()=>{
             
-            globalEvents.emit('says', 'Congratulations for mining ')
-            this.quest = ""
+            const eng = this.pnjsGroup.getChildren().find(p => p.name === "engineer")
+            eng.says('Congratulations for mining a block! You have earned 2 Reales, an antique currency. To collect them and join the game, go east and talk to the fox')
+            this.quest = "get a fox"
             this.sound.play("holy")
+            const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
+            this.add.overlap
 
         })
+
+        // Exit Zone
+        const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
+        console.log(exitZone)
+        
     }
 
     update(t, dt) {

@@ -53,79 +53,76 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.anims.play('idle-'+ DirectionsArray[this.direction.i].toLowerCase())
             }
         }
+        
+        if (Phaser.Input.Keyboard.JustDown(inputKeys.space)){ 
+            // alt: inputKeys.space.Down
+            // if (this.ongoingAction == false ){
+            //     this.ongoingAction = true
 
-        if (inputKeys.space.isDown){ // alternative JustDown, at pressing
-            if (this.ongoingAction == false ){
-                if(this.scene.quest === "catch transactions"){
-                    console.log("capture?")
-                    // We initialise this flag to allow one capture only
-                    this.capture = false
-                    const actionNet = this.action('actions',0)
+            this.triggered = false
+            if(this.scene.quest === "catch transactions"){
+                console.log("capture?")
+                // We initialise this flag to allow one capture only
+                const actionNet = this.action('actions',0)
 
-                    //// Transactions interactions
-                    this.scene.physics.add.collider(actionNet, this.scene.transactions, (a,t)=>{
-                        // The collision only works once per action
-                        if (this.capture == false){
-                            
-                            console.log("We caught a transaction" )
-                            if (t.isValid){
-                                this.scene.transactionsCaptured += 1
-                                globalEvents.emit('transaction-captured', this.scene.transactionsCaptured)
-                                this.scene.sound.play("swing")
-                            } else {
-                                this.scene.transactionsCaptured = 0
-                                this.scene.cameras.main.shake(100) // Alt: flash, fade
-                            }
-                            t.destroy()
-
-                            // Victory case
-                            this.capture= true
-                            if (this.transactionsCaptured>=5){
-                                globalEvents.emit('transaction-complete')
-                            }
+                //// Transactions interactions
+                this.scene.physics.add.collider(actionNet, this.scene.transactions, (a,t)=>{
+                    // The collision only works once per action
+                    if (this.triggered == false){
+                        
+                        console.log("We caught a transaction" )
+                        if (t.isValid){
+                            this.scene.transactionsCaptured += 1
+                            globalEvents.emit('transaction-captured', this.scene.transactionsCaptured)
+                            this.scene.sound.play("swing")
+                        } else {
+                            this.scene.transactionsCaptured = 0
+                            this.scene.cameras.main.shake(100) // Alt: flash, fade
                         }
-                    })
-                    
-                    // PNJ interaction
-                    this.scene.physics.add.collider(actionNet, this.scene.pnjsGroup, (a,p)=>{
-                        if (this.capture == false){
-                            p.says(this.scene,"It doesn't work on me!")
-                            p.isHurt
-                            this.capture = true
-                        }
-                    });
-                    
-                    setTimeout(() => {
-                        this.ongoingAction = false
-                        actionNet.destroy()
-                    }, 600);
-                    this.ongoingAction = true
-                } else {
-                    //// Generic action - Sprite will be transparent
-                    const actionSprite = this.action()
-                    
-                    this.scene.physics.add.collider(actionSprite, this.scene.mines, (a,m)=>{
-                        if (this.scene.transactionsCaptured >= 5){
-                            console.log("We activate the mine !" )
-                            // m.hashing()
+                        t.destroy()
 
+                        // Victory case
+                        this.triggered= true
+                        if (this.transactionsCaptured>=5){
+                            globalEvents.emit('transaction-complete')
                         }
-                    });
-                    
-                    this.scene.physics.add.collider(actionSprite, this.scene.pnjsGroup, (a,p)=>{
-                        if (this.capture == false){
-                            p.says("Hello!")
+                    }
+                })
+                
+                // PNJ interaction
+                this.scene.physics.add.collider(actionNet, this.scene.pnjsGroup, (a,p)=>{
+                    if (this.triggered == false){
+                        p.says("It doesn't work on me!")
+                        p.isHurt
+                        this.triggered = true
+                    }
+                })
+                
+                setTimeout(() => {
+                    actionNet.destroy()
+                    // this.ongoingAction = false
+                }, 650)
+            } else {
+                //// Generic action - Sprite will be transparent
+                const actionSprite = this.action()
+                this.scene.actionsGroup.add(actionSprite)
 
-                        }
-                    });
+                // Mining happens in the mine object
+                
+                this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a,p)=>{
+                    if (this.triggered == false){
+                        p.contact()
+                        this.triggered = true
+                    }   
+                })
+
+                setTimeout(() => {
+                    actionSprite.destroy()
+                    // this.ongoingAction = false
+                }, 650)
             } 
-
-            }
-    
         }
     }
-
-
 }
 
 Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture, frame) {
@@ -146,5 +143,7 @@ Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture
     // altsprite.body.setSize(sprite.width * 0.5, sprite.height * 0.8)
     sprite.body.setCollideWorldBounds()
 
+    // global group to add collisions from objects unless we move to a mouse interface first
+    sprite.scene.actionsGroup = sprite.scene.physics.add.group()
 	return sprite
 })

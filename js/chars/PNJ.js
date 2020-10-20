@@ -77,6 +77,13 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 		// this.direction = randomDirection(this.direction)
 	}
 
+	contact(){
+		if(this.name == "Fox" ) {
+			this.says("Welcome stranger. You will learn to set up your wallet and collect your reales.")			
+		} else {
+			this.says("Hello! ")
+		}
+	}
 	preUpdate(t, dt)
 	{
 		super.preUpdate(t, dt)

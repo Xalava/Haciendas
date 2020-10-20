@@ -17,6 +17,10 @@ export default class PreloaderScene extends BaseScene {
         this.load.spritesheet('things2', 
         'assets/things2.png',
         { frameWidth: 16, frameHeight: 16 }
+        )  
+        this.load.spritesheet('things-tall', 
+        'assets/things-tall.png',
+        { frameWidth: 16, frameHeight: 32 }
         )       
         this.load.spritesheet('cryptos', 
             'assets/cryptos.png',

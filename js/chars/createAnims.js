@@ -2,8 +2,15 @@ export function createObjectsAnims(anims){
     anims.create({
         key: 'mineMove',
         frames: anims.generateFrameNumbers('things', { start: 51, end: 51+2 }),
+        frameRate: 4,
+        repeat: 0,
+        hideOnComplete: false // just to remember the option
+    })
+    anims.create({
+        key: 'block',
+        frames: anims.generateFrameNumbers('things-tall', { start: 0, end: 1 }),
         frameRate: 5,
-        repeat: 2,
+        repeat: -1,
         hideOnComplete: false // just to remember the option
     })
 

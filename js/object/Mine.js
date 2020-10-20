@@ -1,7 +1,10 @@
+import globalEvents from "../helpers/globalEvents.js"
+
 export default class Mine extends Phaser.Physics.Arcade.Sprite {
 
 	constructor(scene, x, y, texture, frame) {
 		super(scene, x, y, texture, frame)
+		this.triggered = false
 	}
 
 	destroy(fromScene) {
@@ -13,17 +16,36 @@ export default class Mine extends Phaser.Physics.Arcade.Sprite {
 
 	}
 
-	actionMine(pointer, object) {
-
-		console.log("Mine actionned")
-		object.anims.play('mineMove', true)
-
-		var music = this.sound.add('machine');
-		music.play();
-		this.play("machine")
-	}
-	hashing(){
+	displayHash(result, color){
+		let txt = this.scene.add.text(this.x, this.y, result, { fontFamily: 'courrier', color: color, fontSize: '12px',}).setDepth(25)
+		setTimeout(() => {
+			txt.destroy()
+		}, 800);3
 		
+	}
+	hashing(s, a){
+		s.anims.play('mineMove', true)
+		if(s.triggered == false){
+			s.triggered=true
+			s.scene.sound.play("machine")
+			if(DEBUG)
+				console.log("Mine hashing", this)		
+			this.play('mineMove')
+			const result =  Phaser.Math.Between(0, 15000)
+			if (result < 9000){
+				this.displayHash(result, 'green')
+				if(this.scene.quest == "mine a block"){
+					globalEvents.emit("mining-complete")
+				}
+				const block = this.scene.add.sprite(this.x,this.y+20,'things-tall',0).setDepth(20)
+				block.play('block')
+			} else {
+				this.displayHash(result, 'red')
+			}
+		}
+		setTimeout(() => {
+			this.triggered=false
+		}, 700)
 	}
 }
 
@@ -39,6 +61,9 @@ Phaser.GameObjects.GameObjectFactory.register('mine', function (x, y, texture, f
 	sprite.body.immovable = true// as the line above does not seem to work
 	//this.scene.physics.add.existing(sprite, true) // static = true
 	sprite.setDepth(10);
+	if(DEBUG)
+		console.log("creating mine")
+	this.scene.physics.add.overlap(sprite, this.scene.actionsGroup, (s,a)=>sprite.hashing(s,a))
 
 	return sprite
 })
