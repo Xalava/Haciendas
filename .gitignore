@@ -11,3 +11,5 @@ artifacts
 essais
 bin
 package-lock.json
+.vscode
+hardhat.config.js
