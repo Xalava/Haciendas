@@ -68,7 +68,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.physics.add.collider(actionNet, this.scene.transactions, (a,t)=>{
                     // The collision only works once per action
                     if (this.triggered == false){
-                        
+                        this.triggered= true
                         console.log("We caught a transaction" )
                         if (t.isValid){
                             this.scene.transactionsCaptured += 1
@@ -78,13 +78,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             this.scene.transactionsCaptured = 0
                             this.scene.cameras.main.shake(100) // Alt: flash, fade
                         }
-                        t.destroy()
-
                         // Victory case
-                        this.triggered= true
-                        if (this.transactionsCaptured>=5){
-                            globalEvents.emit('transaction-complete')
+                        if (this.scene.transactionsCaptured>=5){
+                            globalEvents.emit('transactions-complete')
                         }
+                        t.destroy()
                     }
                 })
                 
@@ -134,7 +132,7 @@ Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture
     // this.physics.add.existing(this.player) (as it was in the scene)
 
     
-    sprite.setDepth(20);
+    sprite.setDepth(10);
     
     sprite.body.setMass(10)
     sprite.body.setBounce(0.1)

@@ -82,24 +82,32 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 			this.says("Welcome stranger. You will learn to set up your wallet and collect your reales. Create or validate your account ")
 			setTimeout(async () => {
 				this.scene.eth = new EtherHelp()
-				await this.scene.eth.initialisePortis()
-				this.says("Great! Let me send 12 reales to you at"+ this.scene.eth.account)
-				const isparticipant = await this.scene.eth.isParticipant()
-				if(isparticipant){
-					this.says("Sly as a fox I see, but you have already joined!")
-
-				} else {
-					await this.scene.eth.participate()
-					globalEvents.emit('real-transaction', 12)	
-					this.says("Have fun with this! You can go to a market and exchange them for USDC ")
-				}
+				this.scene.eth.initialisePortis().then(async ()=>{
+					this.says("Great! Let me send 12 reales to you at"+ this.scene.eth.account)
+					const isparticipant = await this.scene.eth.realContract.participants(this.scene.eth.account)
+					if(isparticipant){
+						this.says("Sly as a fox I see, but you have already joined!")
+	
+					} else {
+						this.scene.eth.participate().then((realBalance) =>{
+							globalEvents.emit('real-transaction', realBalance)	
+							this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them! ")
+						})
+					}
+				})
 			}, 2800);
 
 		} else if(this.name == "Dexie" ) {
 			this.says("Welcome to our decentralised exchange ! It will open soon")
 
+		} else if(this.name == "Unicorn" ) {
+			this.says("I'm a Unicorn. What do you expect?")
+
+		} else if(this.name == "Kevin" ) {
+			this.says("Welcome The Block Café, a working café in Lisbon for whatever reason. Buy a coffee at the panel for 1 USDC")
+
 		} else {
-			this.says("Hello! ")
+			this.says("Hello!")
 		}
 	}
 	preUpdate(t, dt)

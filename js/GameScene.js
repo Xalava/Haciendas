@@ -97,9 +97,15 @@ export default class GameScene extends BaseScene {
         const PNJsLayer = map.getObjectLayer('PNJs')
         PNJsLayer.objects.forEach(pnjObj => {
             console.log({pnjObj})
+            // We extract type
             const prop  = pnjObj.properties.find(p => p.name== "type")
             const type = prop ? prop.value : ""
-            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', pnjObj.properties[0].value, pnjObj.name, type) 
+            // We extract frame. pnjObj.properties[0].value could work, this is more resiliend
+            const frame  = pnjObj.properties.find(p => p.name== "frame").value
+            if (DEBUG && !frame) 
+                console.error("No Frame for ", pnjObj)
+            // Object creation
+            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type) 
             this.pnjsGroup.add(newPNJ)
         })
 
@@ -155,7 +161,7 @@ export default class GameScene extends BaseScene {
         if (window.localStorage.getItem('blockQuestComplete')){
             this.quest = "get a fox"
             setTimeout(() => {
-                andres.says("Welcome back. You should go directly talk to the fox south-east from here now")
+                andres.says("Welcome back. You should go directly talk to the fox, just south from here")
             }, timeout);            
         } else {
             this.quest = "catch transactions"
@@ -184,7 +190,7 @@ export default class GameScene extends BaseScene {
 
         globalEvents.on("transactions-complete", ()=>{
                        
-            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs [i] pressing space [/i] until you have a number below 9000. You must be the first one! ')
+            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! ')
             this.quest = "mine a block"
             this.sound.play("holy")
 
@@ -194,7 +200,7 @@ export default class GameScene extends BaseScene {
         globalEvents.on("mining-complete", ()=>{
 
             const eng = this.pnjsGroup.getChildren().find(p => p.name === "engineer")
-            eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, go east and talk to the fox')
+            eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, talk to the fox near the lake')
             this.quest = "get a fox"
             this.sound.play("holy")
             const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")

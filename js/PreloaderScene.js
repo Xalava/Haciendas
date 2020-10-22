@@ -38,7 +38,7 @@ export default class PreloaderScene extends BaseScene {
         'assets/real.png',
         { frameWidth: 16, frameHeight: 16 }
     )
-        
+
         this.load.image('outsideTiles', 'maps/Outside7.png')
         this.load.tilemapTiledJSON('miningMap', 'maps/mining.json')      
 

@@ -13,12 +13,13 @@ export default class EtherHelp {
 
     }
     async initialisePortis(){
-        this.portis = new Portis(portisID, network,  { 
-            gasRelay: true,
-            registerPageByDefault: true 
-        })
-        this.provider = new ethers.providers.Web3Provider(this.portis.provider);
-        // (async () => {
+        return new Promise( async (resolve, reject)=> {
+
+            this.portis = new Portis(portisID, network,  { 
+                gasRelay: true,
+                registerPageByDefault: true 
+            })
+            this.provider = new ethers.providers.Web3Provider(this.portis.provider);
             await  this.portis.provider.enable()
             const accounts = await this.provider.listAccounts();
             this.account = accounts[0]
@@ -26,7 +27,9 @@ export default class EtherHelp {
             this.realContract = await new ethers.Contract( realAddress , realAbi , this.signer )
             globalEvents.emit('connected',this.account)
             console.log("connected")
-        // })();
+            
+            resolve() 
+        })
     }
     async getRealBalance(){
         const realBalance = await this.realContract.balanceOf(this.account)
@@ -45,6 +48,6 @@ export default class EtherHelp {
             await this.realContract.participate()
             return await this.getRealBalance()
         })
-        .error( (err) => console.error(err) )
+        // .error( (err) => console.error(err) )
     }
 }

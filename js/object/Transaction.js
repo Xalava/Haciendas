@@ -5,7 +5,7 @@ export default class Transaction extends Phaser.Physics.Arcade.Sprite{
 	
 	constructor(scene, x, y, texture, frame){
 		
-		const isValid = Math.random()>0.1
+		const isValid = Math.random()>0.15
 		
 		if (isValid){
 			super(scene, x, y, "things2", 13)
@@ -82,7 +82,7 @@ Phaser.GameObjects.GameObjectFactory.register('transaction', function ( x, y, te
 
 	this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)
    
-    sprite.setDepth(10);
+    sprite.setDepth(9);
     
 	sprite.body.setSize(10,14,true) 
 	sprite.body.setMaxVelocity(50,50)

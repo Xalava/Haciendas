@@ -31,7 +31,7 @@ export default class Mine extends Phaser.Physics.Arcade.Sprite {
 			if(DEBUG)
 				console.log("Mine hashing", this)		
 			this.play('mineMove')
-			const result =  Phaser.Math.Between(0, 15000)
+			const result =  Phaser.Math.Between(0, 18000)
 			if (result < 9000){
 				this.displayHash(result, 'green')
 				if(this.scene.quest == "mine a block"){
@@ -60,7 +60,7 @@ Phaser.GameObjects.GameObjectFactory.register('mine', function (x, y, texture, f
 	this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)// Should be STATIC_BODY per the documentation
 	sprite.body.immovable = true// as the line above does not seem to work
 	//this.scene.physics.add.existing(sprite, true) // static = true
-	sprite.setDepth(10);
+	sprite.setDepth(9);
 	if(DEBUG)
 		console.log("creating mine")
 	this.scene.physics.add.overlap(sprite, this.scene.actionsGroup, (s,a)=>sprite.hashing(s,a))
