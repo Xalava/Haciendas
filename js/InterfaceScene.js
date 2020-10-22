@@ -1,6 +1,7 @@
 import BaseScene from "./BaseScene.js"
 import globalEvents from "./helpers/globalEvents.js"
 import createDebugSwitch from "./interface/debug.js"
+// import createLibp2p from './helpers/clibp2p.js'
 
 import createTextBox from "./interface/textBox.js"
 
@@ -23,6 +24,8 @@ export default class InterfaceScene extends BaseScene
         })
  
         this.load.image('nextPage', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png')		
+		this.load.html('message', 'html/message.html');
+
 
 	}
 
@@ -72,13 +75,19 @@ export default class InterfaceScene extends BaseScene
 			else 
 				this.invGraphics.visible = true
 		}, this)
+		this.input.keyboard.once("keydown_M", event => {
+			const element = this.add.dom(350, 230).createFromCache('message')
+			element.scale = 0.5
+			this.input.keyboard.once("keydown_ENTER", event => {
+
+				console.log(document.getElementById('message').value)
+				element.destroy()
+			})
+		})
+
 
 		//// Debugging shortcuts       
 		createDebugSwitch(this)
-
-		if(DEBUG){
-
-		}
 
 		////Interfaces
 

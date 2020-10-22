@@ -132,7 +132,7 @@ Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture
     // this.physics.add.existing(this.player) (as it was in the scene)
 
     
-    sprite.setDepth(10);
+    sprite.setDepth(5); // decoration level
     
     sprite.body.setMass(10)
     sprite.body.setBounce(0.1)

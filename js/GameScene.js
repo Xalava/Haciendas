@@ -102,7 +102,7 @@ export default class GameScene extends BaseScene {
             const type = prop ? prop.value : ""
             // We extract frame. pnjObj.properties[0].value could work, this is more resiliend
             const frame  = pnjObj.properties.find(p => p.name== "frame").value
-            if (DEBUG && !frame) 
+            if (DEBUG && frame == undefined) 
                 console.error("No Frame for ", pnjObj)
             // Object creation
             const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type) 

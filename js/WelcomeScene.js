@@ -6,7 +6,7 @@ export default class WelcomeScene extends BaseScene {
     }
 
     preload () {
-         this.load.html('form', 'assets/form.html');
+         this.load.html('form', 'html/form.html');
 
     }
 
