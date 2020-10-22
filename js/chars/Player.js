@@ -8,7 +8,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.play('idle-down')
         this.direction = Directions.DOWN
         this.ongoingAction = false
-   
 
     }
     action(sprite, frame){
@@ -145,5 +144,5 @@ Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture
 
     // global group to add collisions from objects unless we move to a mouse interface first
     sprite.scene.actionsGroup = sprite.scene.physics.add.group()
-	return sprite
+    return sprite
 })

@@ -19,14 +19,14 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 		super(scene, x, y, texture, frame)
 		this.name = name
 		// If there is no gender provided we randomly assign one
-		console.log(type)
-		if (type == undefined){
+		if (type == ''){
 			this.type = TypeArray[Phaser.Math.Between(0, 1)]
-
+			
 		} else {
 			this.type = type 
 		}
-
+		console.log(this.name, "type was",type, "and now", this.type)
+		
 		this.createPNJtalks(scene,texture,frame,name) // ! We assume that talking movement are the next 2 frames
 		// this.says("hello !")
 		// scene.add.existing(this);
@@ -79,21 +79,24 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 
 	contact(){
 		if(this.name == "Fox" ) {
-			if(!window.ethereum){
-				this.says("Welcome stranger. You will learn to set up your wallet and collect your reales.  To start, go to http://metamask.io/ with your browser and install the extension. Once done, you will probably have to reload the page. You can come directly there after to continue")
+			this.says("Welcome stranger. You will learn to set up your wallet and collect your reales. Create or validate your account ")
+			setTimeout(async () => {
+				this.scene.eth = new EtherHelp()
+				await this.scene.eth.initialisePortis()
+				this.says("Great! Let me send 12 reales to you at"+ this.scene.eth.account)
+				const isparticipant = await this.scene.eth.isParticipant()
+				if(isparticipant){
+					this.says("Sly as a fox I see, but you have already joined!")
 
-			} else {
-				this.says("Great, I see that you met already my cousin Metamask. Please connect and let's transact")
-				setTimeout(async () => {
-					
-					this.scene.eth = new EtherHelp()
-					await this.scene.eth.initialise()
-					console.log(this.scene.eth)
-					this.says(`Nice ${this.scene.eth.account}. Let me now send you 2 Reales`)
-					
+				} else {
+					await this.scene.eth.participate()
+					globalEvents.emit('real-transaction', 12)	
+					this.says("Have fun with this! You can go to a market and exchange them for USDC ")
+				}
+			}, 2800);
 
-				}, 3800);
-			}
+		} else if(this.name == "Dexie" ) {
+			this.says("Welcome to our decentralised exchange ! It will open soon")
 
 		} else {
 			this.says("Hello! ")
@@ -138,8 +141,8 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 }
 
 
-Phaser.GameObjects.GameObjectFactory.register('pnj', function ( x, y, texture, frame, name) {
-	var sprite = new PNJ(this.scene, x, y, texture, frame, name)
+Phaser.GameObjects.GameObjectFactory.register('pnj', function ( x, y, texture, frame, name, type) {
+	var sprite = new PNJ(this.scene, x, y, texture, frame, name, type)
 
 	this.displayList.add(sprite)
 	this.updateList.add(sprite)

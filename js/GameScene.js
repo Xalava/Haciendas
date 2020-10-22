@@ -96,8 +96,10 @@ export default class GameScene extends BaseScene {
         // We assume each object on the PNJ layer has a name and a first custom property "frame"
         const PNJsLayer = map.getObjectLayer('PNJs')
         PNJsLayer.objects.forEach(pnjObj => {
-            console.log(pnjObj)
-            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', pnjObj.properties[0].value, pnjObj.name, pnjObj.type)
+            console.log({pnjObj})
+            const prop  = pnjObj.properties.find(p => p.name== "type")
+            const type = prop ? prop.value : ""
+            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', pnjObj.properties[0].value, pnjObj.name, type) 
             this.pnjsGroup.add(newPNJ)
         })
 
@@ -145,9 +147,10 @@ export default class GameScene extends BaseScene {
 
         //// Quests (To be factorised in an object?)
         if(DEBUG)
-            console.log(this.pnjsGroup.getChildren())
+            console.log("pnjsGroup",this.pnjsGroup.getChildren())
             
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
+        console.log({andres})
         const timeout = DEBUG ? 0 :4000
         if (window.localStorage.getItem('blockQuestComplete')){
             this.quest = "get a fox"
@@ -191,7 +194,7 @@ export default class GameScene extends BaseScene {
         globalEvents.on("mining-complete", ()=>{
 
             const eng = this.pnjsGroup.getChildren().find(p => p.name === "engineer")
-            eng.says('Congratulations for mining a block! You have earned 2 Reales, an antique currency. To collect them and join the game, go east and talk to the fox')
+            eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, go east and talk to the fox')
             this.quest = "get a fox"
             this.sound.play("holy")
             const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")

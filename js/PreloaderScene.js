@@ -34,6 +34,10 @@ export default class PreloaderScene extends BaseScene {
             'assets/actions.png',
             { frameWidth: 16, frameHeight: 16 }
         )
+        this.load.spritesheet('real', 
+        'assets/real.png',
+        { frameWidth: 16, frameHeight: 16 }
+    )
         
         this.load.image('outsideTiles', 'maps/Outside7.png')
         this.load.tilemapTiledJSON('miningMap', 'maps/mining.json')      
@@ -43,11 +47,8 @@ export default class PreloaderScene extends BaseScene {
         this.load.audio('FEMALE-hurt', 'assets/audio/female-hit.ogg')
         this.load.audio('holy','assets/audio/holy.ogg')
         this.load.audio('swing','assets/audio/swing.wav')
+        this.load.audio('gold','assets/audio/gold.ogg')
 
-        // this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
-
-        // Helper
-        //this.canvas = this.sys.game.canvas
     }
 
     create () {

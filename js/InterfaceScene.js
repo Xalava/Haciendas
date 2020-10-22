@@ -27,14 +27,39 @@ export default class InterfaceScene extends BaseScene
 	}
 
 	handleTransactionsChange(nbTransactions){
-		
 		this.transactionsDisplay.children.each((obj, idx) => {
-			const tx = obj
 			if (idx < nbTransactions){
 				obj.visible = true
 			} else {
-				obj.visble = false
+				obj.visible = false
 			}
+		})
+	}
+	handleRealChange(value){
+		this.realDisplay.children.each((obj, idx) => {
+			setTimeout(() => {
+				if (idx < value){
+					obj.visible = true
+					if(idx%2)
+						this.sound.play("gold")
+				} else {
+					obj.visible = false
+				}				
+			}, idx*800)
+		})
+	}
+
+	handleUSDCChange(value){
+		this.USDCDisplay.children.each((obj, idx) => {
+			setTimeout(() => {
+				if (idx < value){
+					obj.visible = true
+					if(idx%2)
+						this.sound.play("gold")
+				} else {
+					obj.visible = false
+				}				
+			}, idx*800)
 		})
 	}
 
@@ -87,9 +112,47 @@ export default class InterfaceScene extends BaseScene
 			quantity: 5,
 			visible:false,
 		})
+		this.realDisplay = this.add.group()
+
+		this.realDisplay.createMultiple({
+			key: 'real',
+			frame: [0,1],
+			setXY: {
+				x: 10,
+				y: 10,
+				stepX: 12
+			},
+			quantity: 24,
+			visible:false,
+			setScale: { x: 0.6, y: 0.6}
+		})
+		
+		this.USDCDisplay = this.add.group()
+
+		this.USDCDisplay.createMultiple({
+			key: 'cryptos',
+			frame: 8,
+			setXY: {
+				x: 10,
+				y: 10,
+				stepX: 12
+			},
+			quantity: 24,
+			visible:false,
+			setScale: { x: 0.6, y: 0.6}
+		})
+
 
 		//// Handling events
 		globalEvents.on('transaction-captured', (nb)=>this.handleTransactionsChange(nb), this)	
+		globalEvents.on('mining-complete', ()=>{		
+			this.transactionsDisplay.children.each((obj, idx) => {
+				obj.visible = false
+			})
+		})	
+		globalEvents.on('real-transaction', (value)=>this.handleRealChange(value), this)	
+		globalEvents.on('usdc-transaction', (value)=>this.handleUSDCChange(value), this)	
+
 		globalEvents.on('says', (message)=>createTextBox(this, message), this)
 	
 	}

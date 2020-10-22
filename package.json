@@ -1,0 +1,28 @@
+{
+  "name": "haciendas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "buidler.config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@opengsn/gsn": "^2.0.1",
+    "@openzeppelin/contracts": "^3.2.0",
+    "ethers": "^5.0.18"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xalava/Haciendas.git"
+  },
+  "author": "@Xalava <xavier@bricodeur.com> (https://github.com/xalava)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Xalava/Haciendas/issues"
+  },
+  "homepage": "https://github.com/Xalava/Haciendas#readme"
+}
