@@ -33,6 +33,9 @@ function createDebugShortcuts(scene){
     gameScene.input.keyboard.once("keydown_J", event => {
         globalEvents.emit("mining-complete")
     })
+    gameScene.input.keyboard.once("keydown_C", event => {
+        globalEvents.emit("connected")
+    })
 }
 
 

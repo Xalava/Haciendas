@@ -9,6 +9,7 @@ import Transaction from "./object/Transaction.js"
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
 import globalEvents from "./helpers/globalEvents.js"
+import EtherHelp from "./helpers/EtherHelp.js"
 
 export default class GameScene extends BaseScene {
     constructor() {
@@ -211,7 +212,23 @@ export default class GameScene extends BaseScene {
 
         // Exit Zone
         const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
-        console.log(exitZone)
+
+        const BuyUSDCObj = map.findObject("Helpers", obj => obj.name === "BuyUSDC")
+        this.add.image(BuyUSDCObj.x+8,BuyUSDCObj.y-8,"cryptos",0).setScale(0.8).setDepth(5)
+        this.BuyUSDC = this.add.image(BuyUSDCObj.x-8,BuyUSDCObj.y-8,"cryptos",10)
+        this.BuyUSDC.setDepth(5)
+        this.physics.add.existing(this.BuyUSDC)
+        if (DEBUG)
+            console.log("BUYUSDC",this.BuyUSDC)
+
+        
+        const BuyCoffeeObj = map.findObject("Helpers", obj => obj.name === "BuyCoffee")
+        this.BuyCoffee = this.add.image(BuyCoffeeObj.x,BuyCoffeeObj.y)
+        this.BuyCoffee.setDepth(5)
+        this.physics.add.existing(this.BuyCoffee)
+
+        
+
         
     }
 

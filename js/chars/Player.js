@@ -113,9 +113,32 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }   
                 })
 
+                this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyCoffee, (a,p)=>{
+                    if (this.triggered == false){
+                        this.scene.sound.play('machine')
+                        if (this.scene.eth)
+                            this.scene.eth.buyCoffee()
+                        else
+                            globalEvents.emit("says","You must get connected first. Go see the fox")
+                        this.triggered = true
+                    }   
+        
+                },null, this)
+
+                this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyUSDC, (a,p)=>{
+                    if (this.triggered == false){
+                        if (this.scene.eth)
+                            this.scene.eth.buyUSDC()
+                        else
+                            globalEvents.emit("says","You must get connected first. Go see the fox")
+                        this.triggered = true
+                    }
+
+                },null, this)
+
                 setTimeout(() => {
                     actionSprite.destroy()
-                    // this.ongoingAction = false
+                    this.triggered = false
                 }, 650)
             } 
         }
@@ -132,7 +155,7 @@ Phaser.GameObjects.GameObjectFactory.register('player', function ( x, y, texture
     // this.physics.add.existing(this.player) (as it was in the scene)
 
     
-    sprite.setDepth(5); // decoration level
+    sprite.setDepth(6); // Tree level, should be just below
     
     sprite.body.setMass(10)
     sprite.body.setBounce(0.1)

@@ -83,28 +83,32 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite{
 			setTimeout(async () => {
 				this.scene.eth = new EtherHelp()
 				this.scene.eth.initialisePortis().then(async ()=>{
-					this.says("Great! Let me send 12 reales to you at"+ this.scene.eth.account)
-					const isparticipant = await this.scene.eth.realContract.participants(this.scene.eth.account)
-					if(isparticipant){
-						this.says("Sly as a fox I see, but you have already joined!")
-	
-					} else {
-						this.scene.eth.participate().then((realBalance) =>{
-							globalEvents.emit('real-transaction', realBalance)	
-							this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them! ")
-						})
+					if(DEBUG)
+						console.log(this.scene.eth)
+						const isparticipant = await this.scene.eth.realContract.participants(this.scene.eth.account)
+						if(isparticipant){
+							this.says("Sly as a fox I see, you have already joined!")
+							globalEvents.emit('real-transaction', 0)
+							
+						} else {
+							this.says("Great! Let me send 12 reales to you at"+ this.scene.eth.account)
+							this.scene.eth.participate().then(() =>{
+								globalEvents.emit('real-transaction', 12)	
+								this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
+							})
 					}
 				})
+				.catch((err)=> console.log(err))
 			}, 2800);
 
 		} else if(this.name == "Dexie" ) {
-			this.says("Welcome to our decentralised exchange ! It will open soon")
+			this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
 
 		} else if(this.name == "Unicorn" ) {
 			this.says("I'm a Unicorn. What do you expect?")
 
 		} else if(this.name == "Kevin" ) {
-			this.says("Welcome The Block Café, a working café in Lisbon for whatever reason. Buy a coffee at the panel for 1 USDC")
+			this.says("Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC")
 
 		} else {
 			this.says("Hello!")

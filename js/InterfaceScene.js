@@ -4,12 +4,15 @@ import createDebugSwitch from "./interface/debug.js"
 // import createLibp2p from './helpers/clibp2p.js'
 
 import createTextBox from "./interface/textBox.js"
+import EtherHelp from "./helpers/EtherHelp.js"
 
 export default class InterfaceScene extends BaseScene
 {
 	constructor(){
 		super({ key: 'interfaceScene' , active: true})
-
+		// Could be more coherent elsewhere
+		this.usdc = 0
+		this.real = 0
 	}
 	preload(){
 		// the version from PreloaderScene does not seem available. 
@@ -38,32 +41,69 @@ export default class InterfaceScene extends BaseScene
 			}
 		})
 	}
-	handleRealChange(value){
-		this.realDisplay.children.each((obj, idx) => {
-			setTimeout(() => {
-				if (idx < value){
+	async handleRealChange(value){
+		if(DEBUG){
+			console.log("real change...", this.real,value)
+		}
+		if(this.real == 0 && value ==0){
+			// refreshing case
+			const gameScene = this.scene.get('gameScene')
+			this.real =  parseInt(await gameScene.eth.getRealBalance())
+			//Math.floor( floatvalue )
+			if(DEBUG)
+				console.log("Current balance",this.real)
+		}
+		this.real += value
+		if(this.real == value){
+			// first time is a show
+			this.realDisplay.children.each((obj, idx) => {
+				setTimeout(() => {
+					if (idx < this.real){
+						obj.visible = true
+						if(idx%2)
+							this.sound.play("gold")
+					} else {
+						obj.visible = false
+					}				
+				}, idx*800)
+			})
+		} else {
+			this.realDisplay.children.each((obj, idx) => {
+				if (idx < this.real){
 					obj.visible = true
-					if(idx%2)
-						this.sound.play("gold")
 				} else {
 					obj.visible = false
 				}				
-			}, idx*800)
-		})
+			})	
+		}
 	}
 
 	handleUSDCChange(value){
-		this.USDCDisplay.children.each((obj, idx) => {
-			setTimeout(() => {
-				if (idx < value){
+		if(DEBUG){
+			console.log("USDC change...", this.usdc, value)
+		}
+		this.usdc += value
+		if(this.usdc== value){
+			this.USDCDisplay.children.each((obj, idx) => {
+				setTimeout(() => {
+					if (idx < this.usdc){
+						obj.visible = true
+						if(idx%2)
+							this.sound.play("gold")
+					} else {
+						obj.visible = false
+					}				
+				}, idx*800)
+			})
+		} else {
+			this.USDCDisplay.children.each((obj, idx) => {
+				if (idx < this.usdc){
 					obj.visible = true
-					if(idx%2)
-						this.sound.play("gold")
 				} else {
 					obj.visible = false
 				}				
-			}, idx*800)
-		})
+			})	
+		}
 	}
 
 	create(){
@@ -140,10 +180,10 @@ export default class InterfaceScene extends BaseScene
 
 		this.USDCDisplay.createMultiple({
 			key: 'cryptos',
-			frame: 8,
+			frame: 10,
 			setXY: {
 				x: 10,
-				y: 10,
+				y: 26,
 				stepX: 12
 			},
 			quantity: 24,
@@ -161,7 +201,16 @@ export default class InterfaceScene extends BaseScene
 		})	
 		globalEvents.on('real-transaction', (value)=>this.handleRealChange(value), this)	
 		globalEvents.on('usdc-transaction', (value)=>this.handleUSDCChange(value), this)	
-
+		globalEvents.on('connected', ()=>{
+			this.connected = this.add.image(380,10,"cryptos",4)
+			this.connected.setTint(0xa9c9a9)
+			this.sound.play("holy")
+		})
+		globalEvents.on('adding-coffee', ()=>{
+			this.connected = this.add.image(380,30,"coffee")
+			// this.connected.setTint(0x9bfb9b)
+			this.sound.play("holy")
+		})
 		globalEvents.on('says', (message)=>createTextBox(this, message), this)
 	
 	}

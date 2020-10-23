@@ -1,9 +1,9 @@
 
-import realAbi from '../../contracts/Real.abi.js';
+import realAbi from '../../contracts/RealSimple.abi.js';
 import globalEvents from './globalEvents.js'
 
 // Config
-const realAddress = "0xfef8bb4cc57f1935f5e767207b98ae5dbf9b5039"
+const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
 const network = 'ropsten'
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
@@ -12,9 +12,10 @@ export default class EtherHelp {
     constructor(){
 
     }
-    async initialisePortis(){
+    initialisePortis(){
         return new Promise( async (resolve, reject)=> {
-
+            if(this.portis)
+                reject()
             this.portis = new Portis(portisID, network,  { 
                 gasRelay: true,
                 registerPageByDefault: true 
@@ -31,12 +32,37 @@ export default class EtherHelp {
             resolve() 
         })
     }
-    async getRealBalance(){
-        const realBalance = await this.realContract.balanceOf(this.account)
-        console.log({realBalance})
-        this.realBalance = ethers.utils.formatUnits(realBalance, 0)
-        return this.realBalance
+    getRealBalance(){
+        return new Promise( async (resolve, reject)=> {
+            const realBalance = await this.realContract.balanceOf(this.account)
+            console.log({realBalance})
+            this.realBalance = ethers.utils.formatUnits(realBalance, 0)
+            resolve(this.realBalance) 
+        })
     }
+    buyCoffee(){
+        this.realContract.buyCoffee()
+        // TODO,  deal better with the ongoing transaction
+        .then(()=> { 
+            console.log("we got coffee!")
+            globalEvents.emit('usdc-transaction',-1)
+            globalEvents.emit('adding-coffee')
+
+        })
+
+    }
+    buyUSDC(){
+        if (DEBUG)
+            console.log("Calling", this.realContract)
+        this.realContract.buyUSDC()
+        .then(()=> {
+            console.log("we got USDC!")
+            globalEvents.emit('real-transaction',-1)
+            globalEvents.emit('usdc-transaction',3)
+        })
+    }
+
+
 
     async isParticipant(){
 
@@ -44,9 +70,11 @@ export default class EtherHelp {
     }
   
     async participate(){
-        this.portis.isLoggedIn().then(async ({ error, result }) => {
-            await this.realContract.participate()
-            return await this.getRealBalance()
+        return new Promise( async (resolve, reject)=> {
+            this.portis.isLoggedIn().then(async ({ error, result }) => {
+                await this.realContract.participate()
+                resolve() 
+            })
         })
         // .error( (err) => console.error(err) )
     }
