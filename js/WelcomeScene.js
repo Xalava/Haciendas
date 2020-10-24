@@ -1,17 +1,16 @@
 import BaseScene from "./BaseScene.js"
 
 export default class WelcomeScene extends BaseScene {
-    constructor(){
+    constructor() {
         super("welcomeScene")
     }
 
     preload () {
-         this.load.html('form', 'html/form.html');
+        this.load.html('form', 'html/form.html')
 
     }
 
     create () {
-
         if(DEBUG)// debug shortcut
             this.scene.start('gameScene')
         const element = this.add.dom(200, 150).createFromCache('form')
@@ -19,8 +18,7 @@ export default class WelcomeScene extends BaseScene {
         element.scale = 0.3
         element.addListener('click').on('click', (event) => {
             console.log(event)
-            if (event.target.localName === 'button')
-            {
+            if (event.target.localName === 'button') {
                 console.log("Choice", event.target.innerText)
                 if (event.target.innerText == "Boy")
                     this.currentChar = 4

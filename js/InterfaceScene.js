@@ -17,8 +17,8 @@ export default class InterfaceScene extends BaseScene
 	preload(){
 		// the version from PreloaderScene does not seem available. 
         this.load.spritesheet('things2bis', 
-        'assets/things2.png',
-        { frameWidth: 16, frameHeight: 16 }
+			'assets/things2.png',
+			{ frameWidth: 16, frameHeight: 16 }
 		)    
 		this.load.scenePlugin({
             key: 'rexuiplugin',
@@ -27,8 +27,7 @@ export default class InterfaceScene extends BaseScene
         })
  
         this.load.image('nextPage', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png')		
-		this.load.html('message', 'html/message.html');
-
+		this.load.html('message', 'html/message.html')
 
 	}
 
@@ -42,9 +41,9 @@ export default class InterfaceScene extends BaseScene
 		})
 	}
 	async handleRealChange(value){
-		if(DEBUG){
+		if(DEBUG)
 			console.log("real change...", this.real,value)
-		}
+
 		if(this.real == 0 && value ==0){
 			// refreshing case
 			const gameScene = this.scene.get('gameScene')
@@ -79,9 +78,9 @@ export default class InterfaceScene extends BaseScene
 	}
 
 	handleUSDCChange(value){
-		if(DEBUG){
+		if(DEBUG)
 			console.log("USDC change...", this.usdc, value)
-		}
+
 		this.usdc += value
 		if(this.usdc== value){
 			this.USDCDisplay.children.each((obj, idx) => {
@@ -108,7 +107,7 @@ export default class InterfaceScene extends BaseScene
 
 	create(){
 		//// Inputs
-        this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+        this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on('down', function(event) {
 			if (this.invGraphics.visible)
 				this.invGraphics.visible = false
@@ -125,26 +124,25 @@ export default class InterfaceScene extends BaseScene
 			})
 		})
 
-
 		//// Debugging shortcuts       
 		createDebugSwitch(this)
 
 		////Interfaces
 
 		// Dialog graphics 
-		this.dialogGraphics = this.add.graphics();
-		this.dialogGraphics.lineStyle(1, 0xffffff);
-		this.dialogGraphics.fillStyle(0x031f6c, 1);        
-		this.dialogGraphics.strokeRect(5, 240, 350, 50);
-		this.dialogGraphics.fillRect(5, 240, 350, 50);
+		this.dialogGraphics = this.add.graphics()
+		this.dialogGraphics.lineStyle(1, 0xffffff)
+		this.dialogGraphics.fillStyle(0x031f6c, 1)        
+		this.dialogGraphics.strokeRect(5, 240, 350, 50)
+		this.dialogGraphics.fillRect(5, 240, 350, 50)
 		this.dialogGraphics.visible = false
 
 		// Inventory graphics available on pressing i
-		this.invGraphics = this.add.graphics();
-		this.invGraphics.lineStyle(1, 0xffffff);
-		this.invGraphics.fillStyle(0x031f6c, 1);        
-		this.invGraphics.strokeRect(5, 240, 350, 50);
-		this.invGraphics.fillRect(5, 240, 350, 50);
+		this.invGraphics = this.add.graphics()
+		this.invGraphics.lineStyle(1, 0xffffff)
+		this.invGraphics.fillStyle(0x031f6c, 1)        
+		this.invGraphics.strokeRect(5, 240, 350, 50)
+		this.invGraphics.fillRect(5, 240, 350, 50)
 
 		this.invGraphics.visible = false
 		

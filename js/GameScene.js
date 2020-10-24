@@ -1,7 +1,9 @@
-
 //// Import tools
 import BaseScene from "./BaseScene.js"
-import { createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
+import {
+    createObjectsAnims,
+    createCharAnims
+} from "./chars/createAnims.js"
 
 //// Import objects and characters
 import Player from "./chars/Player.js"
@@ -89,7 +91,9 @@ export default class GameScene extends BaseScene {
 
         console.log("mines:", this.minesGroup) // give an array of sprites
 
-        this.physics.add.collider(this.player, this.minesGroup, (p,m)=>{m.body.setVelocity(0,0)}, null, this);
+        this.physics.add.collider(this.player, this.minesGroup, (p, m) => {
+            m.body.setVelocity(0, 0)
+        }, null, this)
 
         //// PNJ 
         this.pnjsGroup = this.physics.add.group()
@@ -99,10 +103,10 @@ export default class GameScene extends BaseScene {
         PNJsLayer.objects.forEach(pnjObj => {
             console.log({pnjObj})
             // We extract type
-            const prop  = pnjObj.properties.find(p => p.name== "type")
+            const prop = pnjObj.properties.find(p => p.name == "type")
             const type = prop ? prop.value : ""
             // We extract frame. pnjObj.properties[0].value could work, this is more resiliend
-            const frame  = pnjObj.properties.find(p => p.name== "frame").value
+            const frame = pnjObj.properties.find(p => p.name == "frame").value
             if (DEBUG && frame == undefined) 
                 console.error("No Frame for ", pnjObj)
             // Object creation
@@ -111,11 +115,9 @@ export default class GameScene extends BaseScene {
         })
 
         this.physics.add.collider(this.player, this.pnjsGroup, (p, j) => {
-            // this.player.setVelocity(0);    
             j.handlePlayerCollision(p, j)
             p.handleBumpyCollision(p, j)
-            // this.pnj.setVelocity(0,0);
-        }, null, this);
+        }, null, this)
 
         //// Layers Loading
         this.layers = []
@@ -124,7 +126,7 @@ export default class GameScene extends BaseScene {
             // could use map.layers[i].name as name
             this.layers[i] = map
                 .createStaticLayer(i, tileset)
-            this.layers[i].setDepth(i);
+            this.layers[i].setDepth(i)
             if (i == 0) {
                 // Layer 0 is for transactions only 
                 this.layers[0].setCollisionByProperty({
@@ -135,12 +137,12 @@ export default class GameScene extends BaseScene {
                     collides: true
                 })
 
-                this.physics.add.collider(this.player, this.layers[i])// ALT: execMapCollision, checkMapCollision, this)
+                this.physics.add.collider(this.player, this.layers[i]) // ALT: execMapCollision, checkMapCollision, this)
                 this.physics.add.collider(this.pnjsGroup, this.layers[i], null, null, this)
             }
             console.log(map.layers[i].name, "depth:", i)
         }
-        // alt: to create a collidable layer         obstacles.setCollisionByExclusion([-1]);
+        // alt: to create a collidable layer: obstacles.setCollisionByExclusion([-1]);
 
         //// Control Player
         this.cameras.main.startFollow(this.player, true)
@@ -148,18 +150,18 @@ export default class GameScene extends BaseScene {
         // Trick to avoid bleeding
         //this.cameras.main.roundPixels = true;
 
-
-
         this.input.mouse.disableContextMenu()
 
         //// Quests (To be factorised in an object?)
-        if(DEBUG)
-            console.log("pnjsGroup",this.pnjsGroup.getChildren())
+        if (DEBUG)
+            console.log("pnjsGroup", this.pnjsGroup.getChildren())
             
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
-        console.log({andres})
-        const timeout = DEBUG ? 0 :4000
-        if (window.localStorage.getItem('blockQuestComplete')){
+        console.log({
+            andres
+        })
+        const timeout = DEBUG ? 0 : 4000
+        if (window.localStorage.getItem('blockQuestComplete')) {
             this.quest = "get a fox"
             setTimeout(() => {
                 andres.says("Welcome back. You should go directly talk to the fox, just south from here")
@@ -188,8 +190,7 @@ export default class GameScene extends BaseScene {
             loop: true
         })
 
-
-        globalEvents.on("transactions-complete", ()=>{
+        globalEvents.on("transactions-complete", () => {
                        
             andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! ')
             this.quest = "mine a block"
@@ -197,8 +198,7 @@ export default class GameScene extends BaseScene {
 
         })
 
-
-        globalEvents.on("mining-complete", ()=>{
+        globalEvents.on("mining-complete", () => {
 
             const eng = this.pnjsGroup.getChildren().find(p => p.name === "engineer")
             eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, talk to the fox near the lake')
@@ -206,7 +206,7 @@ export default class GameScene extends BaseScene {
             this.sound.play("holy")
             const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
             this.add.overlap
-            window.localStorage.setItem('blockQuestComplete', true);
+            window.localStorage.setItem('blockQuestComplete', true)
 
         })
 
@@ -214,30 +214,24 @@ export default class GameScene extends BaseScene {
         const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
 
         const BuyUSDCObj = map.findObject("Helpers", obj => obj.name === "BuyUSDC")
-        this.add.image(BuyUSDCObj.x+8,BuyUSDCObj.y-8,"cryptos",0).setScale(0.8).setDepth(5)
-        this.BuyUSDC = this.add.image(BuyUSDCObj.x-8,BuyUSDCObj.y-8,"cryptos",10)
+        this.add.image(BuyUSDCObj.x + 8, BuyUSDCObj.y - 8, "cryptos", 0).setScale(0.8).setDepth(5)
+        this.BuyUSDC = this.add.image(BuyUSDCObj.x - 8, BuyUSDCObj.y - 8, "cryptos", 10)
         this.BuyUSDC.setDepth(5)
         this.physics.add.existing(this.BuyUSDC)
         if (DEBUG)
-            console.log("BUYUSDC",this.BuyUSDC)
-
+            console.log("BUYUSDC", this.BuyUSDC)
         
         const BuyCoffeeObj = map.findObject("Helpers", obj => obj.name === "BuyCoffee")
-        this.BuyCoffee = this.add.image(BuyCoffeeObj.x,BuyCoffeeObj.y)
+        this.BuyCoffee = this.add.image(BuyCoffeeObj.x, BuyCoffeeObj.y)
         this.BuyCoffee.setDepth(5)
         this.physics.add.existing(this.BuyCoffee)
 
-        
-
-        
     }
 
     update(t, dt) {
-
         if (this.player) {
             this.player.update(this.inputKeys, t, dt)
         }
-
     }
 
 }

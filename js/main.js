@@ -4,12 +4,12 @@ import PreloaderScene from "./PreloaderScene.js"
 import InterfaceScene from "./InterfaceScene.js"
 
 const config = {
-    width:400,
-    height:300,
+    width: 400,
+    height: 300,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        zoom:2,
+        zoom: 2,
     },
     backgroundColor: "#111111",
     pixelArt: true, // supposed to avoid blur in scaling. I didn't experience any anyway
@@ -26,9 +26,8 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug:DEBUG,
-            gravity:{y:0},
-
+            debug: DEBUG,
+            gravity:{y: 0},
         } 
     },
 
@@ -39,4 +38,4 @@ const game = new Phaser.Game(config)
 console.log("Game loaded")
 
 // Necessary?
-window.focus();
+window.focus()

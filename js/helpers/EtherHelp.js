@@ -1,5 +1,4 @@
-
-import realAbi from '../../contracts/RealSimple.abi.js';
+import realAbi from '../../contracts/RealSimple.abi.js'
 import globalEvents from './globalEvents.js'
 
 // Config
@@ -8,74 +7,83 @@ const network = 'ropsten'
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
 export default class EtherHelp {
-    
-    constructor(){
+
+    constructor() {
 
     }
-    initialisePortis(){
-        return new Promise( async (resolve, reject)=> {
-            if(this.portis)
+
+    initialisePortis() {
+        return new Promise(async (resolve, reject) => {
+            if (this.portis)
                 reject()
-            this.portis = new Portis(portisID, network,  { 
+            this.portis = new Portis(portisID, network, {
                 gasRelay: true,
-                registerPageByDefault: true 
+                registerPageByDefault: true
             })
-            this.provider = new ethers.providers.Web3Provider(this.portis.provider);
-            await  this.portis.provider.enable()
-            const accounts = await this.provider.listAccounts();
+            this.provider = new ethers.providers.Web3Provider(this.portis.provider)
+            await this.portis.provider.enable()
+            const accounts = await this.provider.listAccounts()
             this.account = accounts[0]
             this.signer = this.provider.getSigner()
-            this.realContract = await new ethers.Contract( realAddress , realAbi , this.signer )
-            globalEvents.emit('connected',this.account)
+            this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
+            globalEvents.emit('connected', this.account)
             console.log("connected")
-            
-            resolve() 
+
+            resolve()
         })
     }
-    getRealBalance(){
-        return new Promise( async (resolve, reject)=> {
+
+    getRealBalance() {
+        return new Promise(async (resolve, reject) => {
             const realBalance = await this.realContract.balanceOf(this.account)
-            console.log({realBalance})
+            console.log({
+                realBalance
+            })
             this.realBalance = ethers.utils.formatUnits(realBalance, 0)
-            resolve(this.realBalance) 
+            resolve(this.realBalance)
         })
     }
-    buyCoffee(){
+
+    buyCoffee() {
         this.realContract.buyCoffee()
-        // TODO,  deal better with the ongoing transaction
-        .then(()=> { 
-            console.log("we got coffee!")
-            globalEvents.emit('usdc-transaction',-1)
-            globalEvents.emit('adding-coffee')
+            // TODO,  deal better with the ongoing transaction
+            .then(() => {
+                console.log("we got coffee!")
+                globalEvents.emit('usdc-transaction', -1)
+                globalEvents.emit('adding-coffee')
 
-        })
+            })
 
     }
-    buyUSDC(){
+
+    buyUSDC() {
         if (DEBUG)
             console.log("Calling", this.realContract)
         this.realContract.buyUSDC()
-        .then(()=> {
-            console.log("we got USDC!")
-            globalEvents.emit('real-transaction',-1)
-            globalEvents.emit('usdc-transaction',3)
-        })
+            .then(() => {
+                console.log("we got USDC!")
+                globalEvents.emit('real-transaction', -1)
+                globalEvents.emit('usdc-transaction', 3)
+            })
     }
 
 
 
-    async isParticipant(){
+    async isParticipant() {
 
         return await this.realContract.participants(this.account)
     }
-  
-    async participate(){
-        return new Promise( async (resolve, reject)=> {
-            this.portis.isLoggedIn().then(async ({ error, result }) => {
+
+    async participate() {
+        return new Promise(async (resolve, reject) => {
+            this.portis.isLoggedIn().then(async ({
+                error,
+                result
+            }) => {
                 await this.realContract.participate()
-                resolve() 
+                resolve()
             })
         })
-        // .error( (err) => console.error(err) )
+        .catch( (err) => console.error(err) )
     }
 }

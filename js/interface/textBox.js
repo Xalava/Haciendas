@@ -5,7 +5,7 @@ const COLOR_PRIMARY = 0x0a0a8e;
 const COLOR_LIGHT = 0x9b9b9b;
 const COLOR_DARK = 0x260e04;
 
-export default function createTextBox (scene, content) {
+export default function createTextBox(scene, content) {
     var wrapWidth = 350
     var textBox = scene.rexUI.add.textBox({
             x: 5,
@@ -15,7 +15,7 @@ export default function createTextBox (scene, content) {
                 .setStrokeStyle(1, COLOR_LIGHT),
             // icon: scene.rexUI.add.roundRectangle(0, 0, 2, 2, 20, COLOR_DARK),
             // text: getBuiltInText(scene, wrapWidth, fixedWidth, fixedHeight),
-            text: getBBcodeText(scene, wrapWidth,0,0),//Additional parameters: fixedWidth, fixedHeight
+            text: getBBcodeText(scene, wrapWidth, 0, 0), //Additional parameters: fixedWidth, fixedHeight
 
             action: scene.add.image(0, 0, 'nextPage').setTint(COLOR_LIGHT).setVisible(false).setScale(0.5),
 
@@ -29,20 +29,20 @@ export default function createTextBox (scene, content) {
             }
         })
         .setOrigin(0)
-		.layout()
-		.start(content, 30)
+        .layout()
+        .start(content, 30)
 
-		const letterEnter = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-		letterEnter.on('down', function(event) {
+    const letterEnter = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    letterEnter.on('down', function (event) {
 
-			var icon = textBox.getElement('action').setVisible(false);
-            textBox.resetChildVisibleState(icon);
-            if (textBox.isTyping) {
-                textBox.stop(true);
-            } else {
-                textBox.typeNextPage();
-            }			
-		}, this)
+        var icon = textBox.getElement('action').setVisible(false);
+        textBox.resetChildVisibleState(icon);
+        if (textBox.isTyping) {
+            textBox.stop(true);
+        } else {
+            textBox.typeNextPage();
+        }
+    }, this)
     textBox
         .setInteractive()
         .on('pointerdown', function () {
@@ -51,17 +51,17 @@ export default function createTextBox (scene, content) {
             if (this.isTyping) {
                 this.stop(true);
             } else {
-				if(this.isLastPage){
-					this.destroy()
-				} else {
-					this.typeNextPage();
-				}
+                if (this.isLastPage) {
+                    this.destroy()
+                } else {
+                    this.typeNextPage();
+                }
             }
         }, textBox)
         .on('pageend', function () {
             if (this.isLastPage) {
-				letterEnter.on('down', function(event) {
-					this.destroy()		
+                letterEnter.on('down', function (event) {
+                    this.destroy()
                 }, this)
                 setTimeout(() => {
                     this.destroy()
