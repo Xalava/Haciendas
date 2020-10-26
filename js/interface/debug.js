@@ -3,7 +3,7 @@ import globalEvents from "../helpers/globalEvents.js"
 // Display collisions, from https://codepen.io/mikewesthad/pen/BVeoYP
 export default function createDebugSwitch(scene) {
     // Switch to debug mode if it was not set initially
-    scene.input.keyboard.once("keydown_D", event => {
+    scene.input.keyboard.once("keydown_CAPS-LOCK", event => {
         DEBUG = true
         console.log('Switch to DEBUG mode')
         scene.physics.debug = true

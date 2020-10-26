@@ -2,7 +2,7 @@
   "name": "haciendas",
   "version": "1.0.0",
   "description": "",
-  "main": "buidler.config.js",
+  "main": "hardhat.config.js",
   "directories": {
     "test": "test"
   },

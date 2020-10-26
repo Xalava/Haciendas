@@ -76,7 +76,7 @@ export default class GameScene extends BaseScene {
         ////Trying camera 
         if (!DEBUG) // debug shortcut
             this.cameras.main.pan(startPosition.x, startPosition.y, 4000, 'Sine.easeInOut')
-
+        this.scene.launch('interfaceScene')
         //// Object on map management
         this.minesGroup = this.physics.add.group()
         const objectsLayer = map.getObjectLayer('Helpers')

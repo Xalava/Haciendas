@@ -17,7 +17,7 @@ const config = {
     parent: "game",
     scene: [PreloaderScene, 
             WelcomeScene, 
-            GameScene, 
+            GameScene,
             InterfaceScene
             ],
     dom: {

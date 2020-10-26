@@ -5,11 +5,12 @@ import createDebugSwitch from "./interface/debug.js"
 
 import createTextBox from "./interface/textBox.js"
 import EtherHelp from "./helpers/EtherHelp.js"
+import Network from "./helpers/network.js"
 
 export default class InterfaceScene extends BaseScene
 {
 	constructor(){
-		super({ key: 'interfaceScene' , active: true})
+		super({ key: 'interfaceScene' , active: false})
 		// Could be more coherent elsewhere
 		this.usdc = 0
 		this.real = 0
@@ -46,8 +47,7 @@ export default class InterfaceScene extends BaseScene
 
 		if(this.real == 0 && value ==0){
 			// refreshing case
-			const gameScene = this.scene.get('gameScene')
-			this.real =  parseInt(await gameScene.eth.getRealBalance())
+			this.real =  parseInt(await this.gameScene.eth.getRealBalance())
 			//Math.floor( floatvalue )
 			if(DEBUG)
 				console.log("Current balance",this.real)
@@ -105,7 +105,14 @@ export default class InterfaceScene extends BaseScene
 		}
 	}
 
+	updateChat(name, message) {
+		this.chat.innerHTML += `<div> ${name}: <i>${message}</i></div>`
+		this.chat.scrollTop = this.chat.scrollHeight;
+	}
+
 	create(){
+		this.gameScene = this.scene.get('gameScene')
+
 		//// Inputs
         this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on('down', function(event) {
@@ -114,15 +121,33 @@ export default class InterfaceScene extends BaseScene
 			else 
 				this.invGraphics.visible = true
 		}, this)
-		this.input.keyboard.once("keydown_M", event => {
-			const element = this.add.dom(350, 230).createFromCache('message')
-			element.scale = 0.5
-			this.input.keyboard.once("keydown_ENTER", event => {
 
-				console.log(document.getElementById('message').value)
-				element.destroy()
+		// chat
+		this.network = new Network()
+		this.add.dom(380, 150).createFromCache('message')
+		// this.chatElement.scale = 
+		this.chat = document.getElementById('chat')
+		this.chatInput = document.getElementById('chatInput')
+		// this.input.keyboard.on("keydown_TAB", event => {
+		// TODO : Disable input on focus
+		this.chatInput.addEventListener('focus', (event) => {
+			this.gameScene.scene.pause()
+		});
+			this.input.keyboard.on("keydown_ENTER", event => {
+				this.gameScene.scene.resume()
+				const message = this.chatInput.value
+				if (message == "")
+					return
+				let myname = "Sato"
+				if(this.gameScene.eth){
+					myname = this.gameScene.eth.account.substr(0,6)
+				}
+				this.network.says (myname,message)
+				this.chatInput.value = ""
+				this.chatInput.blur()
+				// element.destroy()
 			})
-		})
+		// })
 
 		//// Debugging shortcuts       
 		createDebugSwitch(this)
@@ -210,8 +235,9 @@ export default class InterfaceScene extends BaseScene
 			this.sound.play("holy")
 		})
 		globalEvents.on('says', (message)=>createTextBox(this, message), this)
-	
+		globalEvents.on('chat-says', (name, message)=>this.updateChat(name,message), this)
 	}
+
 
 	update(){
 
