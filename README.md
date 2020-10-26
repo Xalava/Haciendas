@@ -1,1 +1,3 @@
 # Haciendas
+
+liveserver --watch="js"
