@@ -1,11 +1,11 @@
 export const Directions = {
-	UP: {i: 0, x: 0, y: -1},
-	DOWN: {i: 1, x: 0, y: 1},
-	LEFT: {i: 2, x: -1, y: 0},
-    RIGHT: {i: 3, x: 1, y: 0},
+	UP: {i: 0, x: 0, y: -1, name:"up"},
+	DOWN: {i: 1, x: 0, y: 1, name:"down"},
+	LEFT: {i: 2, x: -1, y: 0, name:"left"},
+    RIGHT: {i: 3, x: 1, y: 0, name:"right"},
 }
 
-export const DirectionsArray = [
+const DirectionsArray = [
     "UP",
     "DOWN",
     "LEFT",
@@ -20,3 +20,5 @@ export const randomDirection = (exclude) => {
     // console.log(Directions[DirectionsArray[newDirection]])
 	return Directions[DirectionsArray[newDirection]]
 }
+
+export const stdVelocity = 100

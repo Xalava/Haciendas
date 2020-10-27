@@ -42,7 +42,6 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	createPNJtalks(scene, texture, frame, name) {
-		console.log("generate PNJTalk", texture, frame, name)
 		scene.anims.create({
 			key: name + '-talks',
 			frames: scene.anims.generateFrameNumbers(texture, {

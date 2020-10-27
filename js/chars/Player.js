@@ -1,14 +1,15 @@
-import {Directions, DirectionsArray} from "../helpers/directions.js"
+import {Directions, stdVelocity} from "../helpers/directions.js"
 import globalEvents from "../helpers/globalEvents.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
-    constructor(scene, x, y, texture, frame) {
-        super(scene, x, y, texture, frame)
-        this.anims.play('idle-down')
+    constructor(scene, x, y, char){
+        super(scene, x, y, char.texture, char.frame)
+        this.anims.play(char.name+'-idle-down')
+        this.char = char
         this.direction = Directions.DOWN
         this.ongoingAction = false
-
+        this.timerSinceReport = 0
     }
 
     action(sprite, frame) {
@@ -24,37 +25,62 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(inputKeys, t, dt) {
-        const velocity = 100
         // console.log(inputKeys, t, dt)
         if (inputKeys.left.isDown) {
-            this.body.setVelocityX(-velocity)
-            this.anims.play('left', true)
+            this.body.setVelocityX(-stdVelocity)
+            this.anims.play(this.char.name+'-left', true)
             // TODO (maybe)
             // this.play('steps')
             // var music = this.sound.add('steps')
             // music.play()
+            if(this.direction != Directions.LEFT && globalNetwork)
+                globalNetwork.reportPosition (this.x, this.y, Directions.LEFT, true) 
+                this.timerSinceReport = 0
             this.direction = Directions.LEFT
         } else if (inputKeys.right.isDown) {
-            this.body.setVelocityX(velocity)
-            this.anims.play('right', true)
+            this.body.setVelocityX(stdVelocity)
+            this.anims.play(this.char.name+'-right', true)
+            if(this.direction != Directions.RIGHT && globalNetwork)
+                globalNetwork.reportPosition (this.x, this.y, Directions.RIGHT, true) 
+                this.timerSinceReport = 0
             this.direction = Directions.RIGHT
         } else if (inputKeys.up.isDown) {
-            this.body.setVelocityY(-velocity)
-            this.anims.play('up', true)
+            this.body.setVelocityY(-stdVelocity)
+            this.anims.play(this.char.name+'-up', true)
+            if(this.direction != Directions.UP && globalNetwork)
+                globalNetwork.reportPosition (this.x, this.y, Directions.UP, true) 
+                this.timerSinceReport = 0
             this.direction = Directions.UP
         } else if (inputKeys.down.isDown) {
-            this.body.setVelocityY(velocity)
-            this.anims.play('down', true)
-            this.flipX = false
+            this.body.setVelocityY(stdVelocity)
+            this.anims.play(this.char.name+'-down', true)
+            // ALT: this.flipX = false
+            if(this.direction != Directions.DOWN && globalNetwork)
+                globalNetwork.reportPosition (this.x, this.y, Directions.DOWN, true) 
+                this.timerSinceReport = 0
             this.direction = Directions.DOWN
         } else {
-            this.body.setVelocityX(0)
-            this.body.setVelocityY(0)
-            if (this.anims.currentAnim && this.anims.currentAnim.key.substring(0, 4) !== "idle") {
-                this.anims.play('idle-' + DirectionsArray[this.direction.i].toLowerCase())
+            if (this.body.speed != 0){
+                if(globalNetwork)
+                    globalNetwork.reportPosition (this.x, this.y,this.direction, false)
+                    this.timerSinceReport = 0
+                this.body.setVelocityX(0)
+                this.body.setVelocityY(0)
+                if (this.anims.currentAnim && this.anims.currentAnim.key.substring(0, 4) !== "idle") {
+                    this.anims.play(this.char.name+'-idle-' + this.direction.name)
+                }
             }
         }
+        this.timerSinceReport += dt 
+        // console.log(dt)
+        // Not a great solution, but avoid large discrepencies. It should be every 4 steps on average
+        if( this.timerSinceReport = 0 > 60){
+            globalNetwork.reportPosition (this.x, this.y,this.direction, this.body.speed >0 ? true : false)
+        }
 
+
+
+        // should be moved to interface to not catch chat space
         if (Phaser.Input.Keyboard.JustDown(inputKeys.space)) {
             // alt: inputKeys.space.Down
             // if (this.ongoingAction == false ){
@@ -147,8 +173,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 }
 
-Phaser.GameObjects.GameObjectFactory.register('player', function (x, y, texture, frame) {
-    var sprite = new Player(this.scene, x, y, texture, frame)
+Phaser.GameObjects.GameObjectFactory.register('player', function (x, y, char) {
+    var sprite = new Player(this.scene, x, y, char)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

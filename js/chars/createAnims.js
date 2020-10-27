@@ -31,55 +31,57 @@ export function createObjectsAnims(anims){
     })
 }
 
+// We use implicitely characters. But the full object is given so we don't need the corresponding file
 export function createCharAnims(anims, char){
+    if(DEBUG)
+        console.log("Creating animations for ", char)
     anims.create({
-        key: 'left',
-        frames: anims.generateFrameNumbers('characters', { start:char+11, end:char+13 }),
+        key: char.name+'-left',
+        frames: anims.generateFrameNumbers(char.texture, {start: char.frame+11, end: char.frame+13}),
         frameRate: 10,
         repeat: -1
     })
-    
     anims.create({
-        key: 'idle-left',
-        frames: [ { key: 'characters', frame:char+11+1 }],
+        key: char.name+'-idle-left',
+        frames: [ { key: char.texture, frame:char.frame+11+1 }],
         frameRate: 1,
         repeat: 0
     })
     anims.create({
-        key: 'right',
-        frames: anims.generateFrameNumbers('characters', { start:char+11+12, end:char+13+12 }),
+        key: char.name+'-right',
+        frames: anims.generateFrameNumbers(char.texture, {start: char.frame+11+12, end: char.frame+13+12}),
         frameRate: 10,
         repeat: -1
     })
     anims.create({
-        key: 'idle-right',
-        frames: [ { key: 'characters', frame: char+11+12+1 }],
+        key: char.name+'-idle-right',
+        frames: [ { key: char.texture, frame: char.frame+11+12+1 }],
         frameRate: 1,
         repeat: 0
     })
     anims.create({
-        key: 'up',
-        frames: anims.generateFrameNumbers('characters', { start:char+11+24, end:char+13+24 }),
+        key: char.name+'-up',
+        frames: anims.generateFrameNumbers(char.texture, {start: char.frame+11+24, end: char.frame+13+24}),
         frameRate: 10,
         repeat: -1
     })
     anims.create({
-        key: 'idle-up',
-        frames: [ { key: 'characters', frame:char+12+24 } ],
+        key: char.name+'-idle-up',
+        frames: [ { key: char.texture, frame: char.frame+12+24 } ],
         
         frameRate: 1,
         repeat: 0
     })
     anims.create({
-        key: 'down',
-        frames: anims.generateFrameNumbers('characters', { start:char-1, end:char+1 }),
+        key: char.name+'-down',
+        frames: anims.generateFrameNumbers(char.texture, {start:char.frame-1, end:char.frame+1}),
         frameRate: 10,
         repeat: -1
     })
     
     anims.create({
-        key: 'idle-down',
-        frames: [ { key: 'characters', frame:char } ],
+        key: char.name+'-idle-down',
+        frames: [ { key: char.texture, frame:char.frame } ],
         frameRate: 1,
         repeat: -1
     })

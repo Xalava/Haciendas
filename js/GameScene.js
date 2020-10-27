@@ -1,15 +1,17 @@
 //// Import tools
 import BaseScene from "./BaseScene.js"
-import {
-    createObjectsAnims,
-    createCharAnims
-} from "./chars/createAnims.js"
+import localStorageAvailable from "./helpers/localStorageAvailable.js"
 
 //// Import objects and characters
 import Player from "./chars/Player.js"
 import Transaction from "./object/Transaction.js"
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
+// characters and objects helpers
+import {charactersList} from "./chars/charactersList.js"
+import {createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
+
+//// Global objects
 import globalEvents from "./helpers/globalEvents.js"
 import EtherHelp from "./helpers/EtherHelp.js"
 
@@ -19,11 +21,11 @@ export default class GameScene extends BaseScene {
     }
 
     init(data) {
-        // We expect a character choice from prior scene. Otherwise default is 4
+        // We expect a character choice from prior scene. Otherwise default is boy
         if (data.currentChar)
             this.currentChar = data.currentChar
         else
-            this.currentChar = 4
+            this.currentChar = charactersList.BOY
 
         this.inputKeys = this.input.keyboard.createCursorKeys()
     }
@@ -48,11 +50,7 @@ export default class GameScene extends BaseScene {
                 y: 600
             }
 
-        return {
-            map,
-            tileset,
-            startPosition
-        }
+        return {map, tileset, startPosition}
     }
 
     create() {
@@ -65,15 +63,19 @@ export default class GameScene extends BaseScene {
 
         //// World collision
         this.physics.world.setBounds(0, 0, map.width * 16, map.heigth * 16) // (x, y, width, height)
-
         //// Create animations
         createObjectsAnims(this.anims)
-        createCharAnims(this.anims, this.currentChar)
+
+        for(var c in charactersList) {
+            createCharAnims(this.anims, charactersList[c]) 
+        }
+        
 
         //// Player
-        this.player = this.add.player(startPosition.x, startPosition.y, 'characters', this.currentChar)
+        console.log(this.currentChar)
+        this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
         
-        ////Trying camera 
+        //// Trying camera 
         if (!DEBUG) // debug shortcut
             this.cameras.main.pan(startPosition.x, startPosition.y, 4000, 'Sine.easeInOut')
         this.scene.launch('interfaceScene')
@@ -101,7 +103,6 @@ export default class GameScene extends BaseScene {
         // We assume each object on the PNJ layer has a name and a first custom property "frame"
         const PNJsLayer = map.getObjectLayer('PNJs')
         PNJsLayer.objects.forEach(pnjObj => {
-            console.log({pnjObj})
             // We extract type
             const prop = pnjObj.properties.find(p => p.name == "type")
             const type = prop ? prop.value : ""
@@ -161,11 +162,17 @@ export default class GameScene extends BaseScene {
             andres
         })
         const timeout = DEBUG ? 0 : 4000
-        if (window.localStorage.getItem('blockQuestComplete')) {
-            this.quest = "get a fox"
-            setTimeout(() => {
-                andres.says("Welcome back. You should go directly talk to the fox, just south from here")
-            }, timeout);            
+
+        
+
+        
+        if(localStorageAvailable()){
+            if (window.localStorage.getItem('blockQuestComplete')) {
+                this.quest = "get a fox"
+                setTimeout(() => {
+                    andres.says("Welcome back. You should go directly talk to the fox, just south from here")
+                }, timeout);   
+            }         
         } else {
             this.quest = "catch transactions"
             setTimeout(() => {
@@ -206,7 +213,9 @@ export default class GameScene extends BaseScene {
             this.sound.play("holy")
             const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
             this.add.overlap
-            window.localStorage.setItem('blockQuestComplete', true)
+            if(localStorageAvailable()){
+                window.localStorage.setItem('blockQuestComplete', true)
+            }
 
         })
 
@@ -226,6 +235,48 @@ export default class GameScene extends BaseScene {
         this.BuyCoffee.setDepth(5)
         this.physics.add.existing(this.BuyCoffee)
 
+        // Network players logic. Data in globalNetwork.players TODO move both to dedicated object
+        this.playersGroup = this.physics.add.group()
+        // Basic player collision
+        this.physics.add.collider(this.player, this.playersGroup,  (p,g) => {
+            p.handleBumpyCollision(p,g)
+            
+            g.body.setVelocity(0,0)
+        }) 
+
+        globalEvents.on('playerAdd', (id)=>{
+            console.log("Players", globalNetwork.players, id)
+            const newPlayer = this.add.sprite(globalNetwork.players[id].x, globalNetwork.players[id].y, globalNetwork.players[id].char.texture, globalNetwork.players[id].char.frame);
+            this.playersGroup.add(newPlayer)
+            newPlayer.setDepth(10)
+            
+            newPlayer.playerId = id            
+            newPlayer.direction = globalNetwork.players[id].dir
+            globalNetwork.players[id].sprite = newPlayer
+            console.log("New Player Sprite", globalNetwork.players[id].sprite)
+        })
+
+        // Moved to network for efficiency
+
+        // globalEvents.on('playerUpdate', (id)=>{
+        //     // TODO maybe, use globalNetwork.players to store reference to each object for more efficein
+        //     this.playersGroup.getChildren().forEach(function (p) {
+        //         if (p.id === id) {
+        //           p.destroy();
+        //         }
+        //     })
+
+        // }, this)
+    
+
+        // globalEvents.on('playerDelete', (id)=>{
+        //     this.playersGroup.getChildren().forEach(function (p) {
+        //         if (p.id === id) {
+        //           p.destroy();
+        //         }
+        //     })
+        // }, this)
+
     }
 
     update(t, dt) {
@@ -233,5 +284,8 @@ export default class GameScene extends BaseScene {
             this.player.update(this.inputKeys, t, dt)
         }
     }
+    // addNetworkPlayer(){}
+    // updateNetworkPlayer(){}
+    // deleteNetworkPlayer(){}
 
 }

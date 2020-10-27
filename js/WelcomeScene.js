@@ -1,5 +1,5 @@
 import BaseScene from "./BaseScene.js"
-
+import {charactersList} from "./chars/charactersList.js"
 export default class WelcomeScene extends BaseScene {
     constructor() {
         super("welcomeScene")
@@ -21,13 +21,13 @@ export default class WelcomeScene extends BaseScene {
             if (event.target.localName === 'button') {
                 console.log("Choice", event.target.innerText)
                 if (event.target.innerText == "Boy")
-                    this.currentChar = 4
+                    this.currentChar = charactersList.BOY
 
                 if (event.target.innerText == "Cyborg")
-                    this.currentChar = 1
+                    this.currentChar = charactersList.CYBORG
 
                 if (event.target.innerText == "Girl")
-                    this.currentChar = 7
+                    this.currentChar = charactersList.GIRL
 
                 this.scene.start('gameScene', { currentChar: this.currentChar })
             }

@@ -123,7 +123,7 @@ export default class InterfaceScene extends BaseScene
 		}, this)
 
 		// chat
-		this.network = new Network()
+		globalNetwork = new Network(this.gameScene.player)
 		this.add.dom(380, 150).createFromCache('message')
 		// this.chatElement.scale = 
 		this.chat = document.getElementById('chat')
@@ -142,7 +142,7 @@ export default class InterfaceScene extends BaseScene
 				if(this.gameScene.eth){
 					myname = this.gameScene.eth.account.substr(0,6)
 				}
-				this.network.says (myname,message)
+				globalNetwork.says (myname,message)
 				this.chatInput.value = ""
 				this.chatInput.blur()
 				// element.destroy()
