@@ -43,7 +43,7 @@ export default class GameScene extends BaseScene {
         const tileset = map.addTilesetImage('Outside7', 'outsideTiles')
         console.log("Map and tiles loaded")
         // Set start Position from map
-        const startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
+        let startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
         if (!startPosition)
             startPosition = {
                 x: 600,
@@ -166,19 +166,16 @@ export default class GameScene extends BaseScene {
         
 
         
-        if(localStorageAvailable()){
-            if (window.localStorage.getItem('blockQuestComplete')) {
-                this.quest = "get a fox"
-                setTimeout(() => {
-                    andres.says("Welcome back. You should go directly talk to the fox, just south from here")
-                }, timeout);   
-            }         
+        if(localStorageAvailable() && window.localStorage.getItem('blockQuestComplete')){
+            this.quest = "get a fox"
+            setTimeout(() => {
+                andres.says("Welcome back. You should go directly talk to the fox, just south from here")
+            }, timeout);   
         } else {
             this.quest = "catch transactions"
             setTimeout(() => {
                 andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
             }, timeout);
-                
         }
         this.transactionsCaptured = 0
         //// Transactions logic
