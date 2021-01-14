@@ -22,8 +22,8 @@ export default class InterfaceScene extends BaseScene
 			{ frameWidth: 16, frameHeight: 16 }
 		)    
 		this.load.scenePlugin({
-            key: 'rexuiplugin',
-            url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+			key: 'rexuiplugin',
+			url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/dc73922707dc7dc861f73a93d9be139ceca20fdc/dist/rexuiplugin.min.js',
             sceneKey: 'rexUI'
         })
  
