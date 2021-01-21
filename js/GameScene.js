@@ -44,6 +44,16 @@ export default class GameScene extends BaseScene {
         console.log("Map and tiles loaded")
         // Set start Position from map
         let startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
+        
+        if(DEBUG){
+            // In debug mode, we start closer to the fox
+            startPosition.y+=200
+            startPosition.x-=100
+            // We progress to the end of the first quest directly to transactions stuff
+            if(localStorageAvailable()){
+                window.localStorage.setItem('blockQuestComplete', true)
+            }
+        }
         if (!startPosition)
             startPosition = {
                 x: 600,
