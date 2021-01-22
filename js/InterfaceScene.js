@@ -7,6 +7,8 @@ import createTextBox from "./interface/textBox.js"
 import EtherHelp from "./helpers/EtherHelp.js"
 import Network from "./helpers/network.js"
 
+const BASEBLUE = 0x031f6c
+
 export default class InterfaceScene extends BaseScene
 {
 	constructor(){
@@ -31,7 +33,36 @@ export default class InterfaceScene extends BaseScene
 		this.load.html('message', 'html/message.html')
 
 	}
+	// Create base blue interface box
+	createBlueBox(x, y, w, h ){
+		let graph = this.add.graphics()
+		graph.lineStyle(1, 0xffffff)
+		graph.fillStyle(BASEBLUE, 1)        
+		graph.strokeRect(x, y, w, h)
+		graph.fillRect(x, y, w, h)
+		// graph.visible = false
+		return graph 
+	}
 
+	openTransactionDialog(counterparty){
+		this.invGraphics.setVisible(true)
+		// sendbox
+		let sendBox = this.createBlueBox(255, 20, 60, 200)
+		let playerSprite = this.physics.add.staticSprite(265, 30, 'characters', counterparty.char.frame)
+		let sendText = this.add.text(275, 30, 'Send' , { fontSize: 10})
+		this.transactionDialog = this.add.group()	
+		this.transactionDialog.add(sendBox)
+		this.transactionDialog.add(playerSprite)
+		this.transactionDialog.add(sendText)
+
+		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
+		// this.invGraphics = this.add.group()	
+		// this.invGraphics.add(invBox)
+		// this.invGraphics.add(playerSprite)
+		// // this.invGraphics.add(tokenText)
+		// this.invGraphics.setVisible(false)
+	}
+	
 	handleTransactionsChange(nbTransactions){
 		this.transactionsDisplay.children.each((obj, idx) => {
 			if (idx < nbTransactions){
@@ -116,11 +147,30 @@ export default class InterfaceScene extends BaseScene
 		//// Inputs
         this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on('down', function(event) {
-			if (this.invGraphics.visible)
-				this.invGraphics.visible = false
-			else 
-				this.invGraphics.visible = true
+			this.invGraphics.toggleVisible()
+			// Typical group
+			// group.setVisible(value);
+			
+			// archive with obeject directly
+			// if (this.invGraphics.visible)
+			// 	this.invGraphics.visible = false
+			// else 
+			// 	this.invGraphics.visible = true
 		}, this)
+
+		this.input.keyboard
+			.addKey(Phaser.Input.Keyboard.KeyCodes.E)
+			.on('down', function(event) {
+				if (!this.transactionDialog){
+					this.openTransactionDialog(this.gameScene.player)
+				} else {
+					this.transactionDialog.destroy(true)
+					this.transactionDialog = null
+					// this.transactionDialog.clear()
+					// this.transactionDialog = 0
+					this.invGraphics.setVisible(false)
+				}
+			}, this)
 
 		// chat
 		globalNetwork = new Network(this.gameScene.player)
@@ -154,22 +204,22 @@ export default class InterfaceScene extends BaseScene
 
 		////Interfaces
 
-		// Dialog graphics 
-		this.dialogGraphics = this.add.graphics()
-		this.dialogGraphics.lineStyle(1, 0xffffff)
-		this.dialogGraphics.fillStyle(0x031f6c, 1)        
-		this.dialogGraphics.strokeRect(5, 240, 350, 50)
-		this.dialogGraphics.fillRect(5, 240, 350, 50)
-		this.dialogGraphics.visible = false
 
 		// Inventory graphics available on pressing i
-		this.invGraphics = this.add.graphics()
-		this.invGraphics.lineStyle(1, 0xffffff)
-		this.invGraphics.fillStyle(0x031f6c, 1)        
-		this.invGraphics.strokeRect(5, 240, 350, 50)
-		this.invGraphics.fillRect(5, 240, 350, 50)
+		let invBox = this.createBlueBox(20, 20, 220, 200)
+		let playerSprite = this.physics.add.staticSprite(30, 30, 'characters', this.gameScene.player.char.frame)
+		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
+		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
+		this.invGraphics = this.add.group()	
+		this.invGraphics.add(invBox)
+		this.invGraphics.add(playerSprite)
+		// this.invGraphics.add(tokenText)
+		this.invGraphics.setVisible(false)
 
-		this.invGraphics.visible = false
+
+
+
+
 		
 		this.transactionsDisplay = this.add.group()
 
