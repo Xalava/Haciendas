@@ -13,7 +13,7 @@ const BASEBLUE = 0x031f6c
 const BASEBROWN = 0x8b4513
 
 // Mock, should be member of globalEth
-const inventory = {DAI:10, REAL:2, AAVE:1, USDC:3}
+const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
 
 export default class InterfaceScene extends BaseScene {
 	constructor() {
@@ -36,9 +36,10 @@ export default class InterfaceScene extends BaseScene {
 
 		this.load.image('nextPage', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png')
 		this.load.html('message', 'html/message.html')
+		this.load.html('pretransaction', 'html/pretransaction.html')
 
 	}
-	// Create base blue interface box
+	// Create base interface box
 	roundedBox(x, y, w, h, color) {
 		let graph = this.add.graphics()
 		graph.lineStyle(1, 0xffffff)
@@ -221,38 +222,83 @@ export default class InterfaceScene extends BaseScene {
 		let playerSprite = this.add.image(30, 30, 'characters', this.gameScene.player.char.frame)
 		this.invGraphics.add(playerSprite)
 
+		// Create a of inventory slots and display them
+		this.invSlots = this.add.group()
 		this.inventorySlots = []
 		for (let i = 0; i < 6; i++) {
 			for (let j = 0; j < 2; j++) {
-				const x = 40+ 32* i
+				const x = 36+ 32* i
 				const y = 60+ 32* j
-				const element = this.roundedBox(x, y, 22, 22,BASEBROWN)
+				const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
 				this.invGraphics.add(element)
-				element.invX = x
-				element.invY = y
+				element.invX = x+13
+				element.invY = y+13
+				this.invSlots.add(element)
 				this.inventorySlots.push(element)
+
 			}
 		}
+		// this.invGraphics.add(this.invSlots)
+		console.log(this.invSlots.getChildren())
 		let i=0 
-		let inventoryCoinObjects=[]
+		// let inventoryCoinObjects=[]
+		this.itemsGroup = this.add.group()
 		for (const token in inventory) {
 			let slot = this.inventorySlots[i++]
-			let coin = this.physics.add.sprite(slot.invX+11, slot.invY+11,'cryptos',cryptos[token].frame ).setInteractive()
-			let txt = this.add.text(slot.invX+20, slot.invY+20,inventory[token], { fontSize: 10 })
-			// let coinGroup = this.add.group()
+			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
+			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+				// We need a solution to manage large numbers. Attempt : 
+				// txt.setFixedSize(12, 0)
 
-			this.invGraphics.add(txt)
 
-			coin.setDepth(20)
-			inventoryCoinObjects.push(coin)
-			this.invGraphics.add(coin)
 
+			// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
+			// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+			let item = this.add.container(slot.invX,slot.invY,[coin, txt])
+			item.token = token // To keep it at hand 
+			// item.add(coin)
+			// item.add(txt)
+			item.setSize(20, 20);
+			item.setInteractive({ draggable: true })
+			// item.alpha= 1
+			this.input.setDraggable(item);
+			item.on('pointerover', function () {
+				// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
+				// coin.setTint(brighter);
+				// item.setTint(0x44ff44)
+				// Tooltipe
+				// let graph = this.add.graphics()
+				// graph.lineStyle(1, 0xffffff)
+				// graph.fillStyle(color, 1)
+				// graph.fillRoundedRect(x, y, w, h,4)
+				// graph.strokeRoundedRect(x, y, w, h,4)
+			})
+			item.on('pointerout', function () {
+
+				// coin.clearTint();
+		
+			});
+			// item.setInteractive()
+
+			// this.invGraphics.add(txt)
+
+			item.setDepth(20)
+			this.itemsGroup.add(item)
+			this.invGraphics.add(item)
+			// inventoryCoinObjects.push(item)
+			
 		}
-		this.input.setDraggable(inventoryCoinObjects);
+		// this.invGraphics.add(this.itemsGroup)
+		// this.input.setDraggable(this.itemsGroup.getChildren());
 		this.input.on('dragstart', function (pointer, gameObject) {
 			// when draged we look darker
-			gameObject.setTint(0x4f4f4f);
-	
+			// gameObject.coin.setTint(0x4f4f4f);
+			console.log("drag start")
+			if (gameObject.type == "Container"){
+				gameObject.list[0].setTint(0x4f4f4f)
+				gameObject.list[1].setStyle({color:'#999'})
+
+			}
 		});
 	
 		this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
@@ -262,11 +308,54 @@ export default class InterfaceScene extends BaseScene {
 	
 		});
 	
-		this.input.on('dragend', function (pointer, gameObject) {
-	
-			gameObject.clearTint();
+		this.input.on('dragend', function (pointer, gameObject, dropped) {
+            if (!dropped) {
+                gameObject.x = gameObject.input.dragStartX;
+                gameObject.y = gameObject.input.dragStartY;
+			}
+			
+			if (gameObject.type == "Container")
+				gameObject.list[0].clearTint()
+				gameObject.list[1].setStyle({ color : '#FFF', eeestrokeThickness: 1, stroke: "#000"})
+        })
+
+		this.input.on('drop', (pointer, gameObject, dropZone) => {
+
+			gameObject.x = dropZone.x+20;
+			gameObject.y = dropZone.y+20;
+			// TODO MAYBE : handle if a coin is present already
+			if(gameObject.token){
+				// We have a token! 
+				// Let's add the appropriate dialog
+				const el = this.add.dom(285, 150).createFromCache('pretransaction')
+				document.querySelector('#amount').value = inventory[gameObject.token]
+				console.log(gameObject.token, inventory, inventory[gameObject.token])
+				// let el = document.querySelector('#actionButton')
+				el.addListener('click').on('click', (event) => {
+					console.log(event)
+					// TODO trigger transaction
+
+				})
+
+			}
+
+			
 	
 		});
+	
+		//  A drop zone
+		var zone = this.add.zone(267, 69, 40, 40).setDropZone()
+		zone.setOrigin(0) // otherwise zone is centered around point above. This is messy in the documentation and phaser examples
+
+		//  Just a visual display of the drop zone
+		if(DEBUG&& false){
+			var graphics = this.add.graphics()
+			graphics.lineStyle(1, 0xffff00)
+				console.log("Zone",zone, zone.getBounds())
+			graphics.strokeRect(zone.x , zone.y , zone.input.hitArea.width, zone.input.hitArea.height)
+			graphics.setDepth(19)
+
+		}
 		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
 		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
 		
