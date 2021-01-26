@@ -9,7 +9,7 @@ import Network from "./helpers/network.js"
 import {cryptos} from "./helpers/cryptos.js"
 
 
-const BASEBLUE = 0x031f6c
+const BASEBLUE = 0x00031f6c
 const BASEBROWN = 0x8b4513
 
 // Mock, should be member of globalEth
@@ -50,24 +50,228 @@ export default class InterfaceScene extends BaseScene {
 		return graph
 	}
 
-	openTransactionDialog(counterparty) {
+	createInventoryDialog(){
+		// Inventory dialog, available pressing 'i', created once
+		this.invGraphics = this.add.group()
+
+		let invBox = this.roundedBox(20, 20, 220, 200,BASEBLUE)
+		this.invGraphics.add(invBox)
+
+		let playerSprite = this.add.image(30, 32, 'characters', this.gameScene.player.char.frame)
+		this.invGraphics.add(playerSprite)
+
+		// Create a of inventory slots and display them
+		this.invSlots = this.add.group()
+		this.inventorySlots = []
+		for (let i = 0; i < 6; i++) {
+			for (let j = 0; j < 2; j++) {
+				const x = 36+ 32* i
+				const y = 60+ 32* j
+				const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
+				this.invGraphics.add(element)
+				element.invX = x+13
+				element.invY = y+13
+				this.invSlots.add(element)
+				this.inventorySlots.push(element)
+			}
+		}
+		// this.invGraphics.add(this.invSlots)
+		console.log(this.invSlots.getChildren())
+		let i=0 
+		// let inventoryCoinObjects=[]
+		this.itemsGroup = this.add.group()
+		for (const token in inventory) {
+			let slot = this.inventorySlots[i++]
+			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
+			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+				// We need a solution to manage large numbers. Attempt : 
+				// txt.setFixedSize(12, 0)
+
+			// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
+			// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+			let item = this.add.container(slot.invX,slot.invY,[coin, txt])
+			item.token = token // To keep it at hand 
+			// item.add(coin)
+			// item.add(txt)
+			item.setSize(20, 20);
+			item.setInteractive({ draggable: true })
+			// item.alpha= 1
+			this.input.setDraggable(item);
+			item.on('pointerover', function () {
+				// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
+				// coin.setTint(brighter);
+				// item.setTint(0x44ff44)
+				// Tooltip
+				// let graph = this.add.graphics()
+				// graph.lineStyle(1, 0xffffff)
+				// graph.fillStyle(color, 1)
+				// graph.fillRoundedRect(x, y, w, h,4)
+				// graph.strokeRoundedRect(x, y, w, h,4)
+			})
+			item.on('pointerout', function () {
+
+				// coin.clearTint();
+		
+			});
+			// item.setInteractive()
+
+			// this.invGraphics.add(txt)
+
+			item.setDepth(20)
+			this.itemsGroup.add(item)
+			this.invGraphics.add(item)
+			// inventoryCoinObjects.push(item)
+			
+		}
+		// this.invGraphics.add(this.itemsGroup)
+		// this.input.setDraggable(this.itemsGroup.getChildren());
+		this.input.on('dragstart', function (pointer, gameObject) {
+			console.log("drag start")
+			// when draged we look darker
+			if (gameObject.type == "Container"){
+				gameObject.list[0].setTint(0x4f4f4f)
+				gameObject.list[1].setStyle({color:'#999'})
+
+			}
+		});
+	
+		this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+			gameObject.x = dragX
+			gameObject.y = dragY
+	
+		});
+	
+		this.input.on('dragend', function (pointer, gameObject, dropped) {
+			if (!dropped) {
+				gameObject.x = gameObject.input.dragStartX;
+				gameObject.y = gameObject.input.dragStartY;
+			}
+			
+			if (gameObject.type == "Container")
+				gameObject.list[0].clearTint()
+				gameObject.list[1].setStyle({ color : '#FFF', eeestrokeThickness: 1, stroke: "#000"})
+		})
+
+		// this.invGraphics.add(tokenText)
+		this.invGraphics.setVisible(false)
+			
+	}
+
+	// Open transactions panel, Created and destroyed each time.
+	// CounterpartyName is an address for players and a name for NPC
+	openTransactionDialog(action, player, counterpartyFrame, counterpartyAddress, counterpartyName ) {
+		if (DEBUG)
+			console.log("Open Transaction Dialog with Counterparty: (sprite)", counterpartyAddress)
+		const INTERFACEFONT =  { fontSize: 10,font: '"Press Start 2P"' }
+		// We first open the regular inventory panel
 		this.invGraphics.setVisible(true)
-		// sendbox
-		let sendBox = this.roundedBox(255, 20, 60, 200, BASEBLUE)
-		let playerSprite = this.add.image(265, 30, 'characters', counterparty.char.frame)
-		let sendText = this.add.text(275, 30, 'Send', { fontSize: 10 })
+
 		this.transactionDialog = this.add.group()
-		this.transactionDialog.add(sendBox)
-		this.transactionDialog.add(playerSprite)
-		this.transactionDialog.add(sendText)
+		let actionBox = this.roundedBox(254, 20, 60, 200, BASEBLUE)
+		this.transactionDialog.add(actionBox)
+		
+		let spritesheet = ''
+		switch (action) {
+			// Mostly for reference
+			case 'Send':
+				spritesheet = 'characters'
+				break;
+				
+			case 'Swap':
+				spritesheet = 'cryptos'
+				break;
+
+			case 'Throw':
+				spritesheet = 'things2'
+				break;
+
+			case 'Vote':
+				// Needs a full different interface
+				spritesheet = 'things2'
+				break;
+				
+			default:
+				break;
+		}
+					
+		if (counterpartyName) {
+			let nameTxt = this.add.text(275, 30,  counterpartyName.slice(0,10), INTERFACEFONT)
+			this.transactionDialog.add(nameTxt)
+		}
+		if (counterpartyFrame){
+			let playerSprite = this.add.image(264, 32, spritesheet,  counterpartyFrame)
+			this.transactionDialog.add(playerSprite)
+		}
+		if (counterpartyAddress) {
+			let addressTxt = this.add.text(270, 42,  counterpartyAddress.slice(0,6), INTERFACEFONT)
+			this.transactionDialog.add(addressTxt)
+		}
+		// let actionText = this.add.text(275, 30, action, INTERFACEFONT)
+		// this.transactionDialog.add(actionText)
 		let slot = this.roundedBox(276, 78, 22, 22,BASEBROWN)
 		this.transactionDialog.add(slot)
+		
+		
+		this.input.on('drop', (pointer, gameObject, dropZone) => {
+
+			gameObject.x = dropZone.x+20;
+			gameObject.y = dropZone.y+20;
+			// TODO MAYBE : handle if a coin is present already
+			if(gameObject.token){
+				// We have a token! 
+				// Let's add the appropriate dialog
+				const el = this.add.dom(285, 150).createFromCache('pretransaction')
+				document.querySelector('#amount').value = inventory[gameObject.token]
+				document.querySelector('#actionButton').innerHTML = action
+				console.log(gameObject.token, inventory, inventory[gameObject.token])
+				// let el = document.querySelector('#actionButton')
+				el.addListener('click').on('click', (event) => {
+					if (event.target.localName === 'button') {
+						console.log("Button click", event)
+
+						// TODO trigger transaction
+						this.closeTransactionDialog()
+					}
+				})
+				this.transactionDialog.add(el)
+			}	
+		});
+	
+		//  A drop zone
+		var zone = this.add.zone(267, 69, 40, 40).setDropZone()
+		zone.setOrigin(0) // otherwise zone is centered around point above. This is messy in the documentation and phaser examples
+
+		//  Just a visual display of the drop zone
+		if(DEBUG){
+			var graphics = this.add.graphics()
+			graphics.lineStyle(1, 0xffff00)
+				console.log("Zone",zone, zone.getBounds())
+			graphics.strokeRect(zone.x , zone.y , zone.input.hitArea.width, zone.input.hitArea.height)
+			graphics.setDepth(19)
+			this.invGraphics.add(graphics)
+		}
+		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
 		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
-		// this.invGraphics = this.add.group()	
-		// this.invGraphics.add(invBox)
-		// this.invGraphics.add(playerSprite)
-		// // this.invGraphics.add(tokenText)
-		// this.invGraphics.setVisible(false)
+		
+		this.input.keyboard
+		.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
+		.on('down', function (event) {
+			this.closeTransactionDialog()
+		}, this)
+
+	}
+
+	closeTransactionDialog(){
+		let elements = this.transactionDialog.getChildren()
+		console.log(elements)
+		let el = Phaser.Utils.Array.RemoveRandomElement(elements)
+		el.destroy(true)
+		// this.transactionDialog.destroy(true) // true: destroy contained elements too
+		if (this.transactionDialog){
+			console.log(this.transactionDialog)
+			// this.transactionDialog = null
+		}
+		this.invGraphics.setVisible(false)
 	}
 
 	handleTransactionsChange(nbTransactions) {
@@ -165,19 +369,19 @@ export default class InterfaceScene extends BaseScene {
 			// 	this.invGraphics.visible = true
 		}, this)
 
-		this.input.keyboard
-			.addKey(Phaser.Input.Keyboard.KeyCodes.E)
-			.on('down', function (event) {
-				if (!this.transactionDialog) {
-					this.openTransactionDialog(this.gameScene.player)
-				} else {
-					this.transactionDialog.destroy(true) // true destroy contained elements too
-					this.transactionDialog = null
-					// this.transactionDialog.clear()
-					// this.transactionDialog = 0
-					this.invGraphics.setVisible(false)
-				}
-			}, this)
+		if (DEBUG) {
+			// For debug purpose, we can open a transaction panel with ourselves
+
+			this.input.keyboard
+				.addKey(Phaser.Input.Keyboard.KeyCodes.E)
+				.on('down', function (event) {
+					if (!this.transactionDialog) {
+						this.openTransactionDialog( "Send", this.gameScene.player, 7, "Ox2323", "Eloïse")
+					} else {
+						this.closeTransactionDialog()
+					}
+				}, this)
+		}
 
 		// chat
 		globalNetwork = new Network(this.gameScene.player)
@@ -211,157 +415,10 @@ export default class InterfaceScene extends BaseScene {
 		createDebugSwitch(this)
 
 		////Interfaces
+		this.createInventoryDialog()
 
 
-		// Inventory graphics available on pressing i
-		this.invGraphics = this.add.group()
-
-		let invBox = this.roundedBox(20, 20, 220, 200,BASEBLUE)
-		this.invGraphics.add(invBox)
-
-		let playerSprite = this.add.image(30, 30, 'characters', this.gameScene.player.char.frame)
-		this.invGraphics.add(playerSprite)
-
-		// Create a of inventory slots and display them
-		this.invSlots = this.add.group()
-		this.inventorySlots = []
-		for (let i = 0; i < 6; i++) {
-			for (let j = 0; j < 2; j++) {
-				const x = 36+ 32* i
-				const y = 60+ 32* j
-				const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
-				this.invGraphics.add(element)
-				element.invX = x+13
-				element.invY = y+13
-				this.invSlots.add(element)
-				this.inventorySlots.push(element)
-
-			}
-		}
-		// this.invGraphics.add(this.invSlots)
-		console.log(this.invSlots.getChildren())
-		let i=0 
-		// let inventoryCoinObjects=[]
-		this.itemsGroup = this.add.group()
-		for (const token in inventory) {
-			let slot = this.inventorySlots[i++]
-			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
-			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-				// We need a solution to manage large numbers. Attempt : 
-				// txt.setFixedSize(12, 0)
-
-
-
-			// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
-			// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-			let item = this.add.container(slot.invX,slot.invY,[coin, txt])
-			item.token = token // To keep it at hand 
-			// item.add(coin)
-			// item.add(txt)
-			item.setSize(20, 20);
-			item.setInteractive({ draggable: true })
-			// item.alpha= 1
-			this.input.setDraggable(item);
-			item.on('pointerover', function () {
-				// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
-				// coin.setTint(brighter);
-				// item.setTint(0x44ff44)
-				// Tooltipe
-				// let graph = this.add.graphics()
-				// graph.lineStyle(1, 0xffffff)
-				// graph.fillStyle(color, 1)
-				// graph.fillRoundedRect(x, y, w, h,4)
-				// graph.strokeRoundedRect(x, y, w, h,4)
-			})
-			item.on('pointerout', function () {
-
-				// coin.clearTint();
-		
-			});
-			// item.setInteractive()
-
-			// this.invGraphics.add(txt)
-
-			item.setDepth(20)
-			this.itemsGroup.add(item)
-			this.invGraphics.add(item)
-			// inventoryCoinObjects.push(item)
-			
-		}
-		// this.invGraphics.add(this.itemsGroup)
-		// this.input.setDraggable(this.itemsGroup.getChildren());
-		this.input.on('dragstart', function (pointer, gameObject) {
-			// when draged we look darker
-			// gameObject.coin.setTint(0x4f4f4f);
-			console.log("drag start")
-			if (gameObject.type == "Container"){
-				gameObject.list[0].setTint(0x4f4f4f)
-				gameObject.list[1].setStyle({color:'#999'})
-
-			}
-		});
 	
-		this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
-	
-			gameObject.x = dragX;
-			gameObject.y = dragY;
-	
-		});
-	
-		this.input.on('dragend', function (pointer, gameObject, dropped) {
-            if (!dropped) {
-                gameObject.x = gameObject.input.dragStartX;
-                gameObject.y = gameObject.input.dragStartY;
-			}
-			
-			if (gameObject.type == "Container")
-				gameObject.list[0].clearTint()
-				gameObject.list[1].setStyle({ color : '#FFF', eeestrokeThickness: 1, stroke: "#000"})
-        })
-
-		this.input.on('drop', (pointer, gameObject, dropZone) => {
-
-			gameObject.x = dropZone.x+20;
-			gameObject.y = dropZone.y+20;
-			// TODO MAYBE : handle if a coin is present already
-			if(gameObject.token){
-				// We have a token! 
-				// Let's add the appropriate dialog
-				const el = this.add.dom(285, 150).createFromCache('pretransaction')
-				document.querySelector('#amount').value = inventory[gameObject.token]
-				console.log(gameObject.token, inventory, inventory[gameObject.token])
-				// let el = document.querySelector('#actionButton')
-				el.addListener('click').on('click', (event) => {
-					console.log(event)
-					// TODO trigger transaction
-
-				})
-
-			}
-
-			
-	
-		});
-	
-		//  A drop zone
-		var zone = this.add.zone(267, 69, 40, 40).setDropZone()
-		zone.setOrigin(0) // otherwise zone is centered around point above. This is messy in the documentation and phaser examples
-
-		//  Just a visual display of the drop zone
-		if(DEBUG&& false){
-			var graphics = this.add.graphics()
-			graphics.lineStyle(1, 0xffff00)
-				console.log("Zone",zone, zone.getBounds())
-			graphics.strokeRect(zone.x , zone.y , zone.input.hitArea.width, zone.input.hitArea.height)
-			graphics.setDepth(19)
-
-		}
-		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
-		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
-		
-		
-		// this.invGraphics.add(tokenText)
-		this.invGraphics.setVisible(false)
 
 
 
@@ -421,13 +478,14 @@ export default class InterfaceScene extends BaseScene {
 		})
 		globalEvents.on('real-transaction', (value) => this.handleRealChange(value), this)
 		globalEvents.on('usdc-transaction', (value) => this.handleUSDCChange(value), this)
-		globalEvents.on('connected', () => {
-			this.connected = this.add.image(380, 10, "cryptos", 4)
+		globalEvents.on('connected', (account) => {
+			this.connected = this.add.image(380, 10, "cryptos", cryptos['ETH'].frame)
 			this.connected.setTint(0xa9c9a9)
+			globalNetwork.sendNameUpdate(account, "")
 			this.sound.play("holy")
 		})
 		globalEvents.on('adding-coffee', () => {
-			this.connected = this.add.image(380, 30, "coffee")
+			this.coffee = this.add.image(380, 30, "coffee")
 			// this.connected.setTint(0x9bfb9b)
 			this.sound.play("holy")
 		})
