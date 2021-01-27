@@ -21,7 +21,8 @@
     "hardhat": "^2.0.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "dev": "live-server --watch=\"js,html,assets\""
   },
   "repository": {
     "type": "git",
