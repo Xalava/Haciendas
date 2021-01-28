@@ -1,5 +1,6 @@
 import globalEvents from "../helpers/globalEvents.js"
 import EtherHelp from "../helpers/EtherHelp.js"
+
 export const Type = {
 	MALE: 0,
 	FEMALE: 1,
@@ -150,7 +151,7 @@ Phaser.GameObjects.GameObjectFactory.register('pnj', function (x, y, texture, fr
 	sprite.body.setCollideWorldBounds()
 
 	// this.scene.physics.add.collider(scene.player, this.pnj,  (p, j) => {
-	// 	// this.player.setVelocity(0)    
+	// 	// this.player.setVelocity(0)
 	// 	this.pnj.gmal(j)
 	// 	// this.pnj.setVelocity(0,0)
 	// }, null, this);
@@ -158,7 +159,7 @@ Phaser.GameObjects.GameObjectFactory.register('pnj', function (x, y, texture, fr
 	return sprite
 
 	//Archive from gamescene
-	// pnj.body.setSize(10,14,true) 
+	// pnj.body.setSize(10,14,true)
 	// pnj.body.setMaxVelocity(50,50)
 	// pnj.body.setMass(10000)
 	// pnj.body.setCollideWorldBounds()
