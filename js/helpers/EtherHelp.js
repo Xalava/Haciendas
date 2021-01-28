@@ -33,6 +33,22 @@ export default class EtherHelp {
         })
     }
 
+    async initialiseMetaMask(){
+        if(window.ethereum){
+            window.Web3 = new Web3(window.ethereum)
+            await window.ethereum.enable()
+            const accounts = await this.provider.listAccounts()
+            this.account = accounts[0]
+            this.signer = this.provider.getSigner()
+            this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
+            globalEvents.emit('connected', this.account)
+            console.log("connected")
+
+            resolve()
+        }
+        return false
+    }
+
     getRealBalance() {
         return new Promise(async (resolve, reject) => {
             const realBalance = await this.realContract.balanceOf(this.account)
