@@ -34,7 +34,7 @@ const config = {
 }
 console.log("Loading game")
 // const settings = new Settings()
-const game = new Phaser.Game(config)
+globalGame = new Phaser.Game(config)
 console.log("Game loaded")
 
 // Necessary?

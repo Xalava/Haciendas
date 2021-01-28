@@ -2,8 +2,8 @@ import globalEvents from './globalEvents.js'
 import {stdVelocity} from './directions.js'
 
 export default class Network {
-// Sockets event sent : says, reportPosition [connection] [disconnect]
-// Sockets listened to: says, playerUpdate, playersList, playerDeleteplayerAdd
+// Sockets event sent : says, reportPosition, "ethconnection" [connection] [disconnect]
+// Sockets listened to: says, playerUpdate, playersList, playerDeleteplayerAdd, nameupdate
 // Event emitted : playerUpdate
 // NB the player object used in network is slightly different from its local phaser representation
 // accessible via players[id].sprite and the Player phaser object
@@ -38,6 +38,7 @@ export default class Network {
         this.socket.on('playerAdd', (player)=>  this.receiveAdd(player))
         this.socket.on('playerUpdate', (player)=> this.receiveUpdate(player))
         this.socket.on('playerDelete', (pid)=> this.receiveDelete(pid))
+        this.socket.on('nameupdate', (player)=> this.receiveNameUpdate(player))
     }
 
     says (name,message) {
@@ -83,6 +84,7 @@ export default class Network {
 
         }
     }
+
     receiveDelete(pid){
         if (this.socket.id !== pid){
 
@@ -92,4 +94,15 @@ export default class Network {
             // globalEvents.emit('playerDelete', player.id)
         }
     }
+
+    // We receive a name update, we just udpate the data 
+    receiveNameUpdate(player) {
+        this.players[player.id].address = player.address
+        this.players[player.id].ename = player.ename
+    }
+
+    sendNameUpdate (address, ename) {
+        this.socket.emit('ethconnection', address, ename)
+    }
+   
 }

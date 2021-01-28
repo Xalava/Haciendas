@@ -141,6 +141,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 })
 
+                this.scene.physics.add.overlap(actionSprite, this.scene.playersGroup, (a, p) => {
+                    if (this.triggered == false) {
+                        globalGame.scene.getScene('interfaceScene').openTransactionDialog("Send", this, globalNetwork.players[p.playerId].char.frame, globalNetwork.players[p.playerId].address, globalNetwork.players[p.playerId].name)
+                        this.triggered = true
+                    }
+                })
+
                 this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyCoffee, (a, p) => {
                     if (this.triggered == false) {
                         this.scene.sound.play('machine')
