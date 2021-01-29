@@ -3,7 +3,7 @@ import globalEvents from './globalEvents.js'
 
 // Config
 const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
-const network = 'ropsten'
+const network = 'maticTestnet'
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
 export default class EtherHelp {
@@ -17,8 +17,8 @@ export default class EtherHelp {
             if (this.portis)
                 reject()
             this.portis = new Portis(portisID, network, {
-                gasRelay: true,
-                registerPageByDefault: true
+                // gasRelay: true,
+                // registerPageByDefault: true
             })
             this.provider = new ethers.providers.Web3Provider(this.portis.provider)
             await this.portis.provider.enable()
@@ -59,6 +59,16 @@ export default class EtherHelp {
             resolve(this.realBalance)
         })
     }
+
+    async getETHBalance() {
+
+        let balance = await provider.getBalance(address);
+
+        console.log(address + ':' + ethers.utils.formatEther(balance));
+        this.ethBalance = ethers.utils.formatEther(balance)
+
+    }
+
 
     buyCoffee() {
         this.realContract.buyCoffee()

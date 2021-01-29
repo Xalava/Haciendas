@@ -133,10 +133,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.actionsGroup.add(actionSprite)
 
                 // Mining happens in the mine object
-
+                console.log(`object launched and triggered is ${this.triggered}`)
                 this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a, p) => {
+                    console.log(`action contacted an NPC`)
                     if (this.triggered == false) {
                         p.contact()
+                        this.triggered = true
+                    }
+                })
+
+                this.scene.physics.add.overlap(actionSprite, this.scene.faucet, (f, p) => {
+                    if (this.triggered == false) {
+                        window.open("https://faucet.matic.network/");
                         this.triggered = true
                     }
                 })
@@ -157,7 +165,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
                         this.triggered = true
                     }
-
                 }, null, this)
 
                 this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyUSDC, (a, p) => {
@@ -168,7 +175,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
                         this.triggered = true
                     }
-
                 }, null, this)
 
                 setTimeout(() => {

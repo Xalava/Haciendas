@@ -2,6 +2,7 @@ import GameScene from "./GameScene.js"
 import WelcomeScene from "./WelcomeScene.js"
 import PreloaderScene from "./PreloaderScene.js"
 import InterfaceScene from "./InterfaceScene.js"
+import MarketScene from "./MarketScene.js"
 
 const config = {
     width: 400,
@@ -18,7 +19,8 @@ const config = {
     scene: [PreloaderScene, 
             WelcomeScene, 
             GameScene,
-            InterfaceScene
+            InterfaceScene,
+            MarketScene
             ],
     dom: {
         createContainer: true

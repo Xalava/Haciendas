@@ -61,7 +61,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	destroy(fromScene) {
-		this.moveEvent.destroy()
+		// this.moveEvent.destroy()
 		super.destroy(fromScene)
 	}
 
@@ -81,17 +81,22 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 
 	contact() {
 		if (this.name == "Fox") {
-			this.says("Welcome stranger. You will learn to set up your wallet and collect your reales. Create or validate your account ")
+			this.says("Welcome stranger. You will learn to set up your wallet. Create or validate your account and I will give you Reales, the ingame currency ")
+
 			setTimeout(async () => {
 				this.scene.eth = new EtherHelp()
 				this.scene.eth.initialisePortis().then(async () => {
 						if (DEBUG)
 							console.log(this.scene.eth)
 						const isparticipant = await this.scene.eth.realContract.participants(this.scene.eth.account)
+						const ethBalance = await this.scene.eth.getETHBalance()
+
 						if (isparticipant) {
 							this.says("Sly as a fox I see, you have already joined!")
 							globalEvents.emit('real-transaction', 0)
 
+						} else if (!ethBalance){
+							this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
 						} else {
 							this.says("Great! Let me send 12 reales to you at" + this.scene.eth.account)
 							this.scene.eth.participate().then(() => {
@@ -112,6 +117,12 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 		} else if (this.name == "Kevin") {
 			this.says("Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC")
 
+		} else if (this.name == "Andrés"){
+			if (this.quest != "catch transactions"){
+				this.says("Bienvenido. If you want to learn how to learn the basics of blockhain, grap the net.")
+			} else {
+				this.says("Go to the mempool in the west and catch five green transactions")
+			}
 		} else {
 			this.says("Hello!")
 		}

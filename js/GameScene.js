@@ -33,7 +33,11 @@ export default class GameScene extends BaseScene {
     preload() {
 
     }
-
+    launchCatchQuest(NPC) {
+        this.quest = "catch transactions"
+        NPC.says("You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!")
+  
+    }
     initialiseMap(mapKey) {
 
         //// Map loading (see layer below)
@@ -46,9 +50,9 @@ export default class GameScene extends BaseScene {
         let startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
         
         if(DEBUG){
-            // In debug mode, we start closer to the fox
-            startPosition.y+=200
-            startPosition.x-=100
+            // // In debug mode, we start closer to the fox
+            // startPosition.y+=200
+            // startPosition.x-=100
             // We progress to the end of the first quest directly to transactions stuff
             if(localStorageAvailable()){
                 window.localStorage.setItem('blockQuestComplete', true)
@@ -168,25 +172,42 @@ export default class GameScene extends BaseScene {
             console.log("pnjsGroup", this.pnjsGroup.getChildren())
             
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
-        console.log({
-            andres
-        })
+            
+            // we probably need a generic picable object class
+            const net = this.add.image(andres.x +10, andres.y - 14 , 'actions', 0)
+            net.setDepth(25)
+            this.physics.add.existing(net)
+            this.physics.add.collider(this.player, net,  (p,n) => {
+                this.launchCatchQuest(andres)
+                n.destroy()
+            }) 
+    
+
+        const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
+
         const timeout = DEBUG ? 0 : 4000
 
         
 
         
-        if(localStorageAvailable() && window.localStorage.getItem('blockQuestComplete')){
+        // if(localStorageAvailable() && window.localStorage.getItem('blockQuestComplete')){
+        //     this.quest = "get a fox"
+        //     setTimeout(() => {
+        //         andres.says("Welcome back. You should go directly talk to the fox, just south from here")
+        //     }, timeout);   
+        // } else {
+        //     this.quest = "catch transactions"
+        //     setTimeout(() => {
+        //         andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
+
+        //     }, timeout);
+        // }
+        // New start
+        setTimeout(() => {
+            globalEvents.emit("says", "Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.                 Use the arrows to move around and the spacebar to talk to the fox.")
             this.quest = "get a fox"
-            setTimeout(() => {
-                andres.says("Welcome back. You should go directly talk to the fox, just south from here")
-            }, timeout);   
-        } else {
-            this.quest = "catch transactions"
-            setTimeout(() => {
-                andres.says("Welcome to Haciendas!            A decentralised game to learn and interact with digital assets.            To start, I need you to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions!")
-            }, timeout);
-        }
+        }, timeout);
+    
         this.transactionsCaptured = 0
         //// Transactions logic
         this.transactions = this.physics.add.group()
@@ -218,7 +239,6 @@ export default class GameScene extends BaseScene {
             eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, talk to the fox near the lake')
             this.quest = "get a fox"
             this.sound.play("holy")
-            const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
             this.add.overlap
             if(localStorageAvailable()){
                 window.localStorage.setItem('blockQuestComplete', true)
@@ -228,6 +248,22 @@ export default class GameScene extends BaseScene {
 
         // Exit Zone
         const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
+        this.exitZone = this.add.image(exitZone.x+30,exitZone.y+30)
+        this.physics.add.existing(this.exitZone)
+        this.exitZone.setDepth(20)
+        this.physics.add.collider(this.player, this.exitZone,  (p,n) => {
+            console.log("EXIT ZONE!")
+            this.scene.start('marketScene',  { currentChar: this.player.char })
+        }) 
+
+        // Faucet (interaction in handled with action in Player.js)
+        const faucet = map.findObject("Helpers", obj => obj.name === "Faucet")
+        this.faucet = this.add.image(faucet.x+30,faucet.y+30)
+        this.physics.add.existing(this.faucet)
+
+        this.faucet.setDepth(20)
+
+
 
         const BuyUSDCObj = map.findObject("Helpers", obj => obj.name === "BuyUSDC")
         this.add.image(BuyUSDCObj.x + 8, BuyUSDCObj.y - 8, "cryptos", 0).setScale(0.8).setDepth(5)

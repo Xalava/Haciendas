@@ -262,10 +262,11 @@ export default class InterfaceScene extends BaseScene {
 	}
 
 	closeTransactionDialog(){
-		let elements = this.transactionDialog.getChildren()
-		console.log(elements)
-		let el = Phaser.Utils.Array.RemoveRandomElement(elements)
-		el.destroy(true)
+		this.transactionDialog.clear(true,true)
+		// let elements = this.transactionDialog.getChildren()
+		// console.log(elements)
+		// let el = Phaser.Utils.Array.RemoveRandomElement(elements)
+		// el.destroy(true)
 		// this.transactionDialog.destroy(true) // true: destroy contained elements too
 		if (this.transactionDialog){
 			console.log(this.transactionDialog)

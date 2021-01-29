@@ -108,8 +108,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":736.5,
-                 "y":413.5
+                 "x":576,
+                 "y":688
                 }, 
                 {
                  "height":0,
@@ -181,6 +181,17 @@
                  "width":0,
                  "x":1088,
                  "y":1088
+                }, 
+                {
+                 "height":96,
+                 "id":24,
+                 "name":"Faucet",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":144,
+                 "x":656,
+                 "y":704
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -341,7 +352,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":20,
+ "nextobjectid":25,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.4.2",
@@ -350,7 +361,7 @@
         {
          "columns":64,
          "firstgid":1,
-         "image":"..\/..\/phaser\/assets\/16\/Outside7.png",
+         "image":"..\/..\/phaser\/assets\/3-16x16 Pixel art\/Outside7-3.png",
          "imageheight":1152,
          "imagewidth":1152,
          "margin":1,
