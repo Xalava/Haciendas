@@ -1,6 +1,4 @@
-import BaseScene from "./BaseScene.js"
-
-export default class PreloaderScene extends BaseScene {
+export default class PreloaderScene  extends Phaser.Scene {
     constructor() {
         super("preloaderScene")
     }
@@ -53,7 +51,11 @@ export default class PreloaderScene extends BaseScene {
     }
 
     create () {
-        console.log("End preloading, launching welcome")
+        // this.load.once('complete', function(){
+            console.log("2 Create of PreloaderScene")
+        // })
+
+        console.log("3 Launch of WelcomeScene")
         this.scene.start('welcomeScene')
     }
 

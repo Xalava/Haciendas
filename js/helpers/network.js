@@ -65,7 +65,7 @@ export default class Network {
             //If we don't now this player, we simply add it instead
             if(this.players[player.id].sprite === undefined){
                 this.receiveAdd(player)
-                returns
+                return
             }
             this.players[player.id].x = player.x
             this.players[player.id].y = player.y
@@ -88,7 +88,9 @@ export default class Network {
     receiveDelete(pid){
         if (this.socket.id !== pid){
 
-            this.players[pid].sprite.destroy()
+            if(this.players[pid].sprite){
+                this.players[pid].sprite.destroy()
+            }
             delete this.players[pid]
 
             // globalEvents.emit('playerDelete', player.id)

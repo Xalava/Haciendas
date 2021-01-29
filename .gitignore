@@ -6,6 +6,7 @@ artifacts
 
 # other builders files
 .cache
+.DS_Store
 
 # Specific
 essais

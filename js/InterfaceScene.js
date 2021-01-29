@@ -1,7 +1,5 @@
-import BaseScene from "./BaseScene.js"
 import globalEvents from "./helpers/globalEvents.js"
 import createDebugSwitch from "./interface/debug.js"
-// import createLibp2p from './helpers/clibp2p.js'
 
 import createTextBox from "./interface/textBox.js"
 import EtherHelp from "./helpers/EtherHelp.js"
@@ -15,7 +13,7 @@ const BASEBROWN = 0x8b4513
 // Mock, should be member of globalEth
 const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
 
-export default class InterfaceScene extends BaseScene {
+export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
 		super({ key: 'interfaceScene', active: false })
 		// Could be more coherent elsewhere
@@ -76,7 +74,8 @@ export default class InterfaceScene extends BaseScene {
 			}
 		}
 		// this.invGraphics.add(this.invSlots)
-		console.log(this.invSlots.getChildren())
+		if(DEBUG)
+			console.log("inventory slots", this.invSlots.getChildren())
 		let i=0 
 		// let inventoryCoinObjects=[]
 		this.itemsGroup = this.add.group()

@@ -161,17 +161,5 @@ Phaser.GameObjects.GameObjectFactory.register('pnj', function (x, y, texture, fr
 	sprite.body.setMass(10000)
 	sprite.body.setCollideWorldBounds()
 
-	// this.scene.physics.add.collider(scene.player, this.pnj,  (p, j) => {
-	// 	// this.player.setVelocity(0)
-	// 	this.pnj.gmal(j)
-	// 	// this.pnj.setVelocity(0,0)
-	// }, null, this);
-
 	return sprite
-
-	//Archive from gamescene
-	// pnj.body.setSize(10,14,true)
-	// pnj.body.setMaxVelocity(50,50)
-	// pnj.body.setMass(10000)
-	// pnj.body.setCollideWorldBounds()
 })

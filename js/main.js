@@ -34,10 +34,10 @@ const config = {
     },
 
 }
-console.log("Loading game")
+console.log("0 Loading game")
 // const settings = new Settings()
 globalGame = new Phaser.Game(config)
-console.log("Game loaded")
+console.log("1 Game loaded")
 
 // Necessary?
 window.focus()

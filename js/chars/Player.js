@@ -14,7 +14,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     action(sprite, frame) {
         const actionSprite = this.scene.add.image(this.x + 13 * this.direction.x, this.y + 14 * this.direction.y, sprite, frame)
-        actionSprite.setDepth(25)
+        actionSprite.setDepth(15)
         this.scene.physics.add.existing(actionSprite)
         return actionSprite
     }
@@ -78,8 +78,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             globalNetwork.reportPosition (this.x, this.y,this.direction, this.body.speed >0 ? true : false)
         }
 
-
-
         // should be moved to interface to not catch chat space
         if (Phaser.Input.Keyboard.JustDown(inputKeys.space)) {
             // alt: inputKeys.space.Down
@@ -130,7 +128,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             } else {
                 //// Generic action - Sprite will be transparent
                 const actionSprite = this.action()
-                this.scene.actionsGroup.add(actionSprite)
+                // this.scene.actionsGroup.add(actionSprite)
 
                 // Mining happens in the mine object
                 console.log(`object launched and triggered is ${this.triggered}`)
@@ -156,7 +154,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 })
 
-                this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyCoffee, (a, p) => {
+                this.scene.physics.add.overlap(actionSprite, this.scene.BuyCoffee, (a, p) => {
                     if (this.triggered == false) {
                         this.scene.sound.play('machine')
                         if (this.scene.eth)
@@ -167,7 +165,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 }, null, this)
 
-                this.scene.physics.add.overlap(this.scene.actionsGroup, this.scene.BuyUSDC, (a, p) => {
+                this.scene.physics.add.overlap(actionSprite, this.scene.BuyUSDC, (a, p) => {
                     if (this.triggered == false) {
                         if (this.scene.eth)
                             this.scene.eth.buyUSDC()

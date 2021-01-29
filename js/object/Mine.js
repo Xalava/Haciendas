@@ -21,7 +21,7 @@ export default class Mine extends Phaser.Physics.Arcade.Sprite {
 			fontFamily: 'courrier',
 			color: color,
 			fontSize: '12px',
-		}).setDepth(25)
+		}).setDepth(15)
 		setTimeout(() => {
 			txt.destroy()
 		}, 800);
