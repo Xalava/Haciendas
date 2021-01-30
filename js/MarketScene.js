@@ -15,7 +15,7 @@ import EtherHelp from "./helpers/EtherHelp.js"
 
 export default class MarketScene extends BaseScene {
   constructor(){
-    super('marketScene')
+    super({key: 'marketScene', active: false })
   }
 
   init(data) {
@@ -26,7 +26,7 @@ export default class MarketScene extends BaseScene {
     else
         this.currentChar = charactersList.BOY
 
-        this.inputKeys = this.input.keyboard.createCursorKeys()
+
     }
     initialiseMap(mapKey) {
 
@@ -70,7 +70,7 @@ export default class MarketScene extends BaseScene {
 
     //// Player
     console.log(this.currentChar)
-    this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
+    this.player = this.add.player(30, 630, this.currentChar)
 
 
     //// PNJ
@@ -130,29 +130,6 @@ export default class MarketScene extends BaseScene {
     //// Quests (To be factorised in an object?)
     const timeout = DEBUG ? 0 : 4000
 
-
-
-
-
-    // Exit Zone
-    // TODO
-
-
-    //// Object interactions 
-
-    // const BuyUSDCObj = map.findObject("Helpers", obj => obj.name === "BuyUSDC")
-    // this.add.image(BuyUSDCObj.x + 8, BuyUSDCObj.y - 8, "cryptos", 0).setScale(0.8).setDepth(5)
-    // this.BuyUSDC = this.add.image(BuyUSDCObj.x - 8, BuyUSDCObj.y - 8, "cryptos", 10)
-    // this.BuyUSDC.setDepth(5)
-    // this.physics.add.existing(this.BuyUSDC)
-    // if (DEBUG)
-    //     console.log("BUYUSDC", this.BuyUSDC)
-
-    // const BuyCoffeeObj = map.findObject("Helpers", obj => obj.name === "BuyCoffee")
-    // this.BuyCoffee = this.add.image(BuyCoffeeObj.x, BuyCoffeeObj.y)
-    // this.BuyCoffee.setDepth(5)
-    // this.physics.add.existing(this.BuyCoffee)
-
     //// NETWORK
     // Network players logic. Data in globalNetwork.players TODO move both to dedicated object
     this.playersGroup = this.physics.add.group()
@@ -163,17 +140,17 @@ export default class MarketScene extends BaseScene {
         g.body.setVelocity(0,0)
     })
 
-    globalEvents.on('playerAdd', (id)=>{
-        console.log("Players", globalNetwork.players, id)
-        const newPlayer = this.add.sprite(globalNetwork.players[id].x, globalNetwork.players[id].y, globalNetwork.players[id].char.texture, globalNetwork.players[id].char.frame);
-        this.playersGroup.add(newPlayer)
-        newPlayer.setDepth(10)
+    // globalEvents.on('playerAdd', (id)=>{
+    //     console.log("Players", globalNetwork.players, id)
+    //     const newPlayer = this.add.sprite(globalNetwork.players[id].x, globalNetwork.players[id].y, globalNetwork.players[id].char.texture, globalNetwork.players[id].char.frame);
+    //     this.playersGroup.add(newPlayer)
+    //     newPlayer.setDepth(10)
 
-        newPlayer.playerId = id
-        newPlayer.direction = globalNetwork.players[id].dir
-        globalNetwork.players[id].sprite = newPlayer
-        console.log("New Player Sprite", globalNetwork.players[id].sprite)
-    })
+    //     newPlayer.playerId = id
+    //     newPlayer.direction = globalNetwork.players[id].dir
+    //     globalNetwork.players[id].sprite = newPlayer
+    //     console.log("New Player Sprite", globalNetwork.players[id].sprite)
+    // })
 
 
   }

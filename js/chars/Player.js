@@ -10,6 +10,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.direction = Directions.DOWN
         this.ongoingAction = false
         this.timerSinceReport = 0
+        // Complement for mouse control
+        // this.scene.input.on('pointerdown', 
+        //     pointer => { if(pointer.worldX < this.x){
+        //         this.direction = Directions.LEFT
+        //         this.body.setVelocityX(-stdVelocity)
+        //     this.anims.play(this.char.name+'-left', true)
+        //     }}
+        // )
+
+
     }
 
     action(sprite, frame) {
@@ -26,7 +36,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     update(inputKeys, t, dt) {
         // console.log(inputKeys, t, dt)
-        if (inputKeys.left.isDown) {
+        if (inputKeys.left.isDown||inputKeys.leftA.isDown) {
             this.body.setVelocityX(-stdVelocity)
             this.anims.play(this.char.name+'-left', true)
             // TODO (maybe)
@@ -37,21 +47,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 globalNetwork.reportPosition (this.x, this.y, Directions.LEFT, true) 
                 this.timerSinceReport = 0
             this.direction = Directions.LEFT
-        } else if (inputKeys.right.isDown) {
+        } else if (inputKeys.right.isDown||inputKeys.rightA.isDown) {
             this.body.setVelocityX(stdVelocity)
             this.anims.play(this.char.name+'-right', true)
             if(this.direction != Directions.RIGHT && globalNetwork)
                 globalNetwork.reportPosition (this.x, this.y, Directions.RIGHT, true) 
                 this.timerSinceReport = 0
             this.direction = Directions.RIGHT
-        } else if (inputKeys.up.isDown) {
+        } else if (inputKeys.up.isDown||inputKeys.upA.isDown) {
             this.body.setVelocityY(-stdVelocity)
             this.anims.play(this.char.name+'-up', true)
             if(this.direction != Directions.UP && globalNetwork)
                 globalNetwork.reportPosition (this.x, this.y, Directions.UP, true) 
                 this.timerSinceReport = 0
             this.direction = Directions.UP
-        } else if (inputKeys.down.isDown) {
+        } else if (inputKeys.down.isDown||inputKeys.downA.isDown) {
             this.body.setVelocityY(stdVelocity)
             this.anims.play(this.char.name+'-down', true)
             // ALT: this.flipX = false

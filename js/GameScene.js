@@ -27,7 +27,18 @@ export default class GameScene extends BaseScene {
         else
             this.currentChar = charactersList.BOY
 
-        this.inputKeys = this.input.keyboard.createCursorKeys()
+            // this.inputKeys = this.input.keyboard.createCursorKeys()
+            this.inputKeys = this.input.keyboard.addKeys({
+                up: Phaser.Input.Keyboard.KeyCodes.W,
+                upA: Phaser.Input.Keyboard.KeyCodes.UP,
+                down: Phaser.Input.Keyboard.KeyCodes.S,
+                downA: Phaser.Input.Keyboard.KeyCodes.DOWN,
+                left: Phaser.Input.Keyboard.KeyCodes.A,
+                leftA: Phaser.Input.Keyboard.KeyCodes.LEFT,
+                right: Phaser.Input.Keyboard.KeyCodes.D,
+                rightA: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+                space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+              })
     }
 
     preload() {
@@ -50,10 +61,6 @@ export default class GameScene extends BaseScene {
         let startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
         
         if(DEBUG){
-            // // In debug mode, we start closer to the fox
-            // startPosition.y+=200
-            // startPosition.x-=100
-            // We progress to the end of the first quest directly to transactions stuff
             if(localStorageAvailable()){
                 window.localStorage.setItem('blockQuestComplete', true)
             }
@@ -86,26 +93,26 @@ export default class GameScene extends BaseScene {
         
 
         //// Player
-        console.log(this.currentChar)
         this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
         
         //// Trying camera 
         if (!DEBUG) // debug shortcut
             this.cameras.main.pan(startPosition.x, startPosition.y, 4000, 'Sine.easeInOut')
         this.scene.launch('interfaceScene')
+        this.input.setDefaultCursor('url(assets/cursor.png), pointer');
+
         //// Object on map management
         this.minesGroup = this.physics.add.group()
         const objectsLayer = map.getObjectLayer('Helpers')
         objectsLayer.objects.forEach(obj => {
-            console.log(obj)
             if (obj.name == "mine") {
                 const newMine = this.add.mine(obj.x, obj.y)
                 // newMine.body.setImmovable() /// does not work either
                 this.minesGroup.add(newMine)
             }
         })
-
-        console.log("mines:", this.minesGroup) // give an array of sprites
+        if(DEBUG)
+            console.log("mines:", this.minesGroup) // give an array of sprites
 
         this.physics.add.collider(this.player, this.minesGroup, (p, m) => {
             m.body.setVelocity(0, 0)
@@ -142,16 +149,12 @@ export default class GameScene extends BaseScene {
             this.layers[i] = map
                 .createStaticLayer(i, tileset)
             this.layers[i].setDepth(i)
+            this.layers[i].setCollisionByProperty({
+                collides: true
+            })
             if (i == 0) {
                 // Layer 0 is for transactions only 
-                this.layers[0].setCollisionByProperty({
-                    collides: true
-                })
             } else {
-                this.layers[i].setCollisionByProperty({
-                    collides: true
-                })
-
                 this.physics.add.collider(this.player, this.layers[i]) // ALT: execMapCollision, checkMapCollision, this)
                 this.physics.add.collider(this.pnjsGroup, this.layers[i], null, null, this)
             }
@@ -161,6 +164,7 @@ export default class GameScene extends BaseScene {
 
         //// Control Player
         this.cameras.main.startFollow(this.player, true)
+        this.cameras.main.setLerp(0.5,0.5)
 
         // Trick to avoid bleeding
         //this.cameras.main.roundPixels = true;
@@ -175,7 +179,7 @@ export default class GameScene extends BaseScene {
             
             // we probably need a generic picable object class
             const net = this.add.image(andres.x +10, andres.y - 14 , 'actions', 0)
-            net.setDepth(25)
+            net.setDepth(10)
             this.physics.add.existing(net)
             this.physics.add.collider(this.player, net,  (p,n) => {
                 this.launchCatchQuest(andres)
@@ -184,7 +188,8 @@ export default class GameScene extends BaseScene {
     
 
         const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
-
+        if(DEBUG)
+            globalGame.fox = fox
         const timeout = DEBUG ? 0 : 4000
 
         
@@ -202,7 +207,7 @@ export default class GameScene extends BaseScene {
 
         //     }, timeout);
         // }
-        // New start
+        //// New start
         setTimeout(() => {
             globalEvents.emit("says", "Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.                 Use the arrows to move around and the spacebar to talk to the fox.")
             this.quest = "get a fox"
@@ -239,7 +244,6 @@ export default class GameScene extends BaseScene {
             eng.says('Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, talk to the fox near the lake')
             this.quest = "get a fox"
             this.sound.play("holy")
-            this.add.overlap
             if(localStorageAvailable()){
                 window.localStorage.setItem('blockQuestComplete', true)
             }
@@ -250,7 +254,7 @@ export default class GameScene extends BaseScene {
         const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
         this.exitZone = this.add.image(exitZone.x+30,exitZone.y+30)
         this.physics.add.existing(this.exitZone)
-        this.exitZone.setDepth(20)
+        this.exitZone.setDepth(10)
         this.physics.add.collider(this.player, this.exitZone,  (p,n) => {
             console.log("EXIT ZONE!")
             this.scene.start('marketScene',  { currentChar: this.player.char })
@@ -261,7 +265,7 @@ export default class GameScene extends BaseScene {
         this.faucet = this.add.image(faucet.x+30,faucet.y+30)
         this.physics.add.existing(this.faucet)
 
-        this.faucet.setDepth(20)
+        this.faucet.setDepth(10)
 
 
 
@@ -283,12 +287,10 @@ export default class GameScene extends BaseScene {
         // Basic player collision
         this.physics.add.collider(this.player, this.playersGroup,  (p,g) => {
             p.handleBumpyCollision(p,g)
-            
             g.body.setVelocity(0,0)
         }) 
 
         globalEvents.on('playerAdd', (id)=>{
-            console.log("Players", globalNetwork.players, id)
             const newPlayer = this.add.sprite(globalNetwork.players[id].x, globalNetwork.players[id].y, globalNetwork.players[id].char.texture, globalNetwork.players[id].char.frame);
             this.playersGroup.add(newPlayer)
             newPlayer.setDepth(10)
@@ -296,29 +298,8 @@ export default class GameScene extends BaseScene {
             newPlayer.playerId = id            
             newPlayer.direction = globalNetwork.players[id].dir
             globalNetwork.players[id].sprite = newPlayer
-            console.log("New Player Sprite", globalNetwork.players[id].sprite)
+            // console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
         })
-
-        // Moved to network for efficiency
-
-        // globalEvents.on('playerUpdate', (id)=>{
-        //     // TODO maybe, use globalNetwork.players to store reference to each object for more efficein
-        //     this.playersGroup.getChildren().forEach(function (p) {
-        //         if (p.id === id) {
-        //           p.destroy();
-        //         }
-        //     })
-
-        // }, this)
-    
-
-        // globalEvents.on('playerDelete', (id)=>{
-        //     this.playersGroup.getChildren().forEach(function (p) {
-        //         if (p.id === id) {
-        //           p.destroy();
-        //         }
-        //     })
-        // }, this)
 
     }
 

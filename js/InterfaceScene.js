@@ -9,6 +9,7 @@ import {cryptos} from "./helpers/cryptos.js"
 
 const BASEBLUE = 0x00031f6c
 const BASEBROWN = 0x8b4513
+const BASEWHITE = 0xEEEEEE
 
 // Mock, should be member of globalEth
 const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
@@ -16,9 +17,12 @@ const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
 export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
 		super({ key: 'interfaceScene', active: false })
+		this.lastEmptySlot 
 		// Could be more coherent elsewhere
 		this.usdc = 0
 		this.real = 0
+
+
 	}
 	preload() {
 		// the version from PreloaderScene does not seem available. 
@@ -44,8 +48,26 @@ export default class InterfaceScene extends Phaser.Scene {
 		graph.fillStyle(color, 1)
 		graph.fillRoundedRect(x, y, w, h,4)
 		graph.strokeRoundedRect(x, y, w, h,4)
-		// graph.visible = false
 		return graph
+	}
+
+	createSlot(x,y,reference){
+		//proto class
+		
+		let element = this.add.rectangle(x, y, 26, 26, BASEBROWN)
+		element.setOrigin(0)
+		element.setStrokeStyle(1, BASEWHITE)
+		// const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
+ 		element.invX = x+13
+		element.invY = y+13
+		element.on('pointerover', pointer => {
+			if(!element.item){
+				this.lastEmptySlot = reference
+				console.log("hovering", reference)
+			}
+		})
+		// element.setOrigin(0) // not possible, graphics are not game object
+		return element
 	}
 
 	createInventoryDialog(){
@@ -59,28 +81,25 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.invGraphics.add(playerSprite)
 
 		// Create a of inventory slots and display them
-		this.invSlots = this.add.group()
-		this.inventorySlots = []
+		this.invSlotsGroup = this.add.group()
+		this.invSlotsArray = []
 		for (let i = 0; i < 6; i++) {
 			for (let j = 0; j < 2; j++) {
 				const x = 36+ 32* i
 				const y = 60+ 32* j
-				const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
-				this.invGraphics.add(element)
-				element.invX = x+13
-				element.invY = y+13
-				this.invSlots.add(element)
-				this.inventorySlots.push(element)
+				let slot = this.createSlot(x,y,i+j*6)
+				this.invSlotsGroup.add(slot)
+				this.invGraphics.add(slot)
+				this.invSlotsArray.push(slot)
 			}
 		}
-		// this.invGraphics.add(this.invSlots)
 		if(DEBUG)
-			console.log("inventory slots", this.invSlots.getChildren())
+			console.log("inventory slots", this.invSlotsGroup.getChildren())
 		let i=0 
 		// let inventoryCoinObjects=[]
 		this.itemsGroup = this.add.group()
 		for (const token in inventory) {
-			let slot = this.inventorySlots[i++]
+			let slot = this.invSlotsArray[i++]
 			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
 			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
 				// We need a solution to manage large numbers. Attempt : 
@@ -105,7 +124,9 @@ export default class InterfaceScene extends Phaser.Scene {
 				// graph.lineStyle(1, 0xffffff)
 				// graph.fillStyle(color, 1)
 				// graph.fillRoundedRect(x, y, w, h,4)
-				// graph.strokeRoundedRect(x, y, w, h,4)
+				// graph.strokeRoundedRect(x, y, w, h,4)		this.input.setDefaultCursor('url(assets/cursor.png), pointer');
+
+
 			})
 			item.on('pointerout', function () {
 
@@ -354,6 +375,7 @@ export default class InterfaceScene extends Phaser.Scene {
 
 	create() {
 		this.gameScene = this.scene.get('gameScene')
+
 
 		//// Inputs
 		this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
