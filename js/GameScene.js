@@ -164,7 +164,7 @@ export default class GameScene extends BaseScene {
 
         //// Control Player
         this.cameras.main.startFollow(this.player, true)
-        this.cameras.main.setLerp(0.5,0.5)
+        // this.cameras.main.setLerp(0.5,0.5)
 
         // Trick to avoid bleeding
         //this.cameras.main.roundPixels = true;

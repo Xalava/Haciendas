@@ -38,6 +38,7 @@ export default class PreloaderScene  extends Phaser.Scene {
         )
 
         this.load.image('outsideTiles', 'maps/Outside7.png')
+        this.load.image('slot', 'assets/slot.png')
         this.load.image('coffee', 'assets/coffee.png')
         this.load.tilemapTiledJSON('miningMap', 'maps/mining.json')
         this.load.tilemapTiledJSON('marketMap', 'maps/market.json')

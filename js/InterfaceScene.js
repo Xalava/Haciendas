@@ -10,6 +10,8 @@ import {cryptos} from "./helpers/cryptos.js"
 const BASEBLUE = 0x00031f6c
 const BASEBROWN = 0x8b4513
 const BASEWHITE = 0xEEEEEE
+const ACTIONSLOT = 30
+const HANDSLOT = 31
 
 // Mock, should be member of globalEth
 const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
@@ -54,12 +56,14 @@ export default class InterfaceScene extends Phaser.Scene {
 	createSlot(x,y,reference){
 		//proto class
 		
-		let element = this.add.rectangle(x, y, 26, 26, BASEBROWN)
-		element.setOrigin(0)
-		element.setStrokeStyle(1, BASEWHITE)
+		// let element = this.add.rectangle(x, y, 24, 24, BASEBROWN).setInteractive()
+		// element.setStrokeStyle(1.4, BASEWHITE)
+		// Switch to image for facilitating 
 		// const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
- 		element.invX = x+13
-		element.invY = y+13
+		let element = this.add.image(x,y,'slot').setInteractive()
+		element.setOrigin(0)
+ 		element.invX = x+12
+		element.invY = y+12
 		element.on('pointerover', pointer => {
 			if(!element.item){
 				this.lastEmptySlot = reference
@@ -99,7 +103,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		// let inventoryCoinObjects=[]
 		this.itemsGroup = this.add.group()
 		for (const token in inventory) {
-			let slot = this.invSlotsArray[i++]
+			let slot = this.invSlotsArray[i++] // We randomly allocate items to slot in order 
 			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
 			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
 				// We need a solution to manage large numbers. Attempt : 
@@ -116,6 +120,8 @@ export default class InterfaceScene extends Phaser.Scene {
 			// item.alpha= 1
 			this.input.setDraggable(item);
 			item.on('pointerover', function () {
+				// TODO display tooltip
+
 				// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
 				// coin.setTint(brighter);
 				// item.setTint(0x44ff44)
@@ -163,6 +169,8 @@ export default class InterfaceScene extends Phaser.Scene {
 	
 		this.input.on('dragend', function (pointer, gameObject, dropped) {
 			if (!dropped) {
+				// gameObject.x = this.lastEmptySlot.x
+				// gameObject.y = this.lastEmptySlot.y
 				gameObject.x = gameObject.input.dragStartX;
 				gameObject.y = gameObject.input.dragStartY;
 			}
@@ -228,7 +236,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		}
 		// let actionText = this.add.text(275, 30, action, INTERFACEFONT)
 		// this.transactionDialog.add(actionText)
-		let slot = this.roundedBox(276, 78, 22, 22,BASEBROWN)
+		let slot = this.createSlot(276, 78, ACTIONSLOT)
 		this.transactionDialog.add(slot)
 		
 		
@@ -290,7 +298,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		// this.transactionDialog.destroy(true) // true: destroy contained elements too
 		if (this.transactionDialog){
 			console.log(this.transactionDialog)
-			// this.transactionDialog = null
+			this.transactionDialog = null
 		}
 		this.invGraphics.setVisible(false)
 	}
