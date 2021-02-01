@@ -388,7 +388,13 @@ export default class InterfaceScene extends Phaser.Scene {
 		//// Inputs
 		this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on('down', function (event) {
-			this.invGraphics.toggleVisible()
+			// this.invGraphics.toggleVisible()
+			if (this.invGraphics.visible || document.activeElement === chatInput){
+				this.invGraphics.visible = false
+				this.chatInput.value = this.chatInput.value + "i"
+			} else {
+				this.invGraphics.visible = true
+			}
 			// Typical group
 			// group.setVisible(value);
 
@@ -398,6 +404,19 @@ export default class InterfaceScene extends Phaser.Scene {
 			// else 
 			// 	this.invGraphics.visible = true
 		}, this)
+
+
+		this.input.keyboard.on("keydown_SPACE", (event) => {
+			if (document.activeElement === chatInput) {
+				this.chatInput.value = this.chatInput.value + " ";
+			}
+		});
+
+		// "T" to chat
+		// this.input.keyboard.on("keydown_T", (event) => {
+		//     event.preventDefault();
+		//     this.chatInput.focus();
+		// });
 
 		if (DEBUG) {
 			// For debug purpose, we can open a transaction panel with ourselves
