@@ -83,13 +83,12 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 		if (this.name == "Fox") {
 			this.says("Welcome stranger. You will learn to set up your wallet. Create or validate your account and I will give you Reales, the ingame currency ")
 
-			setTimeout(async () => {
-				this.scene.eth = new EtherHelp()
-				this.scene.eth.initialisePortis().then(async () => {
+			// setTimeout(async () => {
+				globalEth.initialiseMetaMask().then(async () => {
 						if (DEBUG)
-							console.log(this.scene.eth)
-						const isparticipant = await this.scene.eth.realContract.participants(this.scene.eth.account)
-						const ethBalance = await this.scene.eth.getETHBalance()
+							console.log(globalEth)
+						const isparticipant = await globalEth.realContract.participants(globalEth.account)
+						const ethBalance = await globalEth.getETHBalance()
 
 						if (isparticipant) {
 							this.says("Sly as a fox I see, you have already joined!")
@@ -98,15 +97,15 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 						} else if (!ethBalance){
 							this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
 						} else {
-							this.says("Great! Let me send 12 reales to you at" + this.scene.eth.account)
-							this.scene.eth.participate().then(() => {
+							this.says("Great! Let me send 12 reales to you at" + globalEth.account)
+							globalEth.participate().then(() => {
 								globalEvents.emit('real-transaction', 12)
 								this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
 							})
 						}
 					})
 					.catch((err) => console.log(err))
-			}, 2800);
+			// }, 2800);
 
 		} else if (this.name == "Dexie") {
 			this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")

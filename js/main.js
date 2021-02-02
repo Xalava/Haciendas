@@ -4,6 +4,9 @@ import PreloaderScene from "./PreloaderScene.js"
 import InterfaceScene from "./InterfaceScene.js"
 import MarketScene from "./MarketScene.js"
 
+import EtherHelp from "./helpers/EtherHelp.js"
+import Network from "./helpers/network.js"
+
 const config = {
     width: 400,
     height: 300,
@@ -34,10 +37,13 @@ const config = {
     },
 
 }
-console.log("0 Loading game")
+console.log("0.0 Loading game")
 // const settings = new Settings()
 globalGame = new Phaser.Game(config)
-console.log("1 Game loaded")
+console.log("0.1 Game loaded")
+
+globalEth =  new EtherHelp()
+console.log(" Eth loaded")
 
 // Necessary?
 window.focus()

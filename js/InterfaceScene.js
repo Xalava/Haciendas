@@ -10,20 +10,19 @@ import {cryptos} from "./helpers/cryptos.js"
 const BASEBLUE = 0x00031f6c
 const BASEBROWN = 0x8b4513
 const BASEWHITE = 0xEEEEEE
-const ACTIONSLOT = 30
-const HANDSLOT = 31
-
-// Mock, should be member of globalEth
-const inventory = {DAI:10, REAL:2, AAVE:10, ETH:1323}
+const MAXINVENTORY = 12
+const ACTIONSLOT = MAXINVENTORY + 1
+// const HANDSLOT = MAXINVENTORY + 2
 
 export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
 		super({ key: 'interfaceScene', active: false })
-		this.lastEmptySlot 
-		// Could be more coherent elsewhere
+		this.lastSlot = -1
+		this.invSlotsArray = [] // arrays of "slots", with .item attached
+
+		// Legacy : 
 		this.usdc = 0
 		this.real = 0
-
 
 	}
 	preload() {
@@ -65,9 +64,13 @@ export default class InterfaceScene extends Phaser.Scene {
  		element.invX = x+12
 		element.invY = y+12
 		element.on('pointerover', pointer => {
-			if(!element.item){
-				this.lastEmptySlot = reference
-				console.log("hovering", reference)
+			if(element.item){
+				if(DEBUG) console.log("hovering", reference, element.item.token)
+				this.lastSlot = reference
+			} else {
+				this.lastSlot = reference
+				if(DEBUG) console.log("hovering empty", reference)
+
 			}
 		})
 		// element.setOrigin(0) // not possible, graphics are not game object
@@ -86,9 +89,8 @@ export default class InterfaceScene extends Phaser.Scene {
 
 		// Create a of inventory slots and display them
 		this.invSlotsGroup = this.add.group()
-		this.invSlotsArray = []
-		for (let i = 0; i < 6; i++) {
-			for (let j = 0; j < 2; j++) {
+		for (let j = 0; j < 2; j++) {
+			for (let i = 0; i < 6; i++) {
 				const x = 36+ 32* i
 				const y = 60+ 32* j
 				let slot = this.createSlot(x,y,i+j*6)
@@ -99,20 +101,18 @@ export default class InterfaceScene extends Phaser.Scene {
 		}
 		if(DEBUG)
 			console.log("inventory slots", this.invSlotsGroup.getChildren())
-		let i=0 
-		// let inventoryCoinObjects=[]
 		this.itemsGroup = this.add.group()
-		for (const token in inventory) {
-			let slot = this.invSlotsArray[i++] // We randomly allocate items to slot in order 
+		for (const token in globalEth.assets) {
 			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
-			let txt = this.add.text(0, 0,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+			let txt = this.add.text(0, 0,globalEth.assets[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
 				// We need a solution to manage large numbers. Attempt : 
 				// txt.setFixedSize(12, 0)
 
 			// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
 			// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-			let item = this.add.container(slot.invX,slot.invY,[coin, txt])
+			let item = this.add.container(0,0,[coin, txt])
 			item.token = token // To keep it at hand 
+			this.addItemToInventory(item)
 			// item.add(coin)
 			// item.add(txt)
 			item.setSize(20, 20);
@@ -151,12 +151,14 @@ export default class InterfaceScene extends Phaser.Scene {
 		}
 		// this.invGraphics.add(this.itemsGroup)
 		// this.input.setDraggable(this.itemsGroup.getChildren());
+		this.input.setTopOnly(false)
 		this.input.on('dragstart', function (pointer, gameObject) {
-			console.log("drag start")
+			console.log("↑ drag start from", this.scene.lastSlot)
 			// when draged we look darker
 			if (gameObject.type == "Container"){
 				gameObject.list[0].setTint(0x4f4f4f)
 				gameObject.list[1].setStyle({color:'#999'})
+				gameObject.priorPosition = this.scene.lastSlot
 
 			}
 		});
@@ -169,10 +171,25 @@ export default class InterfaceScene extends Phaser.Scene {
 	
 		this.input.on('dragend', function (pointer, gameObject, dropped) {
 			if (!dropped) {
-				// gameObject.x = this.lastEmptySlot.x
-				// gameObject.y = this.lastEmptySlot.y
-				gameObject.x = gameObject.input.dragStartX;
-				gameObject.y = gameObject.input.dragStartY;
+				//Empty slot case
+				// !! Context is input pluing
+				let scene = this.scene
+				if (DEBUG){
+					console.log('↓ Dragend to', scene.lastSlot, "with", scene.invSlotsArray[scene.lastSlot].item)
+
+				}
+				if(scene.invSlotsArray[scene.lastSlot].item === undefined){
+					// Controller
+					scene.invSlotsArray[scene.lastSlot].item = gameObject
+					delete scene.invSlotsArray[gameObject.priorPosition].item
+
+					// View (could use a global refresh function)
+					gameObject.x = scene.invSlotsArray[scene.lastSlot].invX
+					gameObject.y = scene.invSlotsArray[scene.lastSlot].invY
+				} else {
+					gameObject.x = gameObject.input.dragStartX
+					gameObject.y = gameObject.input.dragStartY
+				}			
 			}
 			
 			if (gameObject.type == "Container")
@@ -181,8 +198,44 @@ export default class InterfaceScene extends Phaser.Scene {
 		})
 
 		// this.invGraphics.add(tokenText)
+		this.updateInventory()
 		this.invGraphics.setVisible(false)
 			
+	}
+	addItemToInventory(item){
+		if(globalEth.assets[item.token]>0){
+			let idx = this.invSlotsArray.findIndex(x=>{ if(x) return x.token == item.token} )
+			console.log(`token exists at ${idx}`)
+			if (idx !== -1){
+				 // the item is above 0 and exists is in a slot
+				 item.setVisible(true)
+			} else {
+				let emptyID = this.invSlotsArray.findIndex(x=> {if(x) return x.item === undefined})
+				if (emptyID == -1 ){
+					// TODO check case above max size of the inventory
+					console.error(`No space left in inventory`)
+
+				} else {
+
+					if(DEBUG)
+						console.log(`There is a slot`, this.invSlotsArray[emptyID])
+					this.invSlotsArray[emptyID].item = item
+					item.x = this.invSlotsArray[emptyID].invX
+					item.y = this.invSlotsArray[emptyID].invY
+					item.setVisible(true)
+				}
+			}
+
+		} else {
+			item.setVisible(false)
+		}
+
+	}
+	updateInventory(){
+		for(let token in globalEth.assets){
+			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
+
+		}
 	}
 
 	// Open transactions panel, Created and destroyed each time.
@@ -249,9 +302,9 @@ export default class InterfaceScene extends Phaser.Scene {
 				// We have a token! 
 				// Let's add the appropriate dialog
 				const el = this.add.dom(285, 150).createFromCache('pretransaction')
-				document.querySelector('#amount').value = inventory[gameObject.token]
+				document.querySelector('#amount').value = globalEth.assets[gameObject.token]
 				document.querySelector('#actionButton').innerHTML = action
-				console.log(gameObject.token, inventory, inventory[gameObject.token])
+				console.log(gameObject.token, globalEth.assets, globalEth.assets[gameObject.token])
 				// let el = document.querySelector('#actionButton')
 				el.addListener('click').on('click', (event) => {
 					if (event.target.localName === 'button') {
@@ -290,13 +343,14 @@ export default class InterfaceScene extends Phaser.Scene {
 	}
 
 	closeTransactionDialog(){
-		this.transactionDialog.clear(true,true)
 		// let elements = this.transactionDialog.getChildren()
 		// console.log(elements)
 		// let el = Phaser.Utils.Array.RemoveRandomElement(elements)
 		// el.destroy(true)
 		// this.transactionDialog.destroy(true) // true: destroy contained elements too
 		if (this.transactionDialog){
+			this.transactionDialog.clear(true,true)
+
 			console.log(this.transactionDialog)
 			this.transactionDialog = null
 		}
@@ -388,21 +442,14 @@ export default class InterfaceScene extends Phaser.Scene {
 		//// Inputs
 		this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on('down', function (event) {
-			// this.invGraphics.toggleVisible()
-			if (this.invGraphics.visible || document.activeElement === chatInput){
-				this.invGraphics.visible = false
+			if(document.activeElement === chatInput){
 				this.chatInput.value = this.chatInput.value + "i"
-			} else {
-				this.invGraphics.visible = true
-			}
-			// Typical group
-			// group.setVisible(value);
 
-			// archive with obeject directly
-			// if (this.invGraphics.visible)
-			// 	this.invGraphics.visible = false
-			// else 
-			// 	this.invGraphics.visible = true
+			} else {
+				
+				this.invGraphics.toggleVisible()
+			}
+
 		}, this)
 
 
@@ -468,6 +515,7 @@ export default class InterfaceScene extends Phaser.Scene {
 
 
 	
+
 
 
 

@@ -9,7 +9,7 @@ const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 export default class EtherHelp {
 
     constructor() {
-
+        this.assets = {DAI:10, REAL:2, AAVE:10, ETH:1323}
     }
 
     initialisePortis() {
@@ -34,6 +34,7 @@ export default class EtherHelp {
     }
 
     async initialiseMetaMask(){
+        // return new Promise(async (resolve, reject) => {
         if(window.ethereum){
             window.Web3 = new Web3(window.ethereum)
             await window.ethereum.enable()
@@ -46,6 +47,7 @@ export default class EtherHelp {
 
             resolve()
         }
+        // })
         return false
     }
 

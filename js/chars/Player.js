@@ -167,8 +167,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.scene.physics.add.overlap(actionSprite, this.scene.BuyCoffee, (a, p) => {
                     if (this.triggered == false) {
                         this.scene.sound.play('machine')
-                        if (this.scene.eth)
-                            this.scene.eth.buyCoffee()
+                        if (globalEth)
+                            globalEth.buyCoffee()
                         else
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
                         this.triggered = true
@@ -177,8 +177,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 this.scene.physics.add.overlap(actionSprite, this.scene.BuyUSDC, (a, p) => {
                     if (this.triggered == false) {
-                        if (this.scene.eth)
-                            this.scene.eth.buyUSDC()
+                        if (globalEth)
+                            globalEth.buyUSDC()
                         else
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
                         this.triggered = true
