@@ -99,8 +99,12 @@ export default class Network {
 
     // We receive a name update, we just udpate the data 
     receiveNameUpdate(player) {
-        this.players[player.id].address = player.address
-        this.players[player.id].ename = player.ename
+        if(this.players[player.id]){
+            this.players[player.id].address = player.address
+            this.players[player.id].ename = player.ename
+        } else {
+            console.log(`${player.id} not found`)
+        }
     }
 
     sendNameUpdate (address, ename) {

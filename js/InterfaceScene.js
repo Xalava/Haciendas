@@ -466,8 +466,8 @@ export default class InterfaceScene extends Phaser.Scene {
 		// });
 
 		if (DEBUG) {
-			// For debug purpose, we can open a transaction panel with ourselves
-
+			// For debug purpose, we can :
+			// - open a transaction panel with ourselves
 			this.input.keyboard
 				.addKey(Phaser.Input.Keyboard.KeyCodes.E)
 				.on('down', function (event) {
@@ -477,6 +477,13 @@ export default class InterfaceScene extends Phaser.Scene {
 						this.closeTransactionDialog()
 					}
 				}, this)
+			// - connect to Ethereum
+			this.input.keyboard
+			.addKey(Phaser.Input.Keyboard.KeyCodes.R)
+			.on('down', function (event) {
+				globalEth.initialiseMetaMask()
+			}, this)		
+			
 		}
 
 		// chat

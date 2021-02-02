@@ -34,21 +34,25 @@ export default class EtherHelp {
     }
 
     async initialiseMetaMask(){
-        // return new Promise(async (resolve, reject) => {
         if(window.ethereum){
-            window.Web3 = new Web3(window.ethereum)
-            await window.ethereum.enable()
-            const accounts = await this.provider.listAccounts()
-            this.account = accounts[0]
-            this.signer = this.provider.getSigner()
-            this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
-            globalEvents.emit('connected', this.account)
-            console.log("connected")
-
-            resolve()
+            if (ethereum.isConnected()){
+                // Metamask connection
+                const accounts = await ethereum.request({ method: 'eth_requestAccounts' })
+                this.account = accounts[0]
+                // Ethers provider initialisation
+                this.provider = new ethers.providers.Web3Provider(window.ethereum)
+                this.signer = this.provider.getSigner()
+                // Smart contract initialisation 
+                this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
+                // Interface functions
+                globalEvents.emit('connected', this.account)
+                console.log(`connected with ${this.account}`)
+            } else {
+                console.warn(`Ethereum not connected. Please refresh the page`)
+            }
+        } else {
+            console.error(`Ethereum object not detected`)
         }
-        // })
-        return false
     }
 
     getRealBalance() {
