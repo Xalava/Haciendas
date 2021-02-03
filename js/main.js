@@ -23,7 +23,7 @@ const config = {
             WelcomeScene, 
             GameScene,
             InterfaceScene,
-            MarketScene
+            // MarketScene
             ],
     dom: {
         createContainer: true

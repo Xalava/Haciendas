@@ -80,51 +80,66 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	contact() {
-		if (this.name == "Fox") {
-			this.says("Welcome stranger. You will learn to set up your wallet. Create or validate your account and I will give you Reales, the ingame currency ")
+		switch (this.name) {
+			case "Fox":
+				this.says("Welcome stranger ! How about connecting your wallet? ")
 
-			// setTimeout(async () => {
-				globalEth.initialiseMetaMask().then(async () => {
-						if (DEBUG)
-							console.log(globalEth)
-						const isparticipant = await globalEth.realContract.participants(globalEth.account)
-						const ethBalance = await globalEth.getETHBalance()
-
-						if (isparticipant) {
-							this.says("Sly as a fox I see, you have already joined!")
-							globalEvents.emit('real-transaction', 0)
-
-						} else if (!ethBalance){
-							this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
-						} else {
-							this.says("Great! Let me send 12 reales to you at" + globalEth.account)
-							globalEth.participate().then(() => {
-								globalEvents.emit('real-transaction', 12)
-								this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
-							})
-						}
-					})
-					.catch((err) => console.log(err))
-			// }, 2800);
-
-		} else if (this.name == "Dexie") {
-			this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
-
-		} else if (this.name == "Unicorn") {
-			this.says("I'm a Unicorn. What do you expect?")
-
-		} else if (this.name == "Kevin") {
-			this.says("Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC")
-
-		} else if (this.name == "Andrés"){
-			if (this.quest != "catch transactions"){
-				this.says("Bienvenido. If you want to learn how to learn the basics of blockhain, grap the net.")
-			} else {
-				this.says("Go to the mempool in the west and catch five green transactions")
-			}
-		} else {
-			this.says("Hello!")
+				setTimeout(async () => {
+					globalEth.initialiseMetaMask().then(async () => {
+							if (DEBUG)
+								console.log(globalEth)
+							const isparticipant = await globalEth.realContract.participants(globalEth.account)
+							const ethBalance = await globalEth.getETHBalance()
+	
+							if (isparticipant) {
+								this.says("Sly as a fox I see, you have already joined!")
+								globalEvents.emit('real-transaction', 0)
+	
+							} else if (!ethBalance){
+								this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
+							} else {
+								this.says("Great! Let me send 12 reales to you at" + globalEth.account)
+								globalEth.participate().then(() => {
+									globalEvents.emit('real-transaction', 12)
+									this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
+								})
+							}
+						})
+						.catch((err) => console.log(err))
+				}, 2800);				
+				break;
+			case "Dexie":
+				// this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
+				this.says("Welcome to our decentralised exchange ! You can buy DAI on my left and AAVE on my right")
+				break;
+			case "Unicorn":
+				this.says("I'm a Unicorn. What do you expect?")
+				break;
+			case "Kevin":
+				this.says("Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC")
+				break;
+			case "Andres":
+				if (this.quest != "catch transactions"){
+					this.says("Bienvenido. If you want to learn how to learn the basics of blockhain, grap the net.")
+				} else {
+					this.says("Go to the mempool in the west and catch five green transactions")
+				}	
+				break;
+			case "Guide":
+				this.says("Welcome to AAVE! You can deposit DAI to the pool, take a loan or go to the governance building")
+				break;
+			case "GuideGov":
+				this.says("Welcome to AAVE Governance building. Read proposals on the wall, discuss and vote !")
+				break;
+			case "LoanOfficer":
+				this.says("Hello ! Do you want to take a loan?")
+				break;
+					
+			default:
+				this.says("Hello!")
+				break;
 		}
+
 	}
 
 	preUpdate(t, dt) {

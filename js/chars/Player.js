@@ -175,10 +175,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 }, null, this)
 
-                this.scene.physics.add.overlap(actionSprite, this.scene.BuyUSDC, (a, p) => {
+                this.scene.physics.add.overlap(actionSprite, this.scene.buyGroup, (a, p) => {
                     if (this.triggered == false) {
                         if (globalEth)
-                            globalEth.buyUSDC()
+                            // todo globalEth.swap()
+                            console.log(`here should open token swap menu for`, p.token)
                         else
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
                         this.triggered = true

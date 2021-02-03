@@ -11,6 +11,8 @@ import Mine from "./object/Mine.js"
 import {charactersList} from "./chars/charactersList.js"
 import {createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
 
+import {cryptos} from "./helpers/cryptos.js"
+
 //// Global objects
 import globalEvents from "./helpers/globalEvents.js"
 import EtherHelp from "./helpers/EtherHelp.js"
@@ -73,6 +75,23 @@ export default class GameScene extends BaseScene {
 
         return {map, tileset, startPosition}
     }
+    addGateway(from, to){
+        if (from && to){
+            
+            let exitZone = this.add.image(from.x+30,from.y+30)
+            this.physics.add.existing(exitZone)
+            exitZone.setDepth(10)
+            this.physics.add.collider(this.player, exitZone,  (p,n) => {
+                console.log("ETeleport!")
+                this.player.x = to.x
+                this.player.y = to.y
+                // this.scene.start('marketScene',  { currentChar: this.player.char })
+            }) 
+        } else {
+            console.error(`Zones not found`)
+        }
+
+    }
 
     create() {
         //// Map loading
@@ -80,7 +99,7 @@ export default class GameScene extends BaseScene {
             map,
             tileset,
             startPosition
-        } = this.initialiseMap('miningMap')
+        } = this.initialiseMap('majorMap')
 
         //// World collision
         this.physics.world.setBounds(0, 0, map.width * 16, map.heigth * 16) // (x, y, width, height)
@@ -96,8 +115,11 @@ export default class GameScene extends BaseScene {
         this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
         
         //// Trying camera 
-        if (!DEBUG) // debug shortcut
-            this.cameras.main.pan(startPosition.x, startPosition.y, 4000, 'Sine.easeInOut')
+        if (!DEBUG){// debug shortcut
+            this.cameras.main.centerOn(200, startPosition.y-700);
+            this.cameras.main.pan(startPosition.x, startPosition.y, 3000, 'Sine.easeInOut')
+
+        } 
         this.scene.launch('interfaceScene')
         this.input.setDefaultCursor('url(assets/cursor.png), pointer');
 
@@ -176,7 +198,7 @@ export default class GameScene extends BaseScene {
             console.log("pnjsGroup", this.pnjsGroup.getChildren())
             
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
-            
+        if (andres) {
             // we probably need a generic picable object class
             const net = this.add.image(andres.x +10, andres.y - 14 , 'actions', 0)
             net.setDepth(10)
@@ -185,7 +207,9 @@ export default class GameScene extends BaseScene {
                 this.launchCatchQuest(andres)
                 n.destroy()
             }) 
-    
+        } else {
+            console.error(`Andres not found!`)
+        }
 
         const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
         if(DEBUG)
@@ -223,7 +247,7 @@ export default class GameScene extends BaseScene {
             delay: 4000,
             callback: () => {
                 if (this.transactions.children.size < 12) {
-                    const tr = this.add.transaction(9 * 16, 15 * 16)
+                    const tr = this.add.transaction(9 * 16, 95 * 16)
                     this.transactions.add(tr)
                 }
             },
@@ -251,14 +275,13 @@ export default class GameScene extends BaseScene {
         })
 
         // Exit Zone
-        const exitZone = map.findObject("Helpers", obj => obj.name === "toMarket")
-        this.exitZone = this.add.image(exitZone.x+30,exitZone.y+30)
-        this.physics.add.existing(this.exitZone)
-        this.exitZone.setDepth(10)
-        this.physics.add.collider(this.player, this.exitZone,  (p,n) => {
-            console.log("EXIT ZONE!")
-            this.scene.start('marketScene',  { currentChar: this.player.char })
-        }) 
+        const toGovernance = map.findObject("Helpers", obj => obj.name === "toGovernance")
+        const startGovernance = map.findObject("Helpers", obj => obj.name === "startGovernance")
+        this.addGateway(toGovernance,startGovernance)
+
+        const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
+        const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")
+        this.addGateway(toMainland,startMainland)
 
         // Faucet (interaction in handled with action in Player.js)
         const faucet = map.findObject("Helpers", obj => obj.name === "Faucet")
@@ -268,15 +291,20 @@ export default class GameScene extends BaseScene {
         this.faucet.setDepth(10)
 
 
+        // Add swap cryptos
+        this.buyGroup = this.physics.add.group()
+        const BuyObjects = map.filterObjects("Helpers", obj => obj.name === "Buy")
+        BuyObjects.forEach(bo => {
+            console.log(`adding`, bo)
+            let token = bo.properties.find(p => p.name == "token").value
 
-        const BuyUSDCObj = map.findObject("Helpers", obj => obj.name === "BuyUSDC")
-        this.add.image(BuyUSDCObj.x + 8, BuyUSDCObj.y - 8, "cryptos", 0).setScale(0.8).setDepth(5)
-        this.BuyUSDC = this.add.image(BuyUSDCObj.x - 8, BuyUSDCObj.y - 8, "cryptos", 10)
-        this.BuyUSDC.setDepth(5)
-        this.physics.add.existing(this.BuyUSDC)
-        if (DEBUG)
-            console.log("BUYUSDC", this.BuyUSDC)
-        
+            let buyImage = this.add.image(bo.x + 8-8, bo.y-2 , "cryptos", cryptos[token].frame).setScale(0.8).setDepth(5)
+            buyImage.token = token
+            this.buyGroup.add(buyImage)
+            // if (DEBUG)
+            //     console.log("BUYUSDC", this.BuyUSDC)
+        })
+
         const BuyCoffeeObj = map.findObject("Helpers", obj => obj.name === "BuyCoffee")
         this.BuyCoffee = this.add.image(BuyCoffeeObj.x, BuyCoffeeObj.y)
         this.BuyCoffee.setDepth(5)
