@@ -7,6 +7,7 @@
 	<title>Haciendas</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
 	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 	<style>
 		body {
@@ -24,18 +25,19 @@
 
 	<div id="game"></div>
 	<script type='text/javascript'>
-		// Global objects. 
+		// Global objects.
 		let globalGame // The phaser game object
 		let globalNetwork // Server communication
-		let globalEth // Ethereum communication 
+		let globalEth // Ethereum communication
 		let DEBUG = false
 	  </script>
 	<!-- <script src="https://cdn.jsdelivr.net/npm/@portis/web3@2.0.0-beta.59/umd/index.min.js"></script> -->
-	<script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.js"></script> 
+	<script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.js"></script>
 	<script src="https://cdn.ethers.io/lib/ethers-5.0.umd.min.js" type="application/javascript"></script>
 	<!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.3.0/dist/web3.min.js" type="application/javascript"></script> -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.slim.min.js" integrity="sha512-tj7TsH/mhgmfzJFXDAyYrVZbGz1tjT6/eglLxP5S7wvHz4XkTWqST0Ldx+oEWyre43PU0hlncsxCh+1u81QW9A==" crossorigin="anonymous"></script>
 	<script type="module" src="js/main.js"></script>
+
 
 </body>
 

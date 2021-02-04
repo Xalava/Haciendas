@@ -11,7 +11,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.ongoingAction = false
         this.timerSinceReport = 0
         // Complement for mouse control
-        // this.scene.input.on('pointerdown', 
+        // this.scene.input.on('pointerdown',
         //     pointer => { if(pointer.worldX < this.x){
         //         this.direction = Directions.LEFT
         //         this.body.setVelocityX(-stdVelocity)
@@ -34,6 +34,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.y = this.y + Math.round((this.y - obj.y) / 2)
     }
 
+    async swapETHforDAI(amount){
+        let fromAddress = globalEth.account
+        const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+        console.log('req string in swap func', reqString)
+        const { data } = await axios.get(reqString)
+        console.log('data from 1inch response', data)
+        globalEvents.emit("says", `Let's swap your ETH for DAI! Let's start small with ${amount} ETH which is equal to ${data.toTokenAmount} DAI`)
+    }
+
     update(inputKeys, t, dt) {
         // console.log(inputKeys, t, dt)
         if (inputKeys.left.isDown||inputKeys.leftA.isDown) {
@@ -44,21 +53,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             // var music = this.sound.add('steps')
             // music.play()
             if(this.direction != Directions.LEFT && globalNetwork)
-                globalNetwork.reportPosition (this.x, this.y, Directions.LEFT, true) 
+                globalNetwork.reportPosition (this.x, this.y, Directions.LEFT, true)
                 this.timerSinceReport = 0
             this.direction = Directions.LEFT
         } else if (inputKeys.right.isDown||inputKeys.rightA.isDown) {
             this.body.setVelocityX(stdVelocity)
             this.anims.play(this.char.name+'-right', true)
             if(this.direction != Directions.RIGHT && globalNetwork)
-                globalNetwork.reportPosition (this.x, this.y, Directions.RIGHT, true) 
+                globalNetwork.reportPosition (this.x, this.y, Directions.RIGHT, true)
                 this.timerSinceReport = 0
             this.direction = Directions.RIGHT
         } else if (inputKeys.up.isDown||inputKeys.upA.isDown) {
             this.body.setVelocityY(-stdVelocity)
             this.anims.play(this.char.name+'-up', true)
             if(this.direction != Directions.UP && globalNetwork)
-                globalNetwork.reportPosition (this.x, this.y, Directions.UP, true) 
+                globalNetwork.reportPosition (this.x, this.y, Directions.UP, true)
                 this.timerSinceReport = 0
             this.direction = Directions.UP
         } else if (inputKeys.down.isDown||inputKeys.downA.isDown) {
@@ -66,7 +75,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.anims.play(this.char.name+'-down', true)
             // ALT: this.flipX = false
             if(this.direction != Directions.DOWN && globalNetwork)
-                globalNetwork.reportPosition (this.x, this.y, Directions.DOWN, true) 
+                globalNetwork.reportPosition (this.x, this.y, Directions.DOWN, true)
                 this.timerSinceReport = 0
             this.direction = Directions.DOWN
         } else {
@@ -81,7 +90,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 }
             }
         }
-        this.timerSinceReport += dt 
+        this.timerSinceReport += dt
         // console.log(dt)
         // Not a great solution, but avoid large discrepencies. It should be every 4 steps on average
         if( this.timerSinceReport = 0 > 60){
@@ -177,12 +186,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 this.scene.physics.add.overlap(actionSprite, this.scene.buyGroup, (a, p) => {
                     if (this.triggered == false) {
-                        if (globalEth)
-                            // todo globalEth.swap()
-                            console.log(`here should open token swap menu for`, p.token)
-                        else
+                        if (!globalEth.account){
                             globalEvents.emit("says", "You must get connected first. Go see the fox")
-                        this.triggered = true
+                        } else if (globalEth) {
+                            this.swapETHforDAI(1)
+                        } else {
+                            globalEvents.emit("says", "You must get connected first. Go see the fox")
+                            this.triggered = true
+                        }
                     }
                 }, null, this)
 
