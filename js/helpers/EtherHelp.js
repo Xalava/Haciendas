@@ -42,7 +42,7 @@ export default class EtherHelp {
                 // Ethers provider initialisation
                 this.provider = new ethers.providers.Web3Provider(window.ethereum)
                 this.signer = this.provider.getSigner()
-                // Smart contract initialisation 
+                // Smart contract initialisation
                 this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
                 // Interface functions
                 globalEvents.emit('connected', this.account)
@@ -99,7 +99,11 @@ export default class EtherHelp {
             })
     }
 
-
+    async findLiquidityPool(){
+        const { data } = await axios.get('https://aave-api-v2.aave.com/data/tvl')
+        console.log('liquidity pool data', data)
+        // const totalValInUsd = data.
+    }
 
     async isParticipant() {
 
