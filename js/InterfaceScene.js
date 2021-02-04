@@ -14,6 +14,9 @@ const MAXINVENTORY = 12
 const ACTIONSLOT = MAXINVENTORY + 1
 // const HANDSLOT = MAXINVENTORY + 2
 
+const names =  ["Aiden", "Alex", "Billie", "Casey", "Erin", "Harley", "Jade", "Kim", "AE-X3"];
+const playerName = names[Math.floor(Math.random() * names.length)];
+
 export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
 		super({ key: 'interfaceScene', active: false })
@@ -503,7 +506,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			const message = this.chatInput.value
 			if (message == "")
 				return
-			let myname = "Sato"
+			let myname = playerName
 			if (this.gameScene.eth) {
 				myname = this.gameScene.eth.account.substr(0, 6)
 			}
