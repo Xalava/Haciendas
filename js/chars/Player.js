@@ -1,5 +1,6 @@
 import {Directions, stdVelocity} from "../helpers/directions.js"
 import globalEvents from "../helpers/globalEvents.js"
+import {cryptos} from "../helpers/cryptos.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
@@ -32,15 +33,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     handleBumpyCollision(player, obj) {
         this.x = this.x + Math.round((this.x - obj.x) / 2)
         this.y = this.y + Math.round((this.y - obj.y) / 2)
-    }
-
-    async swapETHforDAI(amount){
-        let fromAddress = globalEth.account
-        const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
-        console.log('req string in swap func', reqString)
-        const { data } = await axios.get(reqString)
-        console.log('data from 1inch response', data)
-        globalEvents.emit("says", `Let's swap your ETH for DAI! Let's start small with ${amount} ETH which is equal to ${data.toTokenAmount} DAI`)
     }
 
     update(inputKeys, t, dt) {
@@ -185,14 +177,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 }, null, this)
 
                 this.scene.physics.add.overlap(actionSprite, this.scene.buyGroup, (a, p) => {
-                    if (this.triggered == false) {
-                        if (!globalEth.account){
-                            globalEvents.emit("says", "You must get connected first. Go see the fox")
-                        } else if (globalEth) {
-                            this.swapETHforDAI(1)
-                        } else {
-                            globalEvents.emit("says", "You must get connected first. Go see the fox")
-                            this.triggered = true
+                    if(globalEth){
+
+                        if (this.triggered == false) {
+                            this.triggered = true;
+                            if (!globalEth.account){
+                                globalEvents.emit("says", "You must get connected first. Go see the fox")
+                            } else if (globalEth) {
+                                globalGame.scene.getScene('interfaceScene').openTransactionDialog("Swap", cryptos["DAI"].frame)
+                                globalEth.swapETHforDAI(1)
+                            } else {
+                                globalEvents.emit("says", "You must get connected first. Go see the fox")
+                                this.triggered = true
+                            }
                         }
                     }
                 }, null, this)

@@ -1,3 +1,4 @@
+// import { ethers } from 'ethers'
 import realAbi from '../../contracts/RealSimple.abi.js'
 import globalEvents from './globalEvents.js'
 
@@ -75,7 +76,6 @@ export default class EtherHelp {
 
     }
 
-
     buyCoffee() {
         this.realContract.buyCoffee()
             // TODO,  deal better with the ongoing transaction
@@ -85,7 +85,6 @@ export default class EtherHelp {
                 globalEvents.emit('adding-coffee')
 
             })
-
     }
 
     buyUSDC() {
@@ -109,6 +108,28 @@ export default class EtherHelp {
 
         return await this.realContract.participants(this.account)
     }
+
+
+    async swapETHforDAI(amount){
+        let fromAddress = globalEth.account
+        const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+        console.log('req string in swap func', reqString)
+        const { data } = await axios.get(reqString)
+        console.log('tx in 1inch response', data.tx)
+        globalEvents.emit("says", `So you want to swap your ETH for DAI? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
+
+        console.log('window.ethers in swap func', window.ethers)
+        // await window.ethers.Signer.sendTransaction(data.tx)
+    }
+
+    // async swapETHforAAVE(amount){
+    //     let fromAddress = globalEth.account
+    //     const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+    //     console.log('req string in swap func', reqString)
+    //     const { data } = await axios.get(reqString)
+    //     console.log('data from 1inch response', data)
+    //     globalEvents.emit("says", `So you want to swap your ETH for AAVE? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} AAVE`)
+    // }
 
     async participate() {
         return new Promise(async (resolve, reject) => {
