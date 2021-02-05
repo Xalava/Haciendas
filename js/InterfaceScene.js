@@ -243,7 +243,7 @@ export default class InterfaceScene extends Phaser.Scene {
 
 	// Open transactions panel, Created and destroyed each time.
 	// CounterpartyName is an address for players and a name for NPC
-	openTransactionDialog(action, player, counterpartyFrame, counterpartyAddress, counterpartyName ) {
+	openTransactionDialog(action, counterpartyFrame, counterpartyAddress, counterpartyName ) {
 		if (DEBUG)
 			console.log("Open Transaction Dialog with Counterparty: (sprite)", counterpartyAddress)
 		const INTERFACEFONT =  { fontSize: 10,font: '"Press Start 2P"' }
@@ -259,10 +259,15 @@ export default class InterfaceScene extends Phaser.Scene {
 			// Mostly for reference
 			case 'Send':
 				spritesheet = 'characters'
+
 				break;
 				
 			case 'Swap':
 				spritesheet = 'cryptos'
+				if (counterpartyName) {
+					let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,4)  + ' swap', INTERFACEFONT)
+					this.transactionDialog.add(nameTxt)
+				}
 				break;
 
 			case 'Throw':
@@ -277,17 +282,16 @@ export default class InterfaceScene extends Phaser.Scene {
 			default:
 				break;
 		}
-					
 		if (counterpartyName) {
-			let nameTxt = this.add.text(275, 30,  counterpartyName.slice(0,10), INTERFACEFONT)
+			let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,10), INTERFACEFONT)
 			this.transactionDialog.add(nameTxt)
 		}
 		if (counterpartyFrame){
-			let playerSprite = this.add.image(264, 32, spritesheet,  counterpartyFrame)
-			this.transactionDialog.add(playerSprite)
+			let counterpartySprite = this.add.image(264, 32, spritesheet,  counterpartyFrame)
+			this.transactionDialog.add(counterpartySprite)
 		}
 		if (counterpartyAddress) {
-			let addressTxt = this.add.text(270, 42,  counterpartyAddress.slice(0,6), INTERFACEFONT)
+			let addressTxt = this.add.text(274, 30,  counterpartyAddress.slice(0,6), INTERFACEFONT)
 			this.transactionDialog.add(addressTxt)
 		}
 		// let actionText = this.add.text(275, 30, action, INTERFACEFONT)
@@ -312,14 +316,22 @@ export default class InterfaceScene extends Phaser.Scene {
 				el.addListener('click').on('click', (event) => {
 					if (event.target.localName === 'button') {
 						console.log("Button click", event)
+						let amount = document.querySelector('#amount').value
+						if (action == "Send"){
 
-						// TODO trigger transaction
+							globalEth.sendETH(counterpartyAddress, amount)
+						}
+						else if(action == "Swap"){
+							console.log(`TODO a swap should happen here`)
+						} else {
+							console.error("Action not available")
+						}
 						this.closeTransactionDialog()
 					}
 				})
 				this.transactionDialog.add(el)
 			}	
-		});
+		})
 	
 		//  A drop zone
 		var zone = this.add.zone(267, 69, 40, 40).setDropZone()
@@ -337,11 +349,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
 		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
 		
-		this.input.keyboard
-		.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
-		.on('down', function (event) {
-			this.closeTransactionDialog()
-		}, this)
+
 
 	}
 
@@ -468,14 +476,15 @@ export default class InterfaceScene extends Phaser.Scene {
 		//     this.chatInput.focus();
 		// });
 
-		if (DEBUG) {
+		// Debug function always available in dev phase
+		if (1) {
 			// For debug purpose, we can :
 			// - open a transaction panel with ourselves
 			this.input.keyboard
 				.addKey(Phaser.Input.Keyboard.KeyCodes.E)
 				.on('down', function (event) {
 					if (!this.transactionDialog) {
-						this.openTransactionDialog( "Send", this.gameScene.player, 7, "Ox2323", "Eloïse")
+						this.openTransactionDialog("Send", 7, "0xd4c5", "Eloise.eth")
 					} else {
 						this.closeTransactionDialog()
 					}
@@ -485,9 +494,26 @@ export default class InterfaceScene extends Phaser.Scene {
 			.addKey(Phaser.Input.Keyboard.KeyCodes.R)
 			.on('down', function (event) {
 				globalEth.initialiseMetaMask()
-			}, this)		
+			}, this)	
+			
+			this.input.keyboard
+			.addKey(Phaser.Input.Keyboard.KeyCodes.T)
+			.on('down', function (event) {
+				this.openTransactionDialog("Swap", cryptos["DAI"].frame,"0x6B175474E89094C44Da98b954EedeAC495271d0F","Dai Swap")
+			}, this)	
+			
+
 			
 		}
+
+		this.input.keyboard
+		.addKey(Phaser.Input.Keyboard.KeyCodes.ESC)
+		.on('down', function (event) {
+			this.closeTransactionDialog()
+			// TODO Add close inventory anyway
+			this.chatInput.blur()
+
+		}, this)
 
 		// chat
 		globalNetwork = new Network(this.gameScene.player)

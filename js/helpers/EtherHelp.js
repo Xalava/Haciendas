@@ -6,10 +6,14 @@ const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
 const network = 'maticTestnet'
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
+
+//AAVE Kovan addresses
+
+
 export default class EtherHelp {
 
     constructor() {
-        this.assets = {DAI:10, REAL:2, AAVE:10, ETH:1323}
+        this.assets = {DAI:59, REAL:2, AAVE:10, ETH:3}
     }
 
     initialisePortis() {
@@ -74,7 +78,26 @@ export default class EtherHelp {
         this.ethBalance = ethers.utils.formatEther(balance)
 
     }
+    async sendETH(address, amount){
+        const tx = this.signer.sendTransaction({
+            to: address,
+            value: ethers.utils.parseEther(amount)
+        });
+    }
+    getGovernanceItems(){
+        let govItems = [{
+            name: "Adding BAL on AAVE",
+            yay: 262,
+            nay: 184,
+        },{
+        
+            name: "Aavenomcis quarterly Upgrade",
+            yay: 0,
+            nay: 0,
 
+        }]
+        return govItems
+    }
 
     buyCoffee() {
         this.realContract.buyCoffee()

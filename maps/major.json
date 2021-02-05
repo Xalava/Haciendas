@@ -236,15 +236,15 @@
                  "y":864
                 }, 
                 {
-                 "height":48,
+                 "height":8,
                  "id":36,
                  "name":"toGovernance",
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":32,
-                 "x":1984,
-                 "y":640
+                 "width":19,
+                 "x":1990,
+                 "y":700
                 }, 
                 {
                  "height":0,
@@ -254,8 +254,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":447.25,
-                 "y":507.166666666667
+                 "x":447.75,
+                 "y":500.666666666667
                 }, 
                 {
                  "height":0,
@@ -278,14 +278,20 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1998.25,
-                 "y":728.5
+                 "x":2000.25,
+                 "y":756
                 }, 
                 {
                  "height":0,
                  "id":48,
                  "name":"yay",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":2
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -298,6 +304,12 @@
                  "id":49,
                  "name":"nay",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -310,6 +322,12 @@
                  "id":50,
                  "name":"yay",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":1
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -322,12 +340,65 @@
                  "id":51,
                  "name":"nay",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":2
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
                  "x":626.666666666667,
                  "y":352.666666666667
+                }, 
+                {
+                 "height":0,
+                 "id":55,
+                 "name":"Proposal",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":1
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":336.5,
+                 "y":272
+                }, 
+                {
+                 "height":0,
+                 "id":57,
+                 "name":"Proposal",
+                 "point":true,
+                 "properties":[
+                        {
+                         "name":"prop",
+                         "type":"int",
+                         "value":2
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":560,
+                 "y":273
+                }, 
+                {
+                 "height":40,
+                 "id":58,
+                 "name":"toGovernanceCheat",
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":19,
+                 "x":393.833333333333,
+                 "y":1765.33333333333
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -557,7 +628,7 @@
          "y":0
         }],
  "nextlayerid":10,
- "nextobjectid":53,
+ "nextobjectid":59,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.4.3",

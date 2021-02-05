@@ -186,6 +186,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                     }
                 }, null, this)
 
+
+
+                this.scene.physics.add.overlap(actionSprite, this.scene.proposalsGroup, (a, p) => {
+                    if (this.triggered == false) {
+                        this.triggered = true
+                        console.log(p)
+                        globalEvents.emit("says", p.propData.name)
+
+                    }
+                }, null, this)
+
                 setTimeout(() => {
                     actionSprite.destroy()
                     this.triggered = false

@@ -78,7 +78,7 @@ export default class GameScene extends BaseScene {
     addGateway(from, to){
         if (from && to){
             
-            let exitZone = this.add.image(from.x+30,from.y+30)
+            let exitZone = this.add.image(from.x,from.y)
             this.physics.add.existing(exitZone)
             exitZone.setDepth(10)
             this.physics.add.collider(this.player, exitZone,  (p,n) => {
@@ -276,8 +276,10 @@ export default class GameScene extends BaseScene {
 
         // Exit Zone
         const toGovernance = map.findObject("Helpers", obj => obj.name === "toGovernance")
+        const toGovernanceCheat = map.findObject("Helpers", obj => obj.name === "toGovernanceCheat")
         const startGovernance = map.findObject("Helpers", obj => obj.name === "startGovernance")
         this.addGateway(toGovernance,startGovernance)
+        this.addGateway(toGovernanceCheat,startGovernance)
 
         const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
         const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")
@@ -303,6 +305,40 @@ export default class GameScene extends BaseScene {
             this.buyGroup.add(buyImage)
             // if (DEBUG)
             //     console.log("BUYUSDC", this.BuyUSDC)
+        })
+
+        // Add governance items 
+        // TODO add only after connection
+
+        this.govItems = globalEth.getGovernanceItems() // main data object
+        console.log(`GOVITEMS`, this.govItems)
+        this.proposalsGroup = this.physics.add.group()
+        let i = 0 // represent the order in the 
+        const proposalsObjects = map.filterObjects("Helpers", obj => obj.name === "Proposal")
+        proposalsObjects.forEach(p => {
+            console.log(`adding proposal`, p)
+            let prop = this.add.image(p.x , p.y)
+            prop.gameId = p.properties.find(pr => pr.name == "prop").value
+            prop.propId = i
+            prop.propData = this.govItems[i++]
+            this.proposalsGroup.add(prop)
+        })
+
+        this.votesGroup = this.physics.add.group()
+        i= 0
+        const yaysObjects = map.filterObjects("Helpers", obj => obj.name === "yay")
+        yaysObjects.forEach(p => {
+            let vote = this.add.image(p.x , p.y,'things', 10).setDepth(5)
+            console.log(`adding this yay object`,p, vote)
+            vote.gameId = vote.gameId = p.properties.find(pr => pr.name == "prop").value
+            this.votesGroup.add(vote)
+        })
+        i = 0 
+        const naysObjects = map.filterObjects("Helpers", obj => obj.name === "nay")
+        naysObjects.forEach(p => {
+            let vote = this.add.image(p.x , p.y, 'things', 11).setDepth(5)
+            vote.gameId = vote.gameId = p.properties.find(pr => pr.name == "prop").value
+            this.votesGroup.add(vote)
         })
 
         const BuyCoffeeObj = map.findObject("Helpers", obj => obj.name === "BuyCoffee")
