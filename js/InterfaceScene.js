@@ -259,13 +259,16 @@ export default class InterfaceScene extends Phaser.Scene {
 			// Mostly for reference
 			case 'Send':
 				spritesheet = 'characters'
-
+				if (counterpartyName) {
+					let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,10), INTERFACEFONT)
+					this.transactionDialog.add(nameTxt)
+				}
 				break;
 				
 			case 'Swap':
 				spritesheet = 'cryptos'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,4)  + ' swap', INTERFACEFONT)
+					let nameTxt = this.add.text(264, 44,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
 				break;
@@ -282,10 +285,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			default:
 				break;
 		}
-		if (counterpartyName) {
-			let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,10), INTERFACEFONT)
-			this.transactionDialog.add(nameTxt)
-		}
+
 		if (counterpartyFrame){
 			let counterpartySprite = this.add.image(264, 32, spritesheet,  counterpartyFrame)
 			this.transactionDialog.add(counterpartySprite)

@@ -160,7 +160,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
                 this.scene.physics.add.overlap(actionSprite, this.scene.playersGroup, (a, p) => {
                     if (this.triggered == false) {
-                        globalGame.scene.getScene('interfaceScene').openTransactionDialog("Send", this, globalNetwork.players[p.playerId].char.frame, globalNetwork.players[p.playerId].address, globalNetwork.players[p.playerId].name)
+                        globalGame.scene.getScene('interfaceScene').openTransactionDialog("Send", globalNetwork.players[p.playerId].char.frame, globalNetwork.players[p.playerId].address, globalNetwork.players[p.playerId].name)
                         this.triggered = true
                     }
                 })
@@ -184,7 +184,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                             if (!globalEth.account){
                                 globalEvents.emit("says", "You must get connected first. Go see the fox")
                             } else if (globalEth) {
-                                globalGame.scene.getScene('interfaceScene').openTransactionDialog("Swap", cryptos["DAI"].frame)
+                                globalGame.scene.getScene('interfaceScene').openTransactionDialog("Swap", cryptos["DAI"].frame, cryptos["DAI"].kovan.token, "Dai" )
                                 globalEth.swapETHforDAI(1)
                             } else {
                                 globalEvents.emit("says", "You must get connected first. Go see the fox")
