@@ -49,7 +49,7 @@ export default class GameScene extends BaseScene {
     launchCatchQuest(NPC) {
         this.quest = "catch transactions"
         NPC.says("You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!")
-  
+
     }
     initialiseMap(mapKey) {
 
@@ -61,7 +61,7 @@ export default class GameScene extends BaseScene {
         console.log("Map and tiles loaded")
         // Set start Position from map
         let startPosition = map.findObject("Helpers", obj => obj.name === "startPosition")
-        
+
         if(DEBUG){
             if(localStorageAvailable()){
                 window.localStorage.setItem('blockQuestComplete', true)
@@ -86,7 +86,7 @@ export default class GameScene extends BaseScene {
                 this.player.x = to.x
                 this.player.y = to.y
                 // this.scene.start('marketScene',  { currentChar: this.player.char })
-            }) 
+            })
         } else {
             console.error(`Zones not found`)
         }
@@ -107,19 +107,19 @@ export default class GameScene extends BaseScene {
         createObjectsAnims(this.anims)
 
         for(var c in charactersList) {
-            createCharAnims(this.anims, charactersList[c]) 
+            createCharAnims(this.anims, charactersList[c])
         }
-        
+
 
         //// Player
         this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
-        
-        //// Trying camera 
+
+        //// Trying camera
         if (!DEBUG){// debug shortcut
             this.cameras.main.centerOn(200, startPosition.y-700);
             this.cameras.main.pan(startPosition.x, startPosition.y, 3000, 'Sine.easeInOut')
 
-        } 
+        }
         this.scene.launch('interfaceScene')
         this.input.setDefaultCursor('url(assets/cursor.png), pointer');
 
@@ -140,7 +140,7 @@ export default class GameScene extends BaseScene {
             m.body.setVelocity(0, 0)
         }, null, this)
 
-        //// PNJ 
+        //// PNJ
         this.pnjsGroup = this.physics.add.group()
 
         // We assume each object on the PNJ layer has a name and a first custom property "frame"
@@ -151,10 +151,10 @@ export default class GameScene extends BaseScene {
             const type = prop ? prop.value : ""
             // We extract frame. pnjObj.properties[0].value could work, this is more resiliend
             const frame = pnjObj.properties.find(p => p.name == "frame").value
-            if (DEBUG && frame == undefined) 
+            if (DEBUG && frame == undefined)
                 console.error("No Frame for ", pnjObj)
             // Object creation
-            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type) 
+            const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type)
             this.pnjsGroup.add(newPNJ)
         })
 
@@ -175,7 +175,7 @@ export default class GameScene extends BaseScene {
                 collides: true
             })
             if (i == 0) {
-                // Layer 0 is for transactions only 
+                // Layer 0 is for transactions only
             } else {
                 this.physics.add.collider(this.player, this.layers[i]) // ALT: execMapCollision, checkMapCollision, this)
                 this.physics.add.collider(this.pnjsGroup, this.layers[i], null, null, this)
@@ -196,7 +196,7 @@ export default class GameScene extends BaseScene {
         //// Quests (To be factorised in an object?)
         if (DEBUG)
             console.log("pnjsGroup", this.pnjsGroup.getChildren())
-            
+
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
         if (andres) {
             // we probably need a generic picable object class
@@ -206,7 +206,7 @@ export default class GameScene extends BaseScene {
             this.physics.add.collider(this.player, net,  (p,n) => {
                 this.launchCatchQuest(andres)
                 n.destroy()
-            }) 
+            })
         } else {
             console.error(`Andres not found!`)
         }
@@ -216,14 +216,14 @@ export default class GameScene extends BaseScene {
             globalGame.fox = fox
         const timeout = DEBUG ? 0 : 4000
 
-        
 
-        
+
+
         // if(localStorageAvailable() && window.localStorage.getItem('blockQuestComplete')){
         //     this.quest = "get a fox"
         //     setTimeout(() => {
         //         andres.says("Welcome back. You should go directly talk to the fox, just south from here")
-        //     }, timeout);   
+        //     }, timeout);
         // } else {
         //     this.quest = "catch transactions"
         //     setTimeout(() => {
@@ -236,12 +236,12 @@ export default class GameScene extends BaseScene {
             globalEvents.emit("says", "Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.                 Use the arrows to move around and the spacebar to talk to the fox.")
             this.quest = "get a fox"
         }, timeout);
-    
+
         this.transactionsCaptured = 0
         //// Transactions logic
         this.transactions = this.physics.add.group()
-        // We bounce on underlying layer 
-        this.physics.add.collider(this.transactions, this.layers[0]) 
+        // We bounce on underlying layer
+        this.physics.add.collider(this.transactions, this.layers[0])
 
         this.createRandomTransactions = this.time.addEvent({
             delay: 4000,
@@ -255,7 +255,7 @@ export default class GameScene extends BaseScene {
         })
 
         globalEvents.on("transactions-complete", () => {
-                       
+
             andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! ')
             this.quest = "mine a block"
             this.sound.play("holy")
@@ -292,6 +292,10 @@ export default class GameScene extends BaseScene {
 
         this.faucet.setDepth(10)
 
+        //Interact with liquidity pool
+        const DAIPool = map.findObject("Helpers", obj => obj.name === "DaiPool")
+        this.DAIPool = this.add.image(DAIPool.x+30, DAIPool.y+30)
+        this.physics.add.existing(this.DAIPool)
 
         // Add swap cryptos
         this.buyGroup = this.physics.add.group()
@@ -352,14 +356,14 @@ export default class GameScene extends BaseScene {
         this.physics.add.collider(this.player, this.playersGroup,  (p,g) => {
             p.handleBumpyCollision(p,g)
             g.body.setVelocity(0,0)
-        }) 
+        })
 
         globalEvents.on('playerAdd', (id)=>{
             const newPlayer = this.add.sprite(globalNetwork.players[id].x, globalNetwork.players[id].y, globalNetwork.players[id].char.texture, globalNetwork.players[id].char.frame);
             this.playersGroup.add(newPlayer)
             newPlayer.setDepth(10)
-            
-            newPlayer.playerId = id            
+
+            newPlayer.playerId = id
             newPlayer.direction = globalNetwork.players[id].dir
             globalNetwork.players[id].sprite = newPlayer
             // console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)

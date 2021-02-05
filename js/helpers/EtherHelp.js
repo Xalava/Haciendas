@@ -1,3 +1,4 @@
+// import { ethers } from 'ethers'
 import realAbi from '../../contracts/RealSimple.abi.js'
 import globalEvents from './globalEvents.js'
 
@@ -46,7 +47,7 @@ export default class EtherHelp {
                 // Ethers provider initialisation
                 this.provider = new ethers.providers.Web3Provider(window.ethereum)
                 this.signer = this.provider.getSigner()
-                // Smart contract initialisation 
+                // Smart contract initialisation
                 this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
                 // Interface functions
                 globalEvents.emit('connected', this.account)
@@ -108,7 +109,6 @@ export default class EtherHelp {
                 globalEvents.emit('adding-coffee')
 
             })
-
     }
 
     buyUSDC() {
@@ -122,12 +122,38 @@ export default class EtherHelp {
             })
     }
 
-
+    async findLiquidityPool(){
+        const { data } = await axios.get('https://aave-api-v2.aave.com/data/tvl')
+        console.log('liquidity pool data', data)
+        // const totalValInUsd = data.
+    }
 
     async isParticipant() {
 
         return await this.realContract.participants(this.account)
     }
+
+
+    async swapETHforDAI(amount){
+        let fromAddress = globalEth.account
+        const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+        console.log('req string in swap func', reqString)
+        const { data } = await axios.get(reqString)
+        console.log('tx in 1inch response', data.tx)
+        globalEvents.emit("says", `So you want to swap your ETH for DAI? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
+
+        console.log('window.ethers in swap func', window.ethers)
+        // await window.ethers.Signer.sendTransaction(data.tx)
+    }
+
+    // async swapETHforAAVE(amount){
+    //     let fromAddress = globalEth.account
+    //     const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+    //     console.log('req string in swap func', reqString)
+    //     const { data } = await axios.get(reqString)
+    //     console.log('data from 1inch response', data)
+    //     globalEvents.emit("says", `So you want to swap your ETH for AAVE? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} AAVE`)
+    // }
 
     async participate() {
         return new Promise(async (resolve, reject) => {

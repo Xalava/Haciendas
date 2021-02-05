@@ -9,6 +9,7 @@
   "dependencies": {
     "@opengsn/gsn": "^2.0.1",
     "@openzeppelin/contracts": "^3.2.0",
+    "axios": "^0.21.1",
     "tabookey-gasless": "^0.4.5",
     "usingtellor": "^2.0.1"
   },
