@@ -7,6 +7,7 @@ import Player from "./chars/Player.js"
 import Transaction from "./object/Transaction.js"
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
+import FloatingCrypto from "./object/FloatingCrypto.js"
 // characters and objects helpers
 import {charactersList} from "./chars/charactersList.js"
 import {createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
@@ -81,6 +82,8 @@ export default class GameScene extends BaseScene {
             let exitZone = this.add.image(from.x,from.y)
             this.physics.add.existing(exitZone)
             exitZone.setDepth(10)
+            exitZone.body.immovable = true
+
             this.physics.add.collider(this.player, exitZone,  (p,n) => {
                 console.log("ETeleport!")
                 this.player.x = to.x
@@ -246,13 +249,15 @@ export default class GameScene extends BaseScene {
         this.createRandomTransactions = this.time.addEvent({
             delay: 4000,
             callback: () => {
-                if (this.transactions.children.size < 12) {
-                    const tr = this.add.transaction(9 * 16, 95 * 16)
+                if (this.transactions.children.size < 9) {
+                    const tr = this.add.transaction(10 * 16, 96 * 16)
                     this.transactions.add(tr)
                 }
             },
             loop: true
         })
+
+
 
         globalEvents.on("transactions-complete", () => {
 
@@ -289,13 +294,50 @@ export default class GameScene extends BaseScene {
         const faucet = map.findObject("Helpers", obj => obj.name === "Faucet")
         this.faucet = this.add.image(faucet.x+30,faucet.y+30)
         this.physics.add.existing(this.faucet)
-
         this.faucet.setDepth(10)
 
-        //Interact with liquidity pool
+
+        //// Floating tokens
+        this.poolTokensGroup = this.physics.add.group()
+        // this.physics.add.collider(this.poolTokensGroup, this.layers[0])
+        // In the faucet
+        for (let i = 0; i < 2; i++) {
+            let ftk= this.add.floatingCrypto(faucet.x+30+40*i, faucet.y+30+20*i, 'MATIC')
+            this.poolTokensGroup.add(ftk)
+            
+        }
+        // In the liquidity pool
+
         const DAIPool = map.findObject("Helpers", obj => obj.name === "DaiPool")
         this.DAIPool = this.add.image(DAIPool.x+30, DAIPool.y+30)
+        DAIPool.actionned = x => {
+            globalGame.scene.getScene('interfaceScene').openTransactionDialog("Deposit", 1581, 'outsideTiles', "Deposit")
+
+        }
         this.physics.add.existing(this.DAIPool)
+
+        // for (let i = 0; i < 6; i++) {
+
+        for (const token in cryptos) {
+            if (Object.hasOwnProperty.call(cryptos, token)) {
+                const element = cryptos[token];
+                let ftk = this.add.floatingCrypto(DAIPool.x, DAIPool.y+cryptos[token].frame*2, token)
+                this.poolTokensGroup.add(ftk)
+                
+            }
+        }
+
+    
+            // this.createRandomTransactions = this.time.addEvent({
+            //     delay: 4000,
+            //     callback: () => {
+            //         if (this.poolTokensGroup.children.size < 12) {
+            //             const tr = this.add.transaction(9 * 16, 95 * 16)
+            //             this.transactions.add(tr)
+            //         }
+            //     },
+            //     loop: true
+            // })
 
         // Add swap cryptos
         this.buyGroup = this.physics.add.group()

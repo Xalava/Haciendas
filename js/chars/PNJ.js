@@ -86,23 +86,24 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 
 				setTimeout(async () => {
 					globalEth.initialiseMetaMask().then(async () => {
-							if (DEBUG)
-								console.log(globalEth)
-							const isparticipant = await globalEth.realContract.participants(globalEth.account)
+							// if (DEBUG)
+							// 	console.log(globalEth)
+							// const isparticipant = await globalEth.realContract.participants(globalEth.account)
 							const ethBalance = await globalEth.getETHBalance()
 	
-							if (isparticipant) {
-								this.says("Sly as a fox I see, you have already joined!")
-								globalEvents.emit('real-transaction', 0)
+							// if (isparticipant) {
+							// 	this.says("Sly as a fox I see, you have already joined!")
+							// 	globalEvents.emit('real-transaction', 0)
 	
-							} else if (!ethBalance){
+							// } else 
+							if (!ethBalance){
 								this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
 							} else {
-								this.says("Great! Let me send 12 reales to you at" + globalEth.account)
-								globalEth.participate().then(() => {
-									globalEvents.emit('real-transaction', 12)
-									this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
-								})
+								// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
+								// globalEth.participate().then(() => {
+								// 	globalEvents.emit('real-transaction', 12)
+								// 	this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
+								// })
 							}
 						})
 						.catch((err) => console.log(err))

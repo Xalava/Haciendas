@@ -13,6 +13,10 @@ const BASEWHITE = 0xEEEEEE
 const MAXINVENTORY = 12
 const ACTIONSLOT = MAXINVENTORY + 1
 // const HANDSLOT = MAXINVENTORY + 2
+const INTERFACEFONT = { fontSize: 8,font: '"Press Start 2P"' }
+
+const PADDING = 28
+const INTERLINE = 14
 
 const names =  ["Aiden", "Alex", "Billie", "Casey", "Erin", "Harley", "Jade", "Kim", "AE-X3"];
 const playerName = names[Math.floor(Math.random() * names.length)];
@@ -52,6 +56,8 @@ export default class InterfaceScene extends Phaser.Scene {
 		graph.fillStyle(color, 1)
 		graph.fillRoundedRect(x, y, w, h,4)
 		graph.strokeRoundedRect(x, y, w, h,4)
+		graph.setAlpha(0.8);
+
 		return graph
 	}
 
@@ -106,51 +112,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			console.log("inventory slots", this.invSlotsGroup.getChildren())
 		this.itemsGroup = this.add.group()
 		for (const token in globalEth.assets) {
-			let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
-			let txt = this.add.text(0, 0,globalEth.assets[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-				// We need a solution to manage large numbers. Attempt : 
-				// txt.setFixedSize(12, 0)
-
-			// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
-			// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-			let item = this.add.container(0,0,[coin, txt])
-			item.token = token // To keep it at hand 
-			this.addItemToInventory(item)
-			// item.add(coin)
-			// item.add(txt)
-			item.setSize(20, 20);
-			item.setInteractive({ draggable: true })
-			// item.alpha= 1
-			this.input.setDraggable(item);
-			item.on('pointerover', function () {
-				// TODO display tooltip
-
-				// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
-				// coin.setTint(brighter);
-				// item.setTint(0x44ff44)
-				// Tooltip
-				// let graph = this.add.graphics()
-				// graph.lineStyle(1, 0xffffff)
-				// graph.fillStyle(color, 1)
-				// graph.fillRoundedRect(x, y, w, h,4)
-				// graph.strokeRoundedRect(x, y, w, h,4)		this.input.setDefaultCursor('url(assets/cursor.png), pointer');
-
-
-			})
-			item.on('pointerout', function () {
-
-				// coin.clearTint();
-		
-			});
-			// item.setInteractive()
-
-			// this.invGraphics.add(txt)
-
-			item.setDepth(20)
-			this.itemsGroup.add(item)
-			this.invGraphics.add(item)
-			// inventoryCoinObjects.push(item)
-			
+			this.createItem(token)// last step before new object	
 		}
 		// this.invGraphics.add(this.itemsGroup)
 		// this.input.setDraggable(this.itemsGroup.getChildren());
@@ -205,13 +167,62 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.invGraphics.setVisible(false)
 			
 	}
+	createItem(token){
+
+		let coin = this.add.image(0, 0,'cryptos',cryptos[token].frame )
+		let txt = this.add.text(0, 0,globalEth.assets[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+			// We need a solution to manage large numbers. Attempt : 
+			// txt.setFixedSize(12, 0)
+
+		// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
+		// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
+		let item = this.add.container(0,0,[coin, txt])
+		item.token = token // To keep it at hand 
+		this.addItemToInventory(item)
+		// item.add(coin)
+		// item.add(txt)
+		item.setSize(20, 20);
+		item.setInteractive({ draggable: true })
+		// item.alpha= 1
+		this.input.setDraggable(item);
+		item.on('pointerover', function () {
+			// TODO display tooltip
+
+			// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
+			// coin.setTint(brighter);
+			// item.setTint(0x44ff44)
+			// Tooltip
+			// let graph = this.add.graphics()
+			// graph.lineStyle(1, 0xffffff)
+			// graph.fillStyle(color, 1)
+			// graph.fillRoundedRect(x, y, w, h,4)
+			// graph.strokeRoundedRect(x, y, w, h,4)		this.input.setDefaultCursor('url(assets/cursor.png), pointer');
+
+
+		})
+		item.on('pointerout', function () {
+
+			// coin.clearTint();
+	
+		});
+		// item.setInteractive()
+
+		// this.invGraphics.add(txt)
+
+		item.setDepth(20)
+		item.setVisible(this.invGraphics.visible)
+		this.itemsGroup.add(item)
+		this.invGraphics.add(item)
+		
+		// inventoryCoinObjects.push(item)
+	}
 	addItemToInventory(item){
 		if(globalEth.assets[item.token]>0){
 			let idx = this.invSlotsArray.findIndex(x=>{ if(x) return x.token == item.token} )
 			console.log(`token exists at ${idx}`)
 			if (idx !== -1){
 				 // the item is above 0 and exists is in a slot
-				 item.setVisible(true)
+				//  item.setVisible(true)
 			} else {
 				let emptyID = this.invSlotsArray.findIndex(x=> {if(x) return x.item === undefined})
 				if (emptyID == -1 ){
@@ -235,18 +246,20 @@ export default class InterfaceScene extends Phaser.Scene {
 
 	}
 	updateInventory(){
+		// this.itemsGroup.clear(true,true)
+
 		for(let token in globalEth.assets){
 			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-
+			console.log(`refresh`, token)
+			// this.createItem(token)
 		}
 	}
 
 	// Open transactions panel, Created and destroyed each time.
 	// CounterpartyName is an address for players and a name for NPC
-	openTransactionDialog(action, counterpartyFrame, counterpartyAddress, counterpartyName ) {
+	openTransactionDialog(action, counterpartyFrame, counterpartyAddress, counterpartyName) {
 		if (DEBUG)
 			console.log("Open Transaction Dialog with Counterparty: (sprite)", counterpartyAddress)
-		const INTERFACEFONT =  { fontSize: 10,font: '"Press Start 2P"' }
 		// We first open the regular inventory panel
 		this.invGraphics.setVisible(true)
 
@@ -255,26 +268,32 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.transactionDialog.add(actionBox)
 		
 		let spritesheet = ''
+		let actionFunction = undefined
 		switch (action) {
 			// Mostly for reference
 			case 'Send':
 				spritesheet = 'characters'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, 44,  counterpartyName.slice(0,10), INTERFACEFONT)
+					let nameTxt = this.add.text(264, PADDING + INTERLINE,  counterpartyName.slice(0,10), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
+				actionFunction = (amount) => globalEth.sendETH(counterpartyAddress, amount)
 				break;
 				
 			case 'Swap':
 				spritesheet = 'cryptos'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, 44,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
+					let nameTxt = this.add.text(264, PADDDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
+				actionFunction = console.log(`TODO a swap should happen here`)
 				break;
 
-			case 'Throw':
+			case 'Deposit':
 				spritesheet = 'things2'
+				let nameTxt = this.add.text(275, PADDING ,  `Deposit`, INTERFACEFONT)
+				this.transactionDialog.add(nameTxt)
+				actionFunction = (amount) => globalEth.sendETH('0xd4c5CAcfD4C12C6516C144F5059e9CbF4650ab7a', amount)
 				break;
 
 			case 'Vote':
@@ -291,7 +310,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			this.transactionDialog.add(counterpartySprite)
 		}
 		if (counterpartyAddress) {
-			let addressTxt = this.add.text(274, 30,  counterpartyAddress.slice(0,6), INTERFACEFONT)
+			let addressTxt = this.add.text(274, PADDING,  counterpartyAddress.slice(0,6), INTERFACEFONT)
 			this.transactionDialog.add(addressTxt)
 		}
 		// let actionText = this.add.text(275, 30, action, INTERFACEFONT)
@@ -316,13 +335,11 @@ export default class InterfaceScene extends Phaser.Scene {
 				el.addListener('click').on('click', (event) => {
 					if (event.target.localName === 'button') {
 						console.log("Button click", event)
+						this.sound.play("notas")
 						let amount = document.querySelector('#amount').value
-						if (action == "Send"){
-
-							globalEth.sendETH(counterpartyAddress, amount)
-						}
-						else if(action == "Swap"){
-							console.log(`TODO a swap should happen here`)
+						if (actionFunction){
+							// TODO: Input the token selected tooyy
+							actionFunction(amount)									
 						} else {
 							console.error("Action not available")
 						}
@@ -457,7 +474,7 @@ export default class InterfaceScene extends Phaser.Scene {
 				this.chatInput.value = this.chatInput.value + "i"
 
 			} else {
-				
+				this.updateInventory	()
 				this.invGraphics.toggleVisible()
 			}
 
@@ -500,6 +517,11 @@ export default class InterfaceScene extends Phaser.Scene {
 			.addKey(Phaser.Input.Keyboard.KeyCodes.T)
 			.on('down', function (event) {
 				this.openTransactionDialog("Swap", cryptos["DAI"].frame,"0x6B175474E89094C44Da98b954EedeAC495271d0F","Dai Swap")
+			}, this)	
+			this.input.keyboard
+			.addKey(Phaser.Input.Keyboard.KeyCodes.Y)
+			.on('down', function (event) {
+				globalGame.scene.getScene('interfaceScene').openTransactionDialog("Deposit", 20)
 			}, this)	
 			
 
@@ -611,11 +633,16 @@ export default class InterfaceScene extends Phaser.Scene {
 		})
 		globalEvents.on('real-transaction', (value) => this.handleRealChange(value), this)
 		globalEvents.on('usdc-transaction', (value) => this.handleUSDCChange(value), this)
-		globalEvents.on('connected', (account) => {
+		globalEvents.on('connected', (account,ename) => {
 			this.connected = this.add.image(380, 10, "cryptos", cryptos['ETH'].frame)
 			this.connected.setTint(0xa9c9a9)
-			globalNetwork.sendNameUpdate(account, "")
+			globalNetwork.sendNameUpdate(account, ename)
 			this.sound.play("holy")
+			this.invGraphics.add(this.add.text(44, PADDING, account.slice(0,6),INTERFACEFONT).setVisible(this.invGraphics.visible))
+			console.log("ename", ename)
+			if(ename){
+				this.invGraphics.add(this.add.text(40, PADDING + INTERLINE , ename,INTERFACEFONT).setVisible(this.invGraphics.visible))
+			}
 		})
 		globalEvents.on('adding-coffee', () => {
 			this.coffee = this.add.image(380, 30, "coffee")

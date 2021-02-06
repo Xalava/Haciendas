@@ -10,28 +10,30 @@ export default class WelcomeScene  extends Phaser.Scene {
     }
 
     create () {
-        if(DEBUG)// debug shortcut
+        if(DEBUG) {// debug shortcut
             this.scene.start('gameScene', { currentChar: charactersList.CYBORG })
-        const element = this.add.dom(200, 150).createFromCache('form')
-        element.setPerspective(800)
-        element.scale = 0.3
-        element.addListener('click').on('click', (event) => {
-            console.log(event.target)
-            if (event.target.localName === 'button') {
-                console.log("Choice", event.target.innerText)
-                if (event.target.innerText == "Boy")
-                    this.currentChar = charactersList.BOY
-
-                if (event.target.innerText == "Cyborg")
-                    this.currentChar = charactersList.CYBORG
-
-                if (event.target.innerText == "Girl")
-                    this.currentChar = charactersList.GIRL
-
-                this.scene.start('gameScene', { currentChar: this.currentChar })
-            }
-		})
-
+        } else {
+            const element = this.add.dom(200, 150).createFromCache('form')
+            element.setPerspective(800)
+            element.scale = 0.3
+            this.sound.play("guitara")
+            element.addListener('click').on('click', (event) => {
+                console.log(event.target)
+                if (event.target.localName === 'button') {
+                    console.log("Choice", event.target.innerText)
+                    if (event.target.innerText == "Boy")
+                        this.currentChar = charactersList.BOY
+    
+                    if (event.target.innerText == "Cyborg")
+                        this.currentChar = charactersList.CYBORG
+    
+                    if (event.target.innerText == "Girl")
+                        this.currentChar = charactersList.GIRL
+    
+                    this.scene.start('gameScene', { currentChar: this.currentChar })
+                }
+            })
+        }
     }
 
     update () {

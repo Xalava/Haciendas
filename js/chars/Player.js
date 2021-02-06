@@ -142,7 +142,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 // this.scene.actionsGroup.add(actionSprite)
 
                 // Mining happens in the mine object
+                
                 console.log(`object launched and triggered is ${this.triggered}`)
+                // Generic actionnable object
+                this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (f, p) => {
+                    if (this.triggered == false) {
+                        p.actionned()
+                        this.triggered = true
+                    }
+                })
+                // Generic NPC interaction
                 this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a, p) => {
                     console.log(`action contacted an NPC`)
                     if (this.triggered == false) {
@@ -157,6 +166,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         this.triggered = true
                     }
                 })
+
 
                 this.scene.physics.add.overlap(actionSprite, this.scene.playersGroup, (a, p) => {
                     if (this.triggered == false) {

@@ -50,6 +50,9 @@ export default class PreloaderScene  extends Phaser.Scene {
         this.load.audio('holy','assets/audio/holy.ogg')
         this.load.audio('swing','assets/audio/swing.wav')
         this.load.audio('gold','assets/audio/gold.ogg')
+
+        this.load.audio('guitara','assets/audio/AsIFigure.mp3')
+        this.load.audio('notas','assets/audio/AsIFigureShort.mp3')
     }
 
     create () {

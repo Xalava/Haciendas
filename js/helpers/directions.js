@@ -21,4 +21,12 @@ export const randomDirection = (exclude) => {
 	return Directions[DirectionsArray[newDirection]]
 }
 
+export const oppositeHorizontalDirection = (current) => {
+    if(current.name == "right"){
+        return Directions.LEFT
+    } else {
+        return Directions.RIGHT
+    } 
+}
+
 export const stdVelocity = 100

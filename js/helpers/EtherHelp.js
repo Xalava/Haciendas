@@ -1,20 +1,35 @@
 // import { ethers } from 'ethers'
 import realAbi from '../../contracts/RealSimple.abi.js'
 import globalEvents from './globalEvents.js'
+import {NETWORK} from './ethConstants.js'
+import {cryptos} from './cryptos.js'
 
 // Config
 const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
 const network = 'maticTestnet'
+
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
+// Base ERC20 ABI, from ethers doc
+const ERC20abi = [
+    // Read-Only Functions
+    "function balanceOf(address owner) view returns (uint256)",
+    "function decimals() view returns (uint8)",
+    "function symbol() view returns (string)",
 
-//AAVE Kovan addresses
+    // Authenticated Functions
+    "function transfer(address to, uint amount) returns (boolean)",
 
+    // Events
+    "event Transfer(address indexed from, address indexed to, uint amount)"
+];
 
 export default class EtherHelp {
 
     constructor() {
         this.assets = {DAI:59, REAL:2, AAVE:10, ETH:3}
+        this.ename = ""
+        this.account = ""
     }
 
     initialisePortis() {
@@ -47,10 +62,17 @@ export default class EtherHelp {
                 // Ethers provider initialisation
                 this.provider = new ethers.providers.Web3Provider(window.ethereum)
                 this.signer = this.provider.getSigner()
+                //Current network
+                this.network = NETWORK(window.ethereum.networkVersion)
+                console.log('📡 NETWORK ',  this.network)
                 // Smart contract initialisation
-                this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
+                this.initialiseSmartContracts()// Run asynchronously
                 // Interface functions
-                globalEvents.emit('connected', this.account)
+                if(this.network.name == 'ropsten' || this.network.name == 'mainnet'){
+                    console.log('Getting ENS name')
+                    this.ename = await this.provider.lookupAddress(this.account)
+                }
+                globalEvents.emit('connected', this.account, this.ename)
                 console.log(`connected with ${this.account}`)
             } else {
                 console.warn(`Ethereum not connected. Please refresh the page`)
@@ -58,6 +80,25 @@ export default class EtherHelp {
         } else {
             console.error(`Ethereum object not detected`)
         }
+    }
+
+    async initialiseSmartContracts(){
+        this.tokenContract = {}
+        //this.tokenContract.REAL = await new ethers.Contract(realAddress, realAbi, this.signer)
+        this.tokenContract.DAI = await new ethers.Contract(cryptos['DAI'][this.network.name].token, ERC20abi, this.signer) 
+        this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
+        this.udpateAssets()
+    }
+    async udpateAssets(){
+        console.log(await this.tokenContract.AAVE.balanceOf(this.account))
+        for (const token in this.tokenContract) {
+            if (Object.hasOwnProperty.call(this.tokenContract, token)) {
+                console.log("Getting balance from ", this.tokenContract[token])
+                 let val = await this.tokenContract[token].balanceOf(this.account)
+                 this.assets[token] = parseInt(ethers.utils.formatEther(val))
+            }
+        } 
+        globalGame.scene.getScene('interfaceScene').updateInventory()
     }
 
     getRealBalance() {
@@ -85,6 +126,7 @@ export default class EtherHelp {
             value: ethers.utils.parseEther(amount)
         });
     }
+
     getGovernanceItems(){
         let govItems = [{
             name: "Adding BAL on AAVE",
@@ -107,7 +149,6 @@ export default class EtherHelp {
                 console.log("we got coffee!")
                 globalEvents.emit('usdc-transaction', -1)
                 globalEvents.emit('adding-coffee')
-
             })
     }
 
