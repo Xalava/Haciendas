@@ -40,12 +40,10 @@ export default class FloatingCrypto extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	handleTileCollision() {
-		console.log(`tile collision for floating object`)
 		//for waves
 		this.direction = - this.direction
 		// for lines
 		// this.setVelocity(this.speed * this.direction.x, this.speed * this.direction.y)
-
 	}
 
 	preUpdate(t, dt) {

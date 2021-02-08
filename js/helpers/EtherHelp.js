@@ -1,11 +1,11 @@
 // import { ethers } from 'ethers'
+// import { ethers } from "https://cdn.ethers.io/lib/ethers-5.0.esm.min.js";
 import realAbi from '../../contracts/RealSimple.abi.js'
 import lendingPoolAbi from '../../contracts/LendingPool.abi.js'
-import aavegotchisAbi from '../../contracts/Aavegotchis2.abi.js'
+import aavegotchisAbi from '../../contracts/Aavegotchis.abi.js'
 import globalEvents from './globalEvents.js'
 import {NETWORK} from './ethConstants.js'
 import {cryptos} from './cryptos.js'
-// import { ethers } from "https://cdn.ethers.io/lib/ethers-5.0.esm.min.js";
 
 // Config
 const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
@@ -75,10 +75,10 @@ export default class EtherHelp {
                 // Smart contract initialisation
                 this.initialiseSmartContracts()// Run asynchronously
                 // Interface functions
-                // if(this.network.name == 'ropsten' || this.network.name == 'mainnet'){
-                //     console.log('Getting ENS name')
-                //     this.ename = await this.provider.lookupAddress(this.account)
-                // }
+                if(this.network.name == 'ropsten' || this.network.name == 'mainnet'){
+                    console.log('Getting ENS name')
+                    this.ename = await this.provider.lookupAddress(this.account)
+                }
                 globalEvents.emit('connected', this.account, this.ename)
                 console.log(`connected with ${this.account}`)
             } else {
@@ -96,20 +96,23 @@ export default class EtherHelp {
         this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
         this.udpateAssets()
         
-        // this.lendingPool = await new ethers.Contract(cryptos['AAVE'][this.network.name].lendingPool, lendingPoolAbi, this.signer)
-        this.ag = await new ethers.Contract(cryptos['AAVE'][this.network.name].aavegotchis, aavegotchisAbi, this.signer)
+        this.lendingPool = await new ethers.Contract(cryptos['AAVE'][this.network.name].lendingPool, lendingPoolAbi, this.signer)
+        this.ag = await new ethers.Contract(cryptos['AAVE'][this.network.name].aavegotchi, aavegotchisAbi, this.signer)
         console.log(`AG contract`, this.ag)
         this.getAavegotchis()
     }
     async udpateAssets(){
         for (const token in this.tokenContract) {
             if (Object.hasOwnProperty.call(this.tokenContract, token)) {
-                let val = 666 // await this.tokenContract[token].balanceOf(this.account)
-                // this.assets[token] = parseInt(ethers.utils.formatEther(val))
+                let val = await this.tokenContract[token].balanceOf(this.account)
+                this.assets[token] = parseInt(ethers.utils.formatEther(val))
                 console.log("Retrieved balance of", cryptos[token].name, "is",this.assets[token]  )
             }
         } 
-        // globalGame.scene.getScene('interfaceScene').updateInventory()
+        let balance = await this.provider.getBalance(this.account)
+        this.assets['ETH'] = parseInt(ethers.utils.formatEther(balance))     
+
+        globalGame.scene.getScene('interfaceScene').updateInventory()
     }
 
     getRealBalance() {
@@ -207,7 +210,7 @@ export default class EtherHelp {
         globalEvents.emit("says", `So you want to swap your ETH for DAI? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
 
         console.log('window.ethers in swap func', window.ethers)
-        // await window.ethers.Signer.sendTransaction(data.tx)
+        await this.signer.sendTransaction(data.tx)
     }
 
     // async swapETHforAAVE(amount){
@@ -220,11 +223,13 @@ export default class EtherHelp {
     // }
 
     async getAavegotchis(){
-        console.log(`getting AAVEGOTCHIs`, this.account)
+        // console.log(`getting AAVEGOTCHIs`, this.account)
         // let listAG = await this.ag.allAavegotchisOfOwner(this.account)
         // console.log("List of AG",listAG)
-        // let ag = await this.ag.getAavegotchi(4567)
-        // console.log(`AG`, ag)
+        // Hardcoding my cute Aavegotchi
+        let ag = await this.ag.getAavegotchi(4567)
+        let agsvg = await this.ag.getAavegotchiSvg(4567)
+        globalGame.scene.getScene('gameScene').addAavegotchi(ag,agsvg)
     }
 
     async participate() {
