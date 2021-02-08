@@ -283,7 +283,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			case 'Swap':
 				spritesheet = 'cryptos'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, PADDDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
+					let nameTxt = this.add.text(264, PADDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
 				actionFunction = console.log(`TODO a swap should happen here`)

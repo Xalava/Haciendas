@@ -85,8 +85,8 @@ export default class EtherHelp {
     async initialiseSmartContracts(){
         this.tokenContract = {}
         //this.tokenContract.REAL = await new ethers.Contract(realAddress, realAbi, this.signer)
-        this.tokenContract.DAI = await new ethers.Contract(cryptos['DAI'][this.network.name].token, ERC20abi, this.signer) 
-        this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
+        // this.tokenContract.DAI = await new ethers.Contract(cryptos['DAI'][this.network.name].token, ERC20abi, this.signer) 
+        // this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
         this.udpateAssets()
     }
     async udpateAssets(){
@@ -182,6 +182,20 @@ export default class EtherHelp {
         const { data } = await axios.get(reqString)
         console.log('tx in 1inch response', data.tx)
         globalEvents.emit("says", `So you want to swap your ETH for DAI? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
+
+        console.log('window.ethers in swap func', window.ethers)
+        // await window.ethers.Signer.sendTransaction(data.tx)
+    }
+
+    async swapDAIforGHST(amount){
+        let fromAddress = globalEth.account
+        const fromTokenAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"
+        const toTokenAddress = "0x3F382DbD960E3a9bbCeaE22651E88158d2791550"
+        const reqString = `https://api.1inch.exchange/v2.0/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+        console.log('req string in swap func', reqString)
+        const { data } = await axios.get(reqString)
+        console.log('tx in 1inch response', data)
+        globalEvents.emit("says", `So you want to swap your DAI for GHST? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
 
         console.log('window.ethers in swap func', window.ethers)
         // await window.ethers.Signer.sendTransaction(data.tx)

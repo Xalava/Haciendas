@@ -195,7 +195,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                                 globalEvents.emit("says", "You must get connected first. Go see the fox")
                             } else if (globalEth) {
                                 globalGame.scene.getScene('interfaceScene').openTransactionDialog("Swap", cryptos["DAI"].frame, cryptos["DAI"].kovan.token, "Dai" )
-                                globalEth.swapETHforDAI(1)
+                                // globalEth.swapETHforDAI(1)
+                                globalEth.swapDAIforGHST(10)
                             } else {
                                 globalEvents.emit("says", "You must get connected first. Go see the fox")
                                 this.triggered = true
