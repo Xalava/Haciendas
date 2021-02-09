@@ -26,6 +26,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     action(sprite, frame) {
         const actionSprite = this.scene.add.image(this.x + 13 * this.direction.x, this.y + 14 * this.direction.y, sprite, frame)
         actionSprite.setDepth(15)
+        if(frame == undefined) {
+            actionSprite.actionType = -1
+        } else {
+            actionSprite.actionType = frame
+        }
         this.scene.physics.add.existing(actionSprite)
         return actionSprite
     }
@@ -145,12 +150,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 
                 console.log(`object launched and triggered is ${this.triggered}`)
                 // Generic actionnable object
-                this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (f, p) => {
-                    if (this.triggered == false) {
-                        p.actionned()
-                        this.triggered = true
-                    }
-                })
+                    this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (as, a) => {
+                        if (this.triggered == false) {
+                            //Action type is send. Currently : -1 for default action, 0 for net
+                            a.actionned(as.actionType)
+                            this.triggered = true
+                        }
+                    })
                 // Generic NPC interaction
                 this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a, p) => {
                     console.log(`action contacted an NPC`)

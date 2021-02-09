@@ -18,6 +18,8 @@ const INTERFACEFONT = { fontSize: 8,font: '"Press Start 2P"' }
 const PADDING = 28
 const INTERLINE = 14
 
+const DEBUGINTERFACE = false
+
 const names =  ["Aiden", "Alex", "Billie", "Casey", "Erin", "Harley", "Jade", "Kim", "AE-X3"];
 const playerName = names[Math.floor(Math.random() * names.length)];
 
@@ -74,11 +76,11 @@ export default class InterfaceScene extends Phaser.Scene {
 		element.invY = y+12
 		element.on('pointerover', pointer => {
 			if(element.item){
-				if(DEBUG) console.log("hovering", reference, element.item.token)
+				if(DEBUGINTERFACE) console.log("hovering", reference, element.item.token)
 				this.lastSlot = reference
 			} else {
 				this.lastSlot = reference
-				if(DEBUG) console.log("hovering empty", reference)
+				if(DEBUGINTERFACE) console.log("hovering empty", reference)
 
 			}
 		})
@@ -219,7 +221,9 @@ export default class InterfaceScene extends Phaser.Scene {
 	addItemToInventory(item){
 		if(globalEth.assets[item.token]>0){
 			let idx = this.invSlotsArray.findIndex(x=>{ if(x) return x.token == item.token} )
-			console.log(`token exists at ${idx}`)
+			if(DEBUGINTERFACE){
+				console.log(`token exists at ${idx}`)
+			}
 			if (idx !== -1){
 				 // the item is above 0 and exists is in a slot
 				//  item.setVisible(true)
@@ -231,7 +235,7 @@ export default class InterfaceScene extends Phaser.Scene {
 
 				} else {
 
-					if(DEBUG)
+					if(DEBUGINTERFACE)
 						console.log(`There is a slot`, this.invSlotsArray[emptyID])
 					this.invSlotsArray[emptyID].item = item
 					item.x = this.invSlotsArray[emptyID].invX
@@ -247,10 +251,13 @@ export default class InterfaceScene extends Phaser.Scene {
 	}
 	updateInventory(){
 		// this.itemsGroup.clear(true,true)
-
+		let items = this.itemsGroup.getChildren()
+		console.log(items)
 		for(let token in globalEth.assets){
 			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-			console.log(`refresh`, token)
+			// let item = this.itemsGroup.find( obj => obj.name === "startGovernance")
+
+			console.log(`refresh`, token, globalEth.assets[token])
 			// this.createItem(token)
 		}
 	}
@@ -283,17 +290,17 @@ export default class InterfaceScene extends Phaser.Scene {
 			case 'Swap':
 				spritesheet = 'cryptos'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, PADDDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
+					let nameTxt = this.add.text(264, PADDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
-				actionFunction = console.log(`TODO a swap should happen here`)
+				actionFunction = (amount, token) => globalEth.swapETHforDAI(amount)
 				break;
 
 			case 'Deposit':
 				spritesheet = 'things2'
 				let nameTxt = this.add.text(275, PADDING ,  `Deposit`, INTERFACEFONT)
 				this.transactionDialog.add(nameTxt)
-				actionFunction = (amount) => globalEth.sendETH('0xd4c5CAcfD4C12C6516C144F5059e9CbF4650ab7a', amount)
+				actionFunction = (amount, token) => globalEth.deposit(amount, token)
 				break;
 
 			case 'Vote':
@@ -339,7 +346,7 @@ export default class InterfaceScene extends Phaser.Scene {
 						let amount = document.querySelector('#amount').value
 						if (actionFunction){
 							// TODO: Input the token selected tooyy
-							actionFunction(amount)									
+							actionFunction(amount, gameObject.token)									
 						} else {
 							console.error("Action not available")
 						}
@@ -522,7 +529,12 @@ export default class InterfaceScene extends Phaser.Scene {
 			.addKey(Phaser.Input.Keyboard.KeyCodes.Y)
 			.on('down', function (event) {
 				globalGame.scene.getScene('interfaceScene').openTransactionDialog("Deposit", 20)
-			}, this)	
+			}, this)
+			this.input.keyboard
+			.addKey(Phaser.Input.Keyboard.KeyCodes.U)
+			.on('down', function (event) {
+				globalGame.scene.getScene('gameScene').loanOfficer.contact()
+			}, this)		
 			
 
 			
