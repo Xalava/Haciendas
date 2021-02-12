@@ -10,7 +10,15 @@ export const cryptos = {
             token : "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD"
         }
     },
-    REAL: {frame:0,  name:"Real", ticker:"REAL", decimals:0},
+    REAL: {
+        frame:0,  name:"Real", ticker:"REAL", decimals:0,
+        kovan:{
+            token: "0xabd6ba4d19b35b3bee69aa87fd92ff2c4e7b0109"
+        },
+        ropsten:{
+            token: "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
+        }   
+    },
     AAVE: {
         frame:24, name:"AAVE", ticker:"AAVE", decimals:18,
         mainnet: {
@@ -24,7 +32,15 @@ export const cryptos = {
         }
     }, 
     ETH: {frame:8,  name:"Ether", ticker:"ETH", decimals:18},
-    USDC: {frame:20,  name:"USDC", ticker:"USDC"},
+    USDC: {
+        frame:20,  name:"USDC", ticker:"USDC",
+        kovan:{
+            token:"0x2F375e94FC336Cdec2Dc0cCB5277FE59CBf1cAe5"
+        },
+        ropsten:{
+            token:"0x07865c6E87B9F70255377e024ace6630C1Eaa37F"
+        }
+    },
     MATIC: {
         frame:26,  name:"MATIC", ticker:"MATIC",
         mainnet: {
@@ -34,6 +50,24 @@ export const cryptos = {
             token: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae"
         }
     },
+    MKR: {
+        frame:28,  name:"Maker", ticker:"MKR", decimals:18,
+        mainnet:{
+            token: "0xef13C0c8abcaf5767160018d268f9697aE4f5375"
+        }
+    }, 
+    WETH:{
+        frame:8,  name:"Wrapped Ether", ticker:"WETH", decimals:18,
+        kovan:{
+            token:"0xd0A1E359811322d97991E03f863a0C30C2cF029C"
+        }
+    },
+    WBTC:{
+        frame:22,  name:"Wrapped Bitcoin", ticker:"WBTC", decimals:18,
+        kovan:{
+            token:"0xe0C9275E44Ea80eF17579d33c55136b7DA269aEb"
+        }
+    }
 }
 
 
@@ -48,6 +82,6 @@ export const ERC20abi = [
 
     // Events
     "event Transfer(address indexed from, address indexed to, uint amount)"
-];
+]
 
 

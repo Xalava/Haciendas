@@ -5,7 +5,7 @@ import {NETWORK} from './ethConstants.js'
 import {cryptos} from './cryptos.js'
 
 // Config
-const realAddress = "0xf83fA235C22276834cAFD018BF42Ca4469BdBf90"
+const realAddress = ""
 const network = 'maticTestnet'
 
 const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
@@ -45,7 +45,7 @@ export default class EtherHelp {
             const accounts = await this.provider.listAccounts()
             this.account = accounts[0]
             this.signer = this.provider.getSigner()
-            this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
+            // this.realContract = await new ethers.Contract(realAddress, realAbi, this.signer)
             globalEvents.emit('connected', this.account)
             console.log("connected")
 
@@ -84,7 +84,7 @@ export default class EtherHelp {
 
     async initialiseSmartContracts(){
         this.tokenContract = {}
-        //this.tokenContract.REAL = await new ethers.Contract(realAddress, realAbi, this.signer)
+        this.tokenContract.REAL = await new ethers.Contract(cryptos['REAL'][this.network.name].token, realAbi, this.signer)
         this.tokenContract.DAI = await new ethers.Contract(cryptos['DAI'][this.network.name].token, ERC20abi, this.signer) 
         this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
         this.udpateAssets()
