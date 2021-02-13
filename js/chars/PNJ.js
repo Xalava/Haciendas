@@ -97,7 +97,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	
 							// } else 
 							if (!ethBalance){
-								this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, you might open a faucet")
+								this.says("You seem to miss Matic or ETH. If you go the lake and press spacebar, it will open a faucet")
 							} else {
 								// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
 								// globalEth.participate().then(() => {
@@ -106,7 +106,11 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 								// })
 							}
 						})
-						.catch((err) => console.log(err))
+						.catch((err) => {
+							this.says(`Please use a browser wallet, such as Brave or MetaMask. Contact use if you have a prefered option :  https://discord.gg/6xqXSD8g `)
+
+						})
+						
 				}, 2800);				
 				break;
 			case "Dexie":

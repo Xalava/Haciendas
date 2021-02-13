@@ -1,7 +1,7 @@
 // Adapted from scaffold-eth -> https://github.com/austintgriffith/scaffold-eth
 
-// MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
-export const INFURA_ID = "460f40a260564ac4a4f4b3fffb032dad";
+export const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
+export const INFURA_ID = '6e5c698dd2a640079e23abe0231c4f9b'
 
 //MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8";
