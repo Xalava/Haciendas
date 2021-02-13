@@ -1,14 +1,13 @@
 // import { ethers } from 'ethers'
 import realAbi from '../../contracts/RealSimple.abi.js'
 import globalEvents from './globalEvents.js'
-import {NETWORK} from './ethConstants.js'
+import {INFURA_ID, portisID, NETWORK} from './ethConstants.js'
 import {cryptos} from './cryptos.js'
+// import { ethers } from 'ethers'
 
 // Config
-const realAddress = ""
 const network = 'maticTestnet'
 
-const portisID = '94f4cc1b-6e36-463d-8d48-11d6e84c1b4d'
 
 // Base ERC20 ABI, from ethers doc
 const ERC20abi = [
@@ -30,6 +29,19 @@ export default class EtherHelp {
         this.assets = {DAI:59, REAL:2, AAVE:10, ETH:3}
         this.ename = ""
         this.account = ""
+    }
+
+    // This function configures the provider for enames depending on current network
+    async configureENS(){
+        if(this.network.name == 'ropsten' || this.network.name == 'mainnet'){
+            this.ensProvider = this.provider
+            
+        } else {
+            // If we are not on ropsten or mainnet, we still retrieve name on ropsten
+            this.ensProvider = new ethers.providers.InfuraProvider('ropsten', INFURA_ID)
+        }
+        console.log('🏷 Getting ENS name')
+        this.ename = await this.ensProvider.lookupAddress(this.account)
     }
 
     initialisePortis() {
@@ -68,17 +80,16 @@ export default class EtherHelp {
                 // Smart contract initialisation
                 this.initialiseSmartContracts()// Run asynchronously
                 // Interface functions
-                if(this.network.name == 'ropsten' || this.network.name == 'mainnet'){
-                    console.log('Getting ENS name')
-                    this.ename = await this.provider.lookupAddress(this.account)
-                }
+                await this.configureENS()
                 globalEvents.emit('connected', this.account, this.ename)
-                console.log(`connected with ${this.account}`)
+                console.log(`🔗 connected with ${this.account}`)
             } else {
                 console.warn(`Ethereum not connected. Please refresh the page`)
             }
         } else {
-            console.error(`Ethereum object not detected`)
+            // console.error()
+            throw new Error(`Ethereum object not detected`);
+            // throw TypeError(`Ethereum object not detected`);      
         }
     }
 
@@ -113,11 +124,10 @@ export default class EtherHelp {
     }
 
     async getETHBalance() {
-
-        let balance = await provider.getBalance(address);
-
-        console.log(address + ':' + ethers.utils.formatEther(balance));
-        this.ethBalance = ethers.utils.formatEther(balance)
+        //TODO : Should be dealt with other assets
+        let balance = await this.provider.getBalance(this.account);
+        this.assets['ETH'] = ethers.utils.formatEther(balance)
+        return this.assets['ETH'] 
 
     }
     async sendETH(address, amount){
