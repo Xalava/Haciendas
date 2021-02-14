@@ -5,6 +5,8 @@ import localStorageAvailable from "./helpers/localStorageAvailable.js"
 //// Import objects and characters
 import Player from "./chars/Player.js"
 import Transaction from "./object/Transaction.js"
+import EthTransaction from "./object/EthTransaction.js"
+
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
 import FloatingCrypto from "./object/FloatingCrypto.js"
@@ -409,6 +411,19 @@ export default class GameScene extends BaseScene {
             newPlayer.direction = globalNetwork.players[id].dir
             globalNetwork.players[id].sprite = newPlayer
             // console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
+        })
+
+        globalEvents.on('ongoing-transaction', (tx)=>{
+            let txSprite = this.add.ethtransaction(this.player.x, this.player.y)
+            tx.then(async (result)=>{
+                console.log({tx})
+                await result.wait()
+                txSprite.destroy()
+            }, ()=> {
+                console.error(`Tx failed`, tx)
+                txSprite.destroy()
+            })
+            // await tx.wait()
         })
 
     }

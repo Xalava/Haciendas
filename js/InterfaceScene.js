@@ -277,16 +277,16 @@ export default class InterfaceScene extends Phaser.Scene {
 					let nameTxt = this.add.text(264, PADDING + INTERLINE,  counterpartyName.slice(0,10), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
-				actionFunction = (amount) => globalEth.sendETH(counterpartyAddress, amount)
+				actionFunction = (token, amount) => globalEth.sendETH(counterpartyAddress, amount)
 				break;
 				
 			case 'Swap':
 				spritesheet = 'cryptos'
 				if (counterpartyName) {
-					let nameTxt = this.add.text(264, PADDDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
+					let nameTxt = this.add.text(264, PADDING + INTERLINE,  `Swap ` + counterpartyName.slice(0,4), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
-				actionFunction = console.log(`TODO a swap should happen here`)
+				actionFunction = (token, amount) =>  globalEth.swapETHforX(token, amount )
 				break;
 
 			case 'Deposit':
@@ -326,20 +326,23 @@ export default class InterfaceScene extends Phaser.Scene {
 			// TODO MAYBE : handle if a coin is present already
 			if(gameObject.token){
 				// We have a token! 
+				let token = gameObject.token
 				// Let's add the appropriate dialog
 				const el = this.add.dom(285, 150).createFromCache('pretransaction')
-				document.querySelector('#amount').value = globalEth.assets[gameObject.token]
+				document.querySelector('#amount').value = globalEth.assets[token]
 				document.querySelector('#actionButton').innerHTML = action
-				console.log(gameObject.token, globalEth.assets, globalEth.assets[gameObject.token])
+				console.log(`Drop of : ${token} (${globalEth.assets[token]}`)
 				// let el = document.querySelector('#actionButton')
+				console.log({gameObject})
 				el.addListener('click').on('click', (event) => {
 					if (event.target.localName === 'button') {
-						console.log("Button click", event)
-						this.sound.play("notas")
-						let amount = document.querySelector('#amount').value
-						if (actionFunction){
-							// TODO: Input the token selected tooyy
-							actionFunction(amount)									
+						console.log("Transaction button click:", event, globalEth)
+						if (globalEth.account === ""){
+							globalEvents.emit('says','Sorry, you need to be connected to do that. Talk to the fox.')
+						}else if (actionFunction){
+							this.sound.play("notas")
+							let amount = document.querySelector('#amount').value
+							actionFunction(token, amount)									
 						} else {
 							console.error("Action not available")
 						}

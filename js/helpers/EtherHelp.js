@@ -100,13 +100,15 @@ export default class EtherHelp {
         this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
         this.udpateAssets()
     }
+
     async udpateAssets(){
         console.log(await this.tokenContract.AAVE.balanceOf(this.account))
         for (const token in this.tokenContract) {
             if (Object.hasOwnProperty.call(this.tokenContract, token)) {
-                console.log("Getting balance from ", this.tokenContract[token])
-                 let val = await this.tokenContract[token].balanceOf(this.account)
-                 this.assets[token] = parseInt(ethers.utils.formatEther(val))
+                console.log("Getting balance of", this.tokenContract[token])
+                let val = await this.tokenContract[token].balanceOf(this.account)
+                this.assets[token] = parseInt(ethers.utils.formatEther(val))
+                console.log("Balance of", this.tokenContract[token],`is`,val)
             }
         } 
         globalGame.scene.getScene('interfaceScene').updateInventory()
@@ -128,13 +130,14 @@ export default class EtherHelp {
         let balance = await this.provider.getBalance(this.account);
         this.assets['ETH'] = ethers.utils.formatEther(balance)
         return this.assets['ETH'] 
-
     }
+
     async sendETH(address, amount){
         const tx = this.signer.sendTransaction({
             to: address,
             value: ethers.utils.parseEther(amount)
-        });
+        })
+        globalEvents.emit('ongoing-transaction', tx)
     }
 
     getGovernanceItems(){
@@ -185,7 +188,8 @@ export default class EtherHelp {
     }
 
 
-    async swapETHforDAI(amount){
+    async swapETHforX(token, amount){
+        //TODO : Take `token` into account and change addresses, names... 
         let fromAddress = globalEth.account
         const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
         console.log('req string in swap func', reqString)
