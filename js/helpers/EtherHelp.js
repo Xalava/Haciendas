@@ -201,6 +201,20 @@ export default class EtherHelp {
         // await window.ethers.Signer.sendTransaction(data.tx)
     }
 
+    async swapDAIforGHST(amount){
+        let fromAddress = globalEth.account
+        const fromTokenAddress = "0x6b175474e89094c44da98b954eedeac495271d0f"
+        const toTokenAddress = "0x3F382DbD960E3a9bbCeaE22651E88158d2791550"
+        const reqString = `https://api.1inch.exchange/v2.0/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
+        console.log('req string in swap func', reqString)
+        const { data } = await axios.get(reqString)
+        console.log('tx in 1inch response', data)
+        globalEvents.emit("says", `So you want to swap your DAI for GHST? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
+
+        console.log('window.ethers in swap func', window.ethers)
+        // await window.ethers.Signer.sendTransaction(data.tx)
+    }
+
     // async swapETHforAAVE(amount){
     //     let fromAddress = globalEth.account
     //     const reqString = `https://api.1inch.exchange/v2.0/swap?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${amount}&fromAddress=${fromAddress}&slippage=1`
