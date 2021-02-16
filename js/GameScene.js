@@ -78,7 +78,14 @@ export default class GameScene extends BaseScene {
 
         return {map, tileset, startPosition}
     }
-    addGateway(from, to){
+    addGateway(fromStr, toStr, map, condition){
+        // TODO : Gateways should be a distinct object build from the same parameters
+        // From and to are strings for an object in Helpers
+        // Condition is a function to check the availability for the current user
+        // Returns true if it can, an error message otherwise
+        const from = map.findObject("Helpers", obj => obj.name === fromStr)
+        const to = map.findObject("Helpers", obj => obj.name === toStr)
+
         if (from && to){
             
             let exitZone = this.add.image(from.x,from.y)
@@ -87,10 +94,17 @@ export default class GameScene extends BaseScene {
             exitZone.body.immovable = true
 
             this.physics.add.collider(this.player, exitZone,  (p,n) => {
-                console.log("ETeleport!")
-                this.player.x = to.x
-                this.player.y = to.y
-                // this.scene.start('marketScene',  { currentChar: this.player.char })
+                try {
+                    if(condition)
+                        condition()
+                    console.log("ETeleport!")
+                    this.player.x = to.x
+                    this.player.y = to.y
+                    // this.scene.start('marketScene',  { currentChar: this.player.char })
+                } catch (error) {
+                    globalEvents.emit('says',`Sorry! You can't enter here. ${error}`)
+                    console.error(error)
+                }
             })
         } else {
             console.error(`Zones not found`)
@@ -282,15 +296,19 @@ export default class GameScene extends BaseScene {
         })
 
         // Exit Zone
-        const toGovernance = map.findObject("Helpers", obj => obj.name === "toGovernance")
-        const toGovernanceCheat = map.findObject("Helpers", obj => obj.name === "toGovernanceCheat")
-        const startGovernance = map.findObject("Helpers", obj => obj.name === "startGovernance")
-        this.addGateway(toGovernance,startGovernance)
-        this.addGateway(toGovernanceCheat,startGovernance)
+        // const toGovernanceCheat = map.findObject("Helpers", obj => obj.name === "toGovernanceCheat")
+        // const startGovernance = map.findObject("Helpers", obj => obj.name === "startGovernance")
+        this.addGateway('toGovernance','startGovernance', map,()=>{
+            if (globalEth.assets['AAVE']>0)
+                return true
+            else 
+                throw `You don't have any AAVE in your account`
+        })
+        this.addGateway('toGovernanceCheat','startGovernance',map)
 
-        const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
-        const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")
-        this.addGateway(toMainland,startMainland)
+        // const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
+        // const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")
+        this.addGateway('toMainland','startMainland',map)
 
         // Faucet (interaction in handled with action in Player.js)
         const faucet = map.findObject("Helpers", obj => obj.name === "Faucet")
