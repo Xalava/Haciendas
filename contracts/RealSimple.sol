@@ -1,40 +1,40 @@
 // Simplified and unsafe version for dev purposes. Check Real.sol
 pragma solidity 0.5.16;
 
-import "tabookey-gasless/contracts/GsnUtils.sol";
-import "tabookey-gasless/contracts/IRelayHub.sol";
-import "tabookey-gasless/contracts/RelayRecipient.sol";
-import "usingtellor/contracts/UsingTellor.sol";
+// import "tabookey-gasless/contracts/GsnUtils.sol";
+// import "tabookey-gasless/contracts/IRelayHub.sol";
+// import "tabookey-gasless/contracts/RelayRecipient.sol";
+// import "usingtellor/contracts/UsingTellor.sol";
 
 import "./IERC20.sol";
 
-contract RealSimple is RelayRecipient, UsingTellor {
+contract RealSimple{// is RelayRecipient, UsingTellor {
 
     string public constant name = "Real";
     string public constant symbol = "REAL";
     uint8 public constant decimals = 0;  
 
-    IERC20 private USDC = IERC20(0x07865c6E87B9F70255377e024ace6630C1Eaa37F);
+    IERC20 private USDC = IERC20(0x2F375e94FC336Cdec2Dc0cCB5277FE59CBf1cAe5);
     
     mapping (address => bool) public participants;
     mapping (address => bool) public hasCoffee;
     mapping (address => uint) public balanceOf;
 
-  constructor(address payable _tellorAddress) UsingTellor(_tellorAddress) public {
-   setRelayHub(IRelayHub("0xD216153c06E857cD7f72665E0aF1d7D82172F494"));
-  }
+//   constructor(address payable _tellorAddress) UsingTellor(_tellorAddress) public {
+//    setRelayHub(IRelayHub("0xD216153c06E857cD7f72665E0aF1d7D82172F494"));
+//   }
 
     
     function transfer(address receiver, uint amount) public {
-        require(amount <= balanceOf[getSender()]);
-        balanceOf[getSender()] = balanceOf[getSender()] - amount;
+        require(amount <= balanceOf[msg.sender]);
+        balanceOf[msg.sender] = balanceOf[msg.sender] - amount;
         balanceOf[receiver] = balanceOf[receiver] + amount;
     }
         
     function participate() public{
-        require(!participants[getSender()]);
-        balanceOf[getSender()] += 12;
-        participants[getSender()] = true;
+        require(!participants[msg.sender]);
+        balanceOf[msg.sender] += 12;
+        participants[msg.sender] = true;
     }
     
     function buyUSDC() public {
@@ -42,20 +42,20 @@ contract RealSimple is RelayRecipient, UsingTellor {
         uint _timestamp;
         uint _value;
         uint rate = 350;
-       (_didGet, _value, _timestamp) = getCurrentValue(1);
-       if (_didGet){
-            rate = _value/ 100;
-            if (balanceOf[getSender()]>0){
-                balanceOf[getSender()]-=1;
-               USDC.transfer(getSender());
+    //    (_didGet, _value, _timestamp) = getCurrentValue(1);
+    //    if (_didGet){
+    //         rate = _value/ 100;
+            if (balanceOf[msg.sender]>0){
+                balanceOf[msg.sender]-=1;
+            //    USDC.transfer(msg.sender);
             }
-        }
+        // }
     }
 
     function buyCoffee() public {
-        if (balanceOf[getSender()]>0){
-            balanceOf[getSender()]-=1;
-            hasCoffee[getSender()]= true;
+        if (balanceOf[msg.sender]>0){
+            balanceOf[msg.sender]-=1;
+            hasCoffee[msg.sender]= true;
         }
     }
 

@@ -5,9 +5,11 @@ export const cryptos = {
         frame:10, name:"Dai", ticker:"DAI",decimals:18,
         mainnet: {
             token: "dai.token.ethers.eth", 
+            atoken: "0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"
         },
         kovan: {
-            token : "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD"
+            token : "0xFf795577d9AC8bD7D90Ee22b6C1703490b6512FD",
+            atoken: "0x4ef54e8babba6debef999bdf64878e39fb04a11f"
         }
     },
     REAL: {
@@ -31,9 +33,17 @@ export const cryptos = {
             token: "0xb597cd8d3217ea6477232f9217fa70837ff667af"
         }
     }, 
-    ETH: {frame:8,  name:"Ether", ticker:"ETH", decimals:18},
+    ETH: {frame:8,  name:"Ether", ticker:"ETH", decimals:18,
+    mainnet:{},
+    kovan: {
+        atoken:"0xd483b49f2d55d2c53d32be6eff735cb001880f79"
+    }
+    },
     USDC: {
         frame:20,  name:"USDC", ticker:"USDC",
+        mainnet: {
+            token: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+        },
         kovan:{
             token:"0x2F375e94FC336Cdec2Dc0cCB5277FE59CBf1cAe5"
         },
@@ -58,14 +68,28 @@ export const cryptos = {
     }, 
     WETH:{
         frame:8,  name:"Wrapped Ether", ticker:"WETH", decimals:18,
+        mainnet: {
+            token: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+        },
         kovan:{
             token:"0xd0A1E359811322d97991E03f863a0C30C2cF029C"
-        }
+        }, 
     },
     WBTC:{
         frame:22,  name:"Wrapped Bitcoin", ticker:"WBTC", decimals:18,
+        mainnet:{
+            token: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+        },
         kovan:{
-            token:"0xe0C9275E44Ea80eF17579d33c55136b7DA269aEb"
+            token:"0xe0C9275E44Ea80eF17579d33c55136b7DA269aEb",
+            atoken:"0xf203114673af345614cd5edffac13709f94ce4d3"
+        }
+    },
+    LINK : {
+        frame:14,  name:"Link", ticker:"LINK", decimals:18,
+        kovan:{
+            token:'0x497a3dd7165869efc68ae0394ba19bce6ad5ae1b', 
+            atoken:'0x91034833923f32d548d375a0bb24457cb11db22a',
         }
     }
 }
