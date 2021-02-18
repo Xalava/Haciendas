@@ -310,9 +310,9 @@ export default class GameScene extends BaseScene {
 
         // Faucet (interaction in handled with action in Player.js)
         const faucet = map.findObject("Helpers", obj => obj.name === "Faucet")
-        // this.faucet = this.add.image(faucet.x+30,faucet.y+30)
-        // this.physics.add.existing(this.faucet)
-        // this.faucet.setDepth(10)
+        this.faucet = this.add.image(faucet.x+30,faucet.y+30)
+        this.physics.add.existing(this.faucet)
+        this.faucet.setDepth(10)
         // this.faucet = this.add.actionnable(
         //                     ()=> {window.open("https://faucet.matic.network/")},
         //                     faucet.x+30,faucet.y+30, 
@@ -377,8 +377,6 @@ export default class GameScene extends BaseScene {
             let buyImage = this.add.image(bo.x + 8-8, bo.y-2 , "cryptos", cryptos[token].frame).setScale(0.8).setDepth(5)
             buyImage.token = token
             this.buyGroup.add(buyImage)
-            // if (DEBUG)
-            //     console.log("BUYUSDC", this.BuyUSDC)
         })
 
         // Add governance items 

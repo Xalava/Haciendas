@@ -25,8 +25,6 @@ export default class MarketScene extends BaseScene {
         this.currentChar = data.currentChar
     else
         this.currentChar = charactersList.BOY
-
-
     }
     initialiseMap(mapKey) {
 
@@ -43,7 +41,6 @@ export default class MarketScene extends BaseScene {
                 x: 30,
                 y: 630
             }
-
         return {map, tileset, startPosition}
     }
 
