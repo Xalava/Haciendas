@@ -99,8 +99,95 @@ export default class GameScene extends BaseScene {
     addAavegotchi(ag, agsvg){
         console.log("Adding ag",ag[1],agsvg)
         // new File(loader, fileConfig)
-		this.add.image(this.andres.x-100,this.andres.y-40, 'myag',0).setDepth(10).setScale(0.1)
+		this.add.image(this.andres.x-140,this.andres.y-40, 'myag',0).setDepth(10).setScale(0.1)
 	}
+    addPortal(){
+        this.anims.create({
+            key: 'portal-anim',
+            frames: this.anims.generateFrameNumbers('portal', {start:0, end: 4}),
+            frameRate: 10,
+            repeat:-1
+        })
+
+        this.anims.create({
+            key: 'myag-anim',
+            frames: this.anims.generateFrameNumbers('myag', {start:0, end: 3}),
+            frameRate: 5,
+            repeat:-1
+        })
+
+        this.portal = this.add.sprite(this.player.x-140,this.player.y-5,'portal',0 )
+            .setDepth(5) // player is at 6
+            .setScale(1)
+        const portalObj = this.portal
+        console.log(portalObj)
+        // portalObj.anims
+        this.physics.add.existing(this.portal)
+        this.portal.body.setMass(1000)
+
+        this.portal.play('portal-anim',true)//,[this.portal]);
+        // this.physics.add('')
+        this.physics.add.overlap(this.player, this.portal, (pl, prt) => {
+            prt.body.setVelocity(0, 0)
+            if(!pl.isAG){
+                if(!pl.isChanging){
+                    pl.isChanging = true
+                    this.tweens.add({
+                        targets: this.player,
+                        alpha: { start: 1, from: 0, to: 1 },
+                        duration: 1000,
+                        ease: 'Cubic',
+                        //  function (t) {
+                        //     return Math.pow(Math.sin(t * 3), 3);
+                        // },
+                        delay: 100
+                    })
+                    pl.isAG = true
+                    this.time.addEvent ({
+                        delay: 100,
+                        callback : ()=>{
+                            pl.setScale(0.5)
+                            pl.play('myag-anim')}
+                            ,// setTexture('myag'),
+                    })
+                    this.time.addEvent ({
+                        delay: 5000,
+                        callback : ()=>{
+                            pl.isChanging = false
+                        }
+
+                    })
+                }                  
+            } else {
+                if(!pl.isChanging) {
+                    pl.isChanging = true
+                    this.tweens.add({
+                        targets: this.player,
+                        alpha: { start: 1, from: 0, to: 1 },
+                        duration: 1000,
+                        ease: 'Cubic',
+                            delay: 100
+                    })
+                    this.time.addEvent ({
+                        delay: 100,
+                        callback : ()=>{
+                            pl.setScale(1)
+                            pl.play(pl.char.name+'-down', true)
+                            pl.isAG = false
+                            // setTexture('myag'),
+                        }
+                    })
+                    this.time.addEvent ({
+                        delay: 5000,
+                        callback : ()=>{
+                            pl.isChanging = false
+                        }
+                        
+                    })
+                }    
+            }
+        },null, this)
+    }
 
     addCharacterDynamically(name,svgFile){
         this.load.svg(name, svgFile )
@@ -274,6 +361,7 @@ export default class GameScene extends BaseScene {
             },
             loop: true
         })
+        this.addPortal()
 
 
 
