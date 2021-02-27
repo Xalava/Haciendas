@@ -1,0 +1,35 @@
+body {
+    background-color: black;
+    color: white;
+}
+    html, body, pre, code, kbd, samp {
+    font-family: "Press Start 2P";
+    
+}
+.textcenter {
+    text-align:center;
+}
+.textjustify{
+    text-align:justify;
+}
+.responsive {
+    width: 100%;
+    height: auto;
+}
+.vresponsive { 
+    overflow:hidden; 
+    padding-bottom:56.25%; 
+    position:relative; 
+    height:0;
+}
+
+.vresponsive iframe {
+    left:0; 
+    top:0; 
+    height:100%;
+    width:100%;
+    position:absolute;
+}
+
+    /* margin:1em auto;    */
+    /* align-items: center; */

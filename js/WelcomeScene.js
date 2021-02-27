@@ -15,11 +15,11 @@ export default class WelcomeScene  extends Phaser.Scene {
         } else {
             const element = this.add.dom(200, 150).createFromCache('form')
             element.setPerspective(800)
-            element.scale = 0.3
+            element.scale = 0.4
             this.sound.play("guitara")
             element.addListener('click').on('click', (event) => {
                 console.log(event.target)
-                if (event.target.localName === 'button') {
+                if (event.target.className === 'choice-button') {
                     console.log("Choice", event.target.innerText)
                     if (event.target.innerText == "Boy")
                         this.currentChar = charactersList.BOY
