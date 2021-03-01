@@ -247,10 +247,15 @@ export default class InterfaceScene extends Phaser.Scene {
 	}
 	updateInventory(){
 		// this.itemsGroup.clear(true,true)
+		let items = this.itemsGroup.getChildren()
 
+		// console.log(items)
 		for(let token in globalEth.assets){
+			let item = items.find(x=> x.token == token)
+			// item.
 			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-			console.log(`refresh`, token)
+			item.list[1].text = globalEth.assets[token]
+			console.log(`refresh`, token, item.list[1].text)
 			// this.createItem(token)
 		}
 	}
