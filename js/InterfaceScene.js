@@ -254,8 +254,13 @@ export default class InterfaceScene extends Phaser.Scene {
 			let item = items.find(x=> x.token == token)
 			// item.
 			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-			item.list[1].text = globalEth.assets[token]
-			console.log(`refresh`, token, item.list[1].text)
+			console.log(`refresh`, token, item.list[1].text, '>', globalEth.assets[token])
+			if(globalEth.assets[token]>1000){
+				item.list[1].text = Math.trunc(globalEth.assets[token]/1000)+'k'
+
+			} else {
+				item.list[1].text = Math.trunc(globalEth.assets[token])
+			}
 			// this.createItem(token)
 		}
 	}
