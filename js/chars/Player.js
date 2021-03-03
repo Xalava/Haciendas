@@ -44,7 +44,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(inputKeys, t, dt) {
-        console.log(this.isAG)
+        // console.log(this.isAG)
         // console.log(inputKeys, t, dt)
         if (inputKeys.left.isDown||inputKeys.leftA.isDown) {
             this.body.setVelocityX(-stdVelocity)

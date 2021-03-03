@@ -114,7 +114,7 @@ export default class GameScene extends BaseScene {
         // new File(loader, fileConfig)
 		this.add.image(this.andres.x-140,this.andres.y-40, 'myag',0).setDepth(10).setScale(0.1)
 	}
-    addPortal(){
+    addPortal(x, y){
         this.anims.create({
             key: 'portal-anim',
             frames: this.anims.generateFrameNumbers('portal', {start:0, end: 4}),
@@ -129,7 +129,7 @@ export default class GameScene extends BaseScene {
             repeat:-1
         })
 
-        this.portal = this.add.sprite(this.player.x-140,this.player.y-5,'portal',0 )
+        this.portal = this.add.sprite(x,y,'portal',0 )
             .setDepth(5) // player is at 6
             .setScale(1)
         const portalObj = this.portal
@@ -380,7 +380,8 @@ export default class GameScene extends BaseScene {
             },
             loop: true
         })
-        this.addPortal()
+        const portalObj = map.findObject("Helpers", obj => obj.name === "Portal")
+        this.addPortal(portalObj.x, portalObj.y)
 
 
 
