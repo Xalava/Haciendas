@@ -30,7 +30,10 @@ export const cryptos = {
         kovan: {
             ProtocolDataProvider : "0x3c73A5E5785cAC854D468F727c606C07488a29D6",
             WethGateway: "0xf8aC10E65F2073460aAD5f28E1EABE807DC287CF",
-            token: "0xb597cd8d3217ea6477232f9217fa70837ff667af"
+            token: "0xb597cd8d3217ea6477232f9217fa70837ff667af",
+            lendingPool: "0xe0fba4fc209b4948668006b2be61711b7f465bae",
+            aavegotchiOld: "0x16a2BA2F8d91f0D5e3B9dBAd7E716DaA428fBA85",
+            aavegotchi: "0x67d2E9130Fa3BBbd859BAc65d686225c98e9C007"
         }
     }, 
     ETH: {frame:8,  name:"Ether", ticker:"ETH", decimals:18,

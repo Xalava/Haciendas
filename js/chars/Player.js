@@ -12,6 +12,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.direction = Directions.DOWN
         this.ongoingAction = false
         this.timerSinceReport = 0
+        this.isAG = false
         // Complement for mouse control
         // this.scene.input.on('pointerdown',
         //     pointer => { if(pointer.worldX < this.x){
@@ -28,6 +29,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     action(sprite, frame) {
         const actionSprite = this.scene.add.image(this.x + 13 * this.direction.x, this.y + 14 * this.direction.y, sprite, frame)
         actionSprite.setDepth(15)
+        if(frame == undefined) {
+            actionSprite.actionType = -1
+        } else {
+            actionSprite.actionType = frame
+        }
         this.scene.physics.add.existing(actionSprite)
         return actionSprite
     }
@@ -38,10 +44,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update(inputKeys, t, dt) {
+        console.log(this.isAG)
         // console.log(inputKeys, t, dt)
         if (inputKeys.left.isDown||inputKeys.leftA.isDown) {
             this.body.setVelocityX(-stdVelocity)
-            this.anims.play(this.char.name+'-left', true)
+            if(!this.isAG)
+                this.anims.play(this.char.name+'-left', true)
             // TODO (maybe)
             // this.play('steps')
             // var music = this.sound.add('steps')
@@ -52,21 +60,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             this.direction = Directions.LEFT
         } else if (inputKeys.right.isDown||inputKeys.rightA.isDown) {
             this.body.setVelocityX(stdVelocity)
-            this.anims.play(this.char.name+'-right', true)
+            if(!this.isAG)
+                this.anims.play(this.char.name+'-right', true)
             if(this.direction != Directions.RIGHT && globalNetwork)
                 globalNetwork.reportPosition (this.x, this.y, Directions.RIGHT, true)
                 this.timerSinceReport = 0
             this.direction = Directions.RIGHT
         } else if (inputKeys.up.isDown||inputKeys.upA.isDown) {
             this.body.setVelocityY(-stdVelocity)
-            this.anims.play(this.char.name+'-up', true)
+            if(!this.isAG)
+                this.anims.play(this.char.name+'-up', true)
             if(this.direction != Directions.UP && globalNetwork)
                 globalNetwork.reportPosition (this.x, this.y, Directions.UP, true)
                 this.timerSinceReport = 0
             this.direction = Directions.UP
         } else if (inputKeys.down.isDown||inputKeys.downA.isDown) {
             this.body.setVelocityY(stdVelocity)
-            this.anims.play(this.char.name+'-down', true)
+            if(!this.isAG)
+                this.anims.play(this.char.name+'-down', true)
             // ALT: this.flipX = false
             if(this.direction != Directions.DOWN && globalNetwork)
                 globalNetwork.reportPosition (this.x, this.y, Directions.DOWN, true)
@@ -80,7 +91,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 this.body.setVelocityX(0)
                 this.body.setVelocityY(0)
                 if (this.anims.currentAnim && this.anims.currentAnim.key.substring(0, 4) !== "idle") {
-                    this.anims.play(this.char.name+'-idle-' + this.direction.name)
+                    if(!this.isAG)
+                        this.anims.play(this.char.name+'-idle-' + this.direction.name)
                 }
             }
         }
@@ -148,12 +160,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                 
                 console.log(`object launched and triggered is ${this.triggered}`)
                 // Generic actionnable object
-                this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (f, p) => {
-                    if (this.triggered == false) {
-                        p.actionned()
-                        this.triggered = true
-                    }
-                })
+                    this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (as, a) => {
+                        if (this.triggered == false) {
+                            //Action type is send. Currently : -1 for default action, 0 for net
+                            a.actionned(as.actionType)
+                            this.triggered = true
+                        }
+                    })
                 // Generic NPC interaction
                 this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a, p) => {
                     console.log(`action contacted an NPC`)

@@ -115,7 +115,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				break;
 			case "Dexie":
 				// this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
-				this.says("Welcome to our decentralised exchange ! You can buy DAI on my left and AAVE on my right")
+				this.says("Welcome to our decentralised exchange ! You can buy DAI on your left and AAVE on your right.")
 				break;
 			case "Unicorn":
 				this.says("I'm a Unicorn. What do you expect?")
@@ -137,7 +137,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				this.says("Welcome to AAVE Governance building. Read proposals on the wall, discuss and vote !")
 				break;
 			case "LoanOfficer":
-				this.says("Hello ! Do you want to take a loan?")
+				this.says("Welcome! You need to make a deposit into the pool to be able to take a loan.")
 				break;
 					
 			default:

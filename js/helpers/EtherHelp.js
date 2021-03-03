@@ -1,5 +1,8 @@
 // import { ethers } from 'ethers'
+// import { ethers } from "https://cdn.ethers.io/lib/ethers-5.0.esm.min.js";
 import realAbi from '../../contracts/RealSimple.abi.js'
+import lendingPoolAbi from '../../contracts/LendingPool.abi.js'
+import aavegotchisAbi from '../../contracts/Aavegotchis.abi.js'
 import globalEvents from './globalEvents.js'
 import {INFURA_ID, portisID, NETWORK} from './ethConstants.js'
 import {cryptos} from './cryptos.js'
@@ -22,6 +25,10 @@ const ERC20abi = [
     // Events
     "event Transfer(address indexed from, address indexed to, uint amount)"
 ];
+
+// const LendingPoolabi = [
+//     "function deposit(address asset, uint256 amount, address onBehalfOf, uint16 referralCode ) external override whenNotPaused"
+// ]
 
 export default class EtherHelp {
 
@@ -99,18 +106,24 @@ export default class EtherHelp {
         this.tokenContract.DAI = await new ethers.Contract(cryptos['DAI'][this.network.name].token, ERC20abi, this.signer) 
         this.tokenContract.AAVE = await new ethers.Contract(cryptos['AAVE'][this.network.name].token, ERC20abi, this.signer) 
         this.udpateAssets()
+        
+        this.lendingPool = await new ethers.Contract(cryptos['AAVE'][this.network.name].lendingPool, lendingPoolAbi, this.signer)
+        this.ag = await new ethers.Contract(cryptos['AAVE'][this.network.name].aavegotchi, aavegotchisAbi, this.signer)
+        console.log(`AG contract`, this.ag)
+        this.getAavegotchis()
     }
 
     async udpateAssets(){
-        console.log(await this.tokenContract.AAVE.balanceOf(this.account))
         for (const token in this.tokenContract) {
             if (Object.hasOwnProperty.call(this.tokenContract, token)) {
-                console.log("Getting balance of", this.tokenContract[token])
                 let val = await this.tokenContract[token].balanceOf(this.account)
                 this.assets[token] = parseInt(ethers.utils.formatEther(val))
-                console.log("Balance of", this.tokenContract[token],`is`,val)
+                console.log(`Balance of`, this.tokenContract[token],`is`,val)
             }
         } 
+        let balance = await this.provider.getBalance(this.account)
+        this.assets['ETH'] = parseInt(ethers.utils.formatEther(balance))     
+
         globalGame.scene.getScene('interfaceScene').updateInventory()
     }
 
@@ -131,6 +144,18 @@ export default class EtherHelp {
         this.assets['ETH'] = ethers.utils.formatEther(balance)
         return this.assets['ETH'] 
     }
+    async deposit(amount, token){
+        if(token = 'ETH') {
+            console.log(`Depositing ETH`)
+            this.lendingPool.deposit("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            ethers.utils.parseEther(amount.toString()),
+            this.account,   
+            "")
+        } else {
+            console.error(`Token not available yet`)
+        }
+    }
+
 
     async sendETH(address, amount){
         const tx = this.signer.sendTransaction({
@@ -198,7 +223,7 @@ export default class EtherHelp {
         globalEvents.emit("says", `So you want to swap your ETH for DAI? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} DAI`)
 
         console.log('window.ethers in swap func', window.ethers)
-        // await window.ethers.Signer.sendTransaction(data.tx)
+        await this.signer.sendTransaction(data.tx)
     }
 
     async swapDAIforGHST(amount){
@@ -223,6 +248,16 @@ export default class EtherHelp {
     //     console.log('data from 1inch response', data)
     //     globalEvents.emit("says", `So you want to swap your ETH for AAVE? Let's start with ${amount} ETH which is equal to ${data.toTokenAmount.toLocaleString()} AAVE`)
     // }
+
+    async getAavegotchis(){
+        // console.log(`getting AAVEGOTCHIs`, this.account)
+        // let listAG = await this.ag.allAavegotchisOfOwner(this.account)
+        // console.log("List of AG",listAG)
+        // Hardcoding my cute Aavegotchi
+        let ag = await this.ag.getAavegotchi(4567)
+        let agsvg = await this.ag.getAavegotchiSvg(4567)
+        globalGame.scene.getScene('gameScene').addAavegotchi(ag,agsvg)
+    }
 
     async participate() {
         return new Promise(async (resolve, reject) => {

@@ -40,6 +40,16 @@ export default class PreloaderScene  extends Phaser.Scene {
         this.load.image('outsideTiles', 'maps/Outside7.png')
         this.load.image('slot', 'assets/slot.png')
         this.load.image('coffee', 'assets/coffee.png')
+        this.load.svg('myagsvg', 'assets/myag.svg')
+        this.load.image('myagonly', 'assets/myagclean.png')
+        this.load.spritesheet('portal', 
+            'assets/portal.png',
+            { frameWidth:32, frameHeight:32}    
+        )
+        this.load.spritesheet('myag', 
+            'assets/myag.png',
+            { frameWidth:32, frameHeight:32}    
+        )
         // this.load.tilemapTiledJSON('miningMap', 'maps/mining.json')
         // this.load.tilemapTiledJSON('marketMap', 'maps/market.json')
         this.load.tilemapTiledJSON('majorMap', 'maps/major.json')
@@ -55,11 +65,10 @@ export default class PreloaderScene  extends Phaser.Scene {
         this.load.audio('notas','assets/audio/AsIFigureShort.mp3')
     }
 
-    create () {
+    create() {
         // this.load.once('complete', function(){
             console.log("2 Create of PreloaderScene")
         // })
-
         console.log("3 Launch of WelcomeScene")
         this.scene.start('welcomeScene')
     }

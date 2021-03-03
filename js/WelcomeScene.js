@@ -1,16 +1,16 @@
 import {charactersList} from "./chars/charactersList.js"
 
-export default class WelcomeScene  extends Phaser.Scene {
+export default class WelcomeScene extends Phaser.Scene {
     constructor() {
         super("welcomeScene")
     }
 
-    preload () {
+    preload() {
         this.load.html('form', 'html/form.html')
     }
 
-    create () {
-        if(DEBUG) {// debug shortcut
+    create() {
+        if (DEBUG) { // debug shortcut
             this.scene.start('gameScene', { currentChar: charactersList.CYBORG })
         } else {
             const element = this.add.dom(215, 150).createFromCache('form')
@@ -23,20 +23,17 @@ export default class WelcomeScene  extends Phaser.Scene {
                     console.log("Choice", event.target.innerText)
                     if (event.target.innerText == "Boy")
                         this.currentChar = charactersList.BOY
-    
                     if (event.target.innerText == "Cyborg")
                         this.currentChar = charactersList.CYBORG
-    
                     if (event.target.innerText == "Girl")
                         this.currentChar = charactersList.GIRL
-    
                     this.scene.start('gameScene', { currentChar: this.currentChar })
                 }
             })
         }
     }
 
-    update () {
+    update() {
 
     }
 }

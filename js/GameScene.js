@@ -10,6 +10,7 @@ import EthTransaction from "./object/EthTransaction.js"
 import PNJ from "./chars/PNJ.js"
 import Mine from "./object/Mine.js"
 import FloatingCrypto from "./object/FloatingCrypto.js"
+import Actionnable from "./object/Actionnable.js"
 // characters and objects helpers
 import {charactersList} from "./chars/charactersList.js"
 import {createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
@@ -108,6 +109,103 @@ export default class GameScene extends BaseScene {
         }
 
     }
+    addAavegotchi(ag, agsvg){
+        console.log("Adding ag",ag[1],agsvg)
+        // new File(loader, fileConfig)
+		this.add.image(this.andres.x-140,this.andres.y-40, 'myag',0).setDepth(10).setScale(0.1)
+	}
+    addPortal(){
+        this.anims.create({
+            key: 'portal-anim',
+            frames: this.anims.generateFrameNumbers('portal', {start:0, end: 4}),
+            frameRate: 10,
+            repeat:-1
+        })
+
+        this.anims.create({
+            key: 'myag-anim',
+            frames: this.anims.generateFrameNumbers('myag', {start:0, end: 3}),
+            frameRate: 5,
+            repeat:-1
+        })
+
+        this.portal = this.add.sprite(this.player.x-140,this.player.y-5,'portal',0 )
+            .setDepth(5) // player is at 6
+            .setScale(1)
+        const portalObj = this.portal
+        console.log(portalObj)
+        // portalObj.anims
+        this.physics.add.existing(this.portal)
+        this.portal.body.setMass(1000)
+
+        this.portal.play('portal-anim',true)//,[this.portal]);
+        // this.physics.add('')
+        this.physics.add.overlap(this.player, this.portal, (pl, prt) => {
+            prt.body.setVelocity(0, 0)
+            if(!pl.isAG){
+                if(!pl.isChanging){
+                    pl.isChanging = true
+                    this.tweens.add({
+                        targets: this.player,
+                        alpha: { start: 1, from: 0, to: 1 },
+                        duration: 1000,
+                        ease: 'Cubic',
+                        //  function (t) {
+                        //     return Math.pow(Math.sin(t * 3), 3);
+                        // },
+                        delay: 100
+                    })
+                    pl.isAG = true
+                    this.time.addEvent ({
+                        delay: 100,
+                        callback : ()=>{
+                            pl.setScale(0.5)
+                            pl.play('myag-anim')}
+                            ,// setTexture('myag'),
+                    })
+                    this.time.addEvent ({
+                        delay: 5000,
+                        callback : ()=>{
+                            pl.isChanging = false
+                        }
+
+                    })
+                }                  
+            } else {
+                if(!pl.isChanging) {
+                    pl.isChanging = true
+                    this.tweens.add({
+                        targets: this.player,
+                        alpha: { start: 1, from: 0, to: 1 },
+                        duration: 1000,
+                        ease: 'Cubic',
+                            delay: 100
+                    })
+                    this.time.addEvent ({
+                        delay: 100,
+                        callback : ()=>{
+                            pl.setScale(1)
+                            pl.play(pl.char.name+'-down', true)
+                            pl.isAG = false
+                            // setTexture('myag'),
+                        }
+                    })
+                    this.time.addEvent ({
+                        delay: 5000,
+                        callback : ()=>{
+                            pl.isChanging = false
+                        }
+                        
+                    })
+                }    
+            }
+        },null, this)
+    }
+
+    addCharacterDynamically(name,svgFile){
+        this.load.svg(name, svgFile )
+        this.add.image(x, y , name)
+    }
 
     create() {
         //// Map loading
@@ -126,15 +224,18 @@ export default class GameScene extends BaseScene {
             createCharAnims(this.anims, charactersList[c])
         }
 
+        
+        // Group that contains any object that can be triggered by an action.
+        // They all have an actionned() function that will be triggered with an overlap with an action.
+        this.actionnableGroup = this.physics.add.group() 
 
         //// Player
         this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
-
         //// Trying camera
         if (!DEBUG){// debug shortcut
             this.cameras.main.centerOn(200, startPosition.y-700);
             this.cameras.main.pan(startPosition.x, startPosition.y, 3000, 'Sine.easeInOut')
-
+            
         }
         this.scene.launch('interfaceScene')
         this.input.setDefaultCursor('url(assets/cursor.png), pointer');
@@ -215,6 +316,7 @@ export default class GameScene extends BaseScene {
             console.log("pnjsGroup", this.pnjsGroup.getChildren())
 
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
+        this.andres = andres // dirty to faciltate test of aavegotchi
         if (andres) {
             this.player.quests.addQuest('catch-transactions', 
             andres, 
@@ -232,6 +334,9 @@ export default class GameScene extends BaseScene {
         } else {
             console.error(`Andres not found!`)
         }
+
+        this.loanOfficer = this.pnjsGroup.getChildren().find(p => p.name === "LoanOfficer")
+
 
         const fox = this.pnjsGroup.getChildren().find(p => p.name === "Fox")
         if(DEBUG)
@@ -275,6 +380,7 @@ export default class GameScene extends BaseScene {
             },
             loop: true
         })
+        this.addPortal()
 
 
 
@@ -313,6 +419,10 @@ export default class GameScene extends BaseScene {
         this.faucet = this.add.image(faucet.x+30,faucet.y+30)
         this.physics.add.existing(this.faucet)
         this.faucet.setDepth(10)
+        // this.faucet = this.add.actionnable(
+        //                     ()=> {window.open("https://faucet.matic.network/")},
+        //                     faucet.x+30,faucet.y+30, 
+        //                 )
 
 
         //// Floating tokens
@@ -327,14 +437,20 @@ export default class GameScene extends BaseScene {
         // In the liquidity pool
 
         const DAIPool = map.findObject("Helpers", obj => obj.name === "DaiPool")
-        this.DAIPool = this.add.image(DAIPool.x+30, DAIPool.y+30)
-        DAIPool.actionned = x => {
-            globalGame.scene.getScene('interfaceScene').openTransactionDialog("Deposit", 1581, 'outsideTiles', "Deposit")
+        // this.AAVEpool = this.add.actionnable(
+        //     x => {
+        //         globalGame.scene.getScene('interfaceScene').openTransactionDialog("Deposit", 1581, 'outsideTiles', "Deposit")
+        //     },
+        //     DAIPool.x+30, DAIPool.y+30
+        // )
 
-        }
-        this.physics.add.existing(this.DAIPool)
 
-        // for (let i = 0; i < 6; i++) {
+
+        // this.DAIPool = this.add.image()
+        // this.actionnableGroup.add(this.DAIPool)
+        // DAIPool.actionned = 
+        // }
+        // this.physics.add.existing(this.DAIPool)
 
         for (const token in cryptos) {
             if (Object.hasOwnProperty.call(cryptos, token)) {
@@ -367,8 +483,6 @@ export default class GameScene extends BaseScene {
             let buyImage = this.add.image(bo.x + 8-8, bo.y-2 , "cryptos", cryptos[token].frame).setScale(0.8).setDepth(5)
             buyImage.token = token
             this.buyGroup.add(buyImage)
-            // if (DEBUG)
-            //     console.log("BUYUSDC", this.BuyUSDC)
         })
 
         // Add governance items 
