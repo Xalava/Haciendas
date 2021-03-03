@@ -28,7 +28,7 @@ function createDebugShortcuts(scene) {
         debugCollisions(gameScene)
     })
     gameScene.input.keyboard.once("keydown_H", event => {
-        globalEvents.emit("transactions-complete")
+        globalEvents.emit("catch-transactions-complete")
     })
     gameScene.input.keyboard.once("keydown_J", event => {
         globalEvents.emit("mining-complete")

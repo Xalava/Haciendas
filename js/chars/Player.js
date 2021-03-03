@@ -1,6 +1,7 @@
 import {Directions, stdVelocity} from "../helpers/directions.js"
 import globalEvents from "../helpers/globalEvents.js"
 import {cryptos} from "../helpers/cryptos.js"
+import Quests from "../helpers/quests.js"
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
 
@@ -19,6 +20,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         //     this.anims.play(this.char.name+'-left', true)
         //     }}
         // )
+        this.quests = new Quests()
 
 
     }
@@ -96,7 +98,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             //     this.ongoingAction = true
 
             this.triggered = false
-            if (this.scene.quest === "catch transactions") {
+            console.log(this.quests)
+            if (this.quests['catch-transactions'].isActive) {
                 console.log("capture?")
                 // We initialise this flag to allow one capture only
                 const actionNet = this.action('actions', 0)
@@ -117,7 +120,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
                         }
                         // Victory case
                         if (this.scene.transactionsCaptured >= 5) {
-                            globalEvents.emit('transactions-complete')
+                            globalEvents.emit('catch-transactions-complete')
                         }
                         t.destroy()
                     }

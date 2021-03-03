@@ -15,6 +15,7 @@ import {charactersList} from "./chars/charactersList.js"
 import {createObjectsAnims, createCharAnims} from "./chars/createAnims.js"
 
 import {cryptos} from "./helpers/cryptos.js"
+import Quests from "./helpers/quests.js"
 
 //// Global objects
 import globalEvents from "./helpers/globalEvents.js"
@@ -49,11 +50,7 @@ export default class GameScene extends BaseScene {
     preload() {
 
     }
-    launchCatchQuest(NPC) {
-        this.quest = "catch transactions"
-        NPC.says("You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!")
 
-    }
     initialiseMap(mapKey) {
 
         //// Map loading (see layer below)
@@ -212,18 +209,24 @@ export default class GameScene extends BaseScene {
 
         this.input.mouse.disableContextMenu()
 
-        //// Quests (To be factorised in an object?)
+        //// Quests 
+        // Object that contains all the quests is  this.player.quests, created in Player.js
         if (DEBUG)
             console.log("pnjsGroup", this.pnjsGroup.getChildren())
 
         const andres = this.pnjsGroup.getChildren().find(p => p.name === "Andrés")
         if (andres) {
+            this.player.quests.addQuest('catch-transactions', 
+            andres, 
+            "You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!",
+            'Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! ',
+            'mine-a-block')
             // we probably need a generic picable object class
             const net = this.add.image(andres.x +10, andres.y - 14 , 'actions', 0)
             net.setDepth(10)
             this.physics.add.existing(net)
             this.physics.add.collider(this.player, net,  (p,n) => {
-                this.launchCatchQuest(andres)
+                this.player.quests['catch-transactions'].activate()
                 n.destroy()
             })
         } else {
@@ -275,13 +278,8 @@ export default class GameScene extends BaseScene {
 
 
 
-        globalEvents.on("transactions-complete", () => {
 
-            andres.says('Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! ')
-            this.quest = "mine a block"
-            this.sound.play("holy")
 
-        })
 
         globalEvents.on("mining-complete", () => {
 
