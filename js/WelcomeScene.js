@@ -13,9 +13,9 @@ export default class WelcomeScene  extends Phaser.Scene {
         if(DEBUG) {// debug shortcut
             this.scene.start('gameScene', { currentChar: charactersList.CYBORG })
         } else {
-            const element = this.add.dom(200, 150).createFromCache('form')
+            const element = this.add.dom(215, 150).createFromCache('form')
             element.setPerspective(800)
-            element.scale = 0.4
+            element.scale = 0.5
             this.sound.play("guitara")
             element.addListener('click').on('click', (event) => {
                 console.log(event.target)

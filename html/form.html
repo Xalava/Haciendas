@@ -4,19 +4,46 @@
   <div></div>
 </div>
 
-<h1>Welcome to Haciendas</h1>
-<div>
-  <h4>Character choice</h4>
-  <!-- <div class="flex three demo"> -->
+<h1 style="text-align: center;">Welcome to Haciendas</h1>
+<div >
+  <br>
+  <!-- <h4>Character choice</h4> -->
+  <style>
+    .char {
+      background-image: url('../assets/characters.png');
+     background-size: 384px;  /* we double the size to match the current image*/
+      background-repeat: no-repeat;
+      height: 32px;
+      width: 32px;
+      margin: auto auto;
+    }
 
+    .girl {
+      background-position: -218px 0px;
+    }
+
+    .cyborg {
+      background-position: -32px 0px;
+    }
+
+    .boy {
+      background-position: -128px 0px;
+    }
+  </style>
+  <div class="flex  demo">
+    <div >
+      <div class="char girl" ></div>
       <button class="choice-button">Girl</button>
-    
-
-      <button class="choice-button">Boy</button>
-
-
+    </div>
+    <div>
+      <div class="char cyborg"></div>
       <button class="choice-button">Cyborg</button>
-
+    </div>
+    <div>
+      <div class="char boy"></div>
+      <button class="choice-button">Boy</button>
+    </div>
+  </div> 
 </div>
 
 <br>
