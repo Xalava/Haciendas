@@ -1,19 +1,17 @@
-import {Directions, randomDirection} from "../helpers/directions.js"
-import {cryptos} from "../helpers/cryptos.js"
+import {Directions, randomDirection} from '../helpers/directions.js'
+import {cryptos} from '../helpers/cryptos.js'
 
 export default class FloatingCrypto extends Phaser.Physics.Arcade.Sprite {
-
 	constructor(scene, x, y, token) {
+		if (DEBUG) console.log(`creating`, token)
 
-		console.log(`creating`, token)
+		// TODO update with current ratio in liquidity pool
 
-		// TODO update with current ratio in liquidity pool 
-
-		super(scene, x, y, "cryptos", cryptos[token].frame)
+		super(scene, x, y, 'cryptos', cryptos[token].frame)
 
 		// this.direction = Directions.LEFT
 		this.direction = 1
-		this.speed = Math.random()*4+5 //*3 // For lines
+		this.speed = Math.random() * 4 + 5 //*3 // For lines
 
 		// scene.physics.world.on(Phaser.Physics.Arcade.Events.TILE_COLLIDE, this.handleTileCollision, this)
 		// For lines
@@ -36,13 +34,13 @@ export default class FloatingCrypto extends Phaser.Physics.Arcade.Sprite {
 			// this.moveEvent.destroy()
 
 			super.destroy(fromScene)
-		}, 200);
+		}, 200)
 	}
 
 	handleTileCollision() {
 		// console.log(`tile collision for floating object`)
 		//for waves
-		this.direction = - this.direction
+		this.direction = -this.direction
 		// for lines
 		// this.setVelocity(this.speed * this.direction.x, this.speed * this.direction.y)
 	}
@@ -50,9 +48,7 @@ export default class FloatingCrypto extends Phaser.Physics.Arcade.Sprite {
 	preUpdate(t, dt) {
 		super.preUpdate(t, dt)
 		// for waves
-		this.setVelocity(this.speed * this.direction , 10 * Math.sin((t)/(200) +this.speed*100)  )
-	 
-
+		this.setVelocity(this.speed * this.direction, 10 * Math.sin(t / 200 + this.speed * 100))
 	}
 	// update(t, dt) {
 	// 	super.update(t, dt)
@@ -75,7 +71,7 @@ Phaser.GameObjects.GameObjectFactory.register('floatingCrypto', function (x, y, 
 	sprite.body.setMaxVelocity(50, 50)
 	sprite.body.setMass(20)
 	sprite.body.setCollideWorldBounds()
-	this.scene.physics.add.collider(sprite, this.scene.layers[0],(s,t)=> s.handleTileCollision(s,t))
+	this.scene.physics.add.collider(sprite, this.scene.layers[0], (s, t) => s.handleTileCollision(s, t))
 
 	return sprite
 })

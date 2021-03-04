@@ -1,20 +1,15 @@
-import {Directions, randomDirection} from "../helpers/directions.js"
-
+import {Directions, randomDirection} from '../helpers/directions.js'
 
 export default class Transaction extends Phaser.Physics.Arcade.Sprite {
-
 	constructor(scene, x, y, texture, frame) {
-
 		const isValid = Math.random() > 0.15
 
 		if (isValid) {
-			super(scene, x, y, "things2", 13)
+			super(scene, x, y, 'things2', 13)
 			this.anims.play('transaction-valid')
-
 		} else {
-			super(scene, x, y, "things2", 15)
+			super(scene, x, y, 'things2', 15)
 			this.anims.play('transaction-invalid')
-
 		}
 		this.isValid = isValid
 		this.direction = Directions.DOWN
@@ -28,10 +23,8 @@ export default class Transaction extends Phaser.Physics.Arcade.Sprite {
 				this.direction = randomDirection(this.direction.i)
 				if (this.isValid) {
 					this.anims.play('transaction-valid')
-
 				} else {
 					this.anims.play('transaction-invalid')
-
 				}
 			},
 			loop: true
@@ -45,11 +38,10 @@ export default class Transaction extends Phaser.Physics.Arcade.Sprite {
 			this.moveEvent.destroy()
 
 			super.destroy(fromScene)
-		}, 200);
+		}, 200)
 	}
 
 	handleTileCollision(obj, tile) {
-
 		if (obj !== this) {
 			return
 		}
@@ -58,14 +50,11 @@ export default class Transaction extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	preUpdate(t, dt) {
-		if (this.body.enable) { // This stops the transaction when captured
-
+		if (this.body.enable) {
+			// This stops the transaction when captured
 			super.preUpdate(t, dt)
-
 			this.setVelocity(this.speed * this.direction.x, this.speed * this.direction.y)
 		}
-
-
 	}
 }
 

@@ -1,23 +1,18 @@
-import {Directions, randomDirection} from "../helpers/directions.js"
-
+import {Directions, randomDirection} from '../helpers/directions.js'
 
 export default class EthTransaction extends Phaser.Physics.Arcade.Sprite {
-
 	constructor(scene, x, y, texture, frame) {
-
 		const isValid = true //Math.random() > 0.15
 		const originX = x
 		const originY = y
-		x= x
-		y= y-25 // It will be above the head of the player
+		x = x
+		y = y - 25 // It will be above the head of the player
 		if (isValid) {
-			super(scene, x, y, "things2", 13)
+			super(scene, x, y, 'things2', 13)
 			this.anims.play('transaction-valid')
-
 		} else {
-			super(scene, x, y, "things2", 15)
+			super(scene, x, y, 'things2', 15)
 			this.anims.play('transaction-invalid')
-
 		}
 		this.isValid = isValid
 		// this.direction = Directions.DOWN
@@ -49,11 +44,10 @@ export default class EthTransaction extends Phaser.Physics.Arcade.Sprite {
 			// this.moveEvent.destroy()
 
 			super.destroy(fromScene)
-		}, 300);
+		}, 300)
 	}
 
 	handleTileCollision(obj, tile) {
-
 		if (obj !== this) {
 			return
 		}
@@ -62,15 +56,14 @@ export default class EthTransaction extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	preUpdate(t, dt) {
-		if (this.body.enable) { // This stops the transaction when captured
+		if (this.body.enable) {
+			// This stops the transaction when captured
 
 			super.preUpdate(t, dt)
 
 			// this.setVelocity(this.speed * this.direction.x, this.speed * this.direction.y)
-			this.setVelocity(this.speed * Math.cos((t)/(200)), this.speed * Math.sin((t)/(200))  )
+			this.setVelocity(this.speed * Math.cos(t / 200), this.speed * Math.sin(t / 200))
 		}
-
-
 	}
 
 	// update(t, dt) {
@@ -78,7 +71,6 @@ export default class EthTransaction extends Phaser.Physics.Arcade.Sprite {
 	// 	this.setX(this.originX + 40*sin(t))
 	// 	this.setY(this.originY + 40*sin(t))
 	// }
-	
 }
 
 // texture and frame are optionnal/useless, the are predifined in this object

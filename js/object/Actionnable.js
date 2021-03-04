@@ -1,12 +1,11 @@
 export default class Actionnable extends Phaser.Physics.Arcade.Image {
-
 	constructor(scene, x, y, texture, frame, actionned) {
 		super(scene, x, y, texture, frame)
 		this.actionned = actionned
 	}
 }
-Phaser.GameObjects.GameObjectFactory.register('actionnable', function (actionned, x, y,  texture, frame  ) {
-	var sprite = new Actionnable(this.scene, x, y,  texture, frame,  actionned)
+Phaser.GameObjects.GameObjectFactory.register('actionnable', function (actionned, x, y, texture, frame) {
+	var sprite = new Actionnable(this.scene, x, y, texture, frame, actionned)
 
 	this.displayList.add(sprite)
 	this.updateList.add(sprite)
