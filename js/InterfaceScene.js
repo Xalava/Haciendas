@@ -564,12 +564,18 @@ export default class InterfaceScene extends Phaser.Scene {
 		// TODO : remove watch on letters
 		this.chatInput.addEventListener('focus', event => {
 			this.gameScene.scene.pause()
+			globalGame.input.enabled = false
+
 		})
+		let randomName = NAMES[Math.floor(Math.random() * NAMES.length)]
+
 		this.input.keyboard.on('keydown_ENTER', event => {
 			this.gameScene.scene.resume()
+			globalGame.input.enabled = true
+
 			const message = this.chatInput.value
 			if (message == '') return
-			let myname = globalEth.ename ? globalEth.ename : NAMES[Math.floor(Math.random() * NAMES.length)]
+			let myname = globalEth.ename ? globalEth.ename : randomName
 			if (this.gameScene.eth) {
 				myname = this.gameScene.eth.account.substr(0, 6)
 			}
