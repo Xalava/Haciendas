@@ -46,6 +46,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	update(inputKeys, t, dt) {
+		// if (document.activeElement === globalGame.scene.getScene('interfaceScene').chatInput) {
+		// 	globalGame.scene.getScene('interfaceScene').chatInput.value = this.chatInput.value + 'X'
+		// 	console.log('INPUT INTERCEPTION')
+		// 	return
+		// } 
 		// console.log(this.isAG)
 		// console.log(inputKeys, t, dt)
 		if (inputKeys.left.isDown || inputKeys.leftA.isDown) {
@@ -106,14 +111,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 			//     this.ongoingAction = true
 
 			this.triggered = false
-			console.log(this.quests)
+			if (DEBUG)console.log(`?`,this.quests)
 			if (this.quests['catch-transactions'].isActive) {
 				console.log('capture?')
 				// We initialise this flag to allow one capture only
 				const actionNet = this.action('actions', 0)
 
 				//// Transactions interactions
-				this.scene.physics.add.collider(actionNet, this.scene.transactions, (a, t) => {
+				this.scene.physics.add.collider(actionNet, this.scene.transactions.getChildren(), (a, t) => {
 					// The collision only works once per action
 					if (this.triggered == false) {
 						this.triggered = true
@@ -135,7 +140,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				})
 
 				// PNJ interaction
-				this.scene.physics.add.collider(actionNet, this.scene.pnjsGroup, (a, p) => {
+
+				// Collisions between the actions and the NPCs
+				this.scene.physics.add.collider(actionNet, this.scene.pnjsGroup.getChildren(), (a, p) => {
 					if (this.triggered == false) {
 						p.says("It doesn't work on me!")
 						p.isHurt
@@ -158,17 +165,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				// Generic actionnable object
 				this.scene.physics.add.overlap(actionSprite, this.scene.actionnableGroup, (as, a) => {
 					if (this.triggered == false) {
+						this.triggered = true
 						//Action type is send. Currently : -1 for default action, 0 for net
 						a.actionned(as.actionType)
-						this.triggered = true
 					}
 				})
 				// Generic NPC interaction
-				this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup, (a, p) => {
-					console.log(`action contacted an NPC`)
+				this.scene.physics.add.overlap(actionSprite, this.scene.pnjsGroup.getChildren(), (a, p) => {
 					if (this.triggered == false) {
-						p.contact()
+						console.log(`action contacted an NPC`)
 						this.triggered = true
+						p.contact()
 					}
 				})
 
@@ -192,6 +199,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 						this.triggered = true
 					}
 				})
+				this.scene.physics.add.overlap(actionSprite, this.scene.minesGroup.getChildren(), (a, m) => {
+					if (this.triggered == false) {
+						m.hashing()
+						this.triggered = true
+					}
+				})
+
 
 				this.scene.physics.add.overlap(
 					actionSprite,
@@ -210,7 +224,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 				this.scene.physics.add.overlap(
 					actionSprite,
-					this.scene.buyGroup,
+					this.scene.buyGroup.getChildren(),
 					(a, p) => {
 						if (globalEth) {
 							if (this.triggered == false) {
@@ -240,7 +254,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 				this.scene.physics.add.overlap(
 					actionSprite,
-					this.scene.proposalsGroup,
+					this.scene.proposalsGroup.getChildren(),
 					(a, p) => {
 						if (this.triggered == false) {
 							this.triggered = true

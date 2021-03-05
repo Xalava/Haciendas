@@ -9,7 +9,8 @@ export default class Quests {
 		quest.isComplete = false
 
 		quest.activate = () => {
-			quest.isActive = false
+			quest.isActive = true
+			if (DEBUG) console.log(`？ quest ${quest.name} is activated`)
 			giver.says(activateMessage)
 		}
 
@@ -17,9 +18,10 @@ export default class Quests {
 			globalGame.scene.getScene('interfaceScene').sound.play('holy')
 			giver.says(completeMessage)
 			quest.isComplete = true
+			quest.isActive = false
 			if (nextQuest) {
-				if (this.quests[nextQuest]) {
-					this.quests[nextQuest].activate()
+				if (this[nextQuest]) {
+					this[nextQuest].activate()
 				} else {
 					console.error('Quest', nextQuest, 'does not exist')
 				}

@@ -27,17 +27,17 @@ export default class Mine extends Phaser.Physics.Arcade.Sprite {
 		}, 800)
 		3
 	}
-	hashing(s, a) {
-		s.anims.play('mineMove', true)
-		if (s.triggered == false) {
-			s.triggered = true
-			s.scene.sound.play('machine')
+	hashing() {
+		this.anims.play('mineMove', true)
+		if (this.triggered == false) {
+			this.triggered = true
+			this.scene.sound.play('machine')
 			if (DEBUG) console.log('Mine hashing', this)
 			this.play('mineMove')
-			const result = Phaser.Math.Between(0, 18000)
-			if (result < 9000) {
+			const result = Phaser.Math.Between(0, 9000)
+			if (result < 1000) {
 				this.displayHash(result, 'green')
-				if (this.scene.quest == 'mine a block') {
+				if (this.scene.player.quests['mine-a-block']&& this.scene.player.quests['mine-a-block'].isActive) {
 					globalEvents.emit('mining-complete')
 				}
 				const block = this.scene.add.sprite(this.x, this.y + 20, 'things-tall', 0).setDepth(20)
@@ -64,7 +64,7 @@ Phaser.GameObjects.GameObjectFactory.register('mine', function (x, y, texture, f
 	//this.scene.physics.add.existing(sprite, true) // static = true
 	sprite.setDepth(9)
 	if (DEBUG) console.log('creating mine')
-	this.scene.physics.add.overlap(sprite, this.scene.actionsGroup, (s, a) => sprite.hashing(s, a))
+	// this.scene.physics.add.overlap(sprite, this.scene.actionsGroup, (s, a) => sprite.hashing(s, a))
 
 	return sprite
 })

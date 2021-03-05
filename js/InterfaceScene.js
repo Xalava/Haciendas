@@ -36,10 +36,11 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.load.spritesheet('things2bis', 'assets/things2.png', {frameWidth: 16, frameHeight: 16})
 		this.load.scenePlugin({
 			key: 'rexuiplugin',
-			url:
-				'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/dc73922707dc7dc861f73a93d9be139ceca20fdc/dist/rexuiplugin.min.js',
+			url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
 			sceneKey: 'rexUI'
 		})
+		// version for phaser 3.24
+		// 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/dc73922707dc7dc861f73a93d9be139ceca20fdc/dist/rexuiplugin.min.js',
 
 		this.load.image(
 			'nextPage',
@@ -479,6 +480,28 @@ export default class InterfaceScene extends Phaser.Scene {
 			this
 		)
 
+		// Super hacky to solve WASD collision with chat
+		// this.input.keyboard.on('keydown_W', event => {
+		// 	if (document.activeElement === chatInput) {
+		// 		this.chatInput.value = this.chatInput.value + 'w'
+		// 	} 
+		// })
+		// this.input.keyboard.on('keydown_A', event => {
+		// 	if (document.activeElement === chatInput) {
+		// 		this.chatInput.value = this.chatInput.value + 'a'
+		// 	} 
+		// })
+		// this.input.keyboard.on('keydown_S', event => {
+		// 	if (document.activeElement === chatInput) {
+		// 		this.chatInput.value = this.chatInput.value + 's'
+		// 	} 
+		// })
+		// this.input.keyboard.on('keydown_D', event => {
+		// 	if (document.activeElement === chatInput) {
+		// 		this.chatInput.value = this.chatInput.value + 'd'
+		// 	} 
+		// })
+
 		this.input.keyboard.on('keydown_SPACE', event => {
 			if (document.activeElement === chatInput) {
 				this.chatInput.value = this.chatInput.value + ' '
@@ -563,28 +586,55 @@ export default class InterfaceScene extends Phaser.Scene {
 		// TODO : Disable input on focus,
 		// TODO : remove watch on letters
 		this.chatInput.addEventListener('focus', event => {
+			globalGame.input.keyboard.preventDefault = false
 			this.gameScene.scene.pause()
-			globalGame.input.enabled = false
+			// globalGame.input.enabled = false
+			this.chatInput.addEventListener('keypress', e => {
+			// this.input.keyboard.on('keydown_ENTER', event => {
+				if (e.key === 'Enter') {
+					this.gameScene.scene.resume()
+					// globalGame.input.enabled = true
+					globalGame.input.keyboard.preventDefault = true
+					
+					const message = this.chatInput.value
+					if (DEBUG) console.log(`Chat`, message)
+				this.chatInput.value = ''
+					this.chatInput.blur()
+					if (message == '') return
+					let myname = globalEth.ename ? globalEth.ename : randomName
+					if (this.gameScene.eth) {
+						myname = this.gameScene.eth.account.substr(0, 6)
+					}
+					globalNetwork.says(myname, message)
+				// element.destroy()
+				}
+			})
+		})
+
+		this.chatInput.addEventListener('focusout', event => {
+			globalGame.input.keyboard.preventDefault = true
+			this.gameScene.scene.resume()
+			// globalGame.input.enabled = true
 
 		})
 		let randomName = NAMES[Math.floor(Math.random() * NAMES.length)]
 
-		this.input.keyboard.on('keydown_ENTER', event => {
-			this.gameScene.scene.resume()
-			globalGame.input.enabled = true
 
-			const message = this.chatInput.value
-			if (message == '') return
-			let myname = globalEth.ename ? globalEth.ename : randomName
-			if (this.gameScene.eth) {
-				myname = this.gameScene.eth.account.substr(0, 6)
-			}
-			globalNetwork.says(myname, message)
-			this.chatInput.value = ''
-			this.chatInput.blur()
-			// element.destroy()
-		})
+
+		// this.chatInput.addEventListener('submit', event => {
 		// })
+		// this.chatInput.addEventListener('focusout', function (e) {
+		// 	// globalGame.input.enabled = true
+		// })
+
+
+
+
+		// this.input.keyboard.on('keydown_ENTER', event => {
+
+		// })
+		// })
+	
 
 		//// Debugging shortcuts
 		createDebugSwitch(this)
@@ -637,7 +687,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		const discordButton = this.add
 			.dom(380, 15)
 			.createFromHTML(
-				'<a href="https://discord.gg/n5xTJXNbwF"><button class="shyButton" style="font-size:2.2px"><i>Discord</i></button> </a>'
+				'<a href="https://discord.gg/n5xTJXNbwF"><button class="shyButton" style="font-size:2.5px"><i>Discord</i></button> </a>'
 			)
 		//// Handling events
 		globalEvents.on('transaction-captured', nb => this.handleTransactionsChange(nb), this)

@@ -125,7 +125,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				this.says(`Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC`)
 				break
 			case 'Andrés':
-				if (this.scene.player.quests['catch-transaction'].isActive) {
+				if (this.scene.player.quests['catch-transactions'] && this.scene.player.quests['catch-transactions'].isActive) {
 					this.says(
 						`Bienvenido! If you want to learn how to learn the basics of blockhain, grap the net next to me.`
 					)

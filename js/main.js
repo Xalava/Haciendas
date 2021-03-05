@@ -35,7 +35,14 @@ const config = {
 			debug: DEBUG,
 			gravity: {y: 0}
 		}
-	}
+	},
+	// plugins: {
+    //     scene: [{
+    //         key: 'rexUI',
+    //         plugin: 'rexuiplugin,
+    //         mapping: 'rexUI'
+    //     }]
+    // }
 }
 console.log(`✓ Loading game`)
 // const settings = new Settings()

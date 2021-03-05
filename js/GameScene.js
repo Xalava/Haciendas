@@ -252,7 +252,7 @@ export default class GameScene extends BaseScene {
 
 		this.physics.add.collider(
 			this.player,
-			this.minesGroup,
+			this.minesGroup.getChildren(),
 			(p, m) => {
 				m.body.setVelocity(0, 0)
 			},
@@ -262,7 +262,6 @@ export default class GameScene extends BaseScene {
 
 		//// PNJ
 		this.pnjsGroup = this.physics.add.group()
-
 		// We assume each object on the PNJ layer has a name and a first custom property "frame"
 		const PNJsLayer = map.getObjectLayer('PNJs')
 		PNJsLayer.objects.forEach(pnjObj => {
@@ -276,24 +275,19 @@ export default class GameScene extends BaseScene {
 			const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type)
 			this.pnjsGroup.add(newPNJ)
 		})
+		if (DEBUG) console.log("PNJs Group",this.pnjsGroup)
 
-		this.physics.add.collider(
-			this.player,
-			this.pnjsGroup,
-			(p, j) => {
-				j.handlePlayerCollision(p, j)
-				p.handleBumpyCollision(p, j)
-			},
-			null,
-			this
-		)
+		// timeout is hack to avoid a random bug
+		// setTimeout(() => {
+
+		//   }, 3000)
 
 		//// Layers Loading
 		this.layers = []
 
 		for (let i = 0; i < map.layers.length; i++) {
 			// could use map.layers[i].name as name
-			this.layers[i] = map.createStaticLayer(i, tileset)
+			this.layers[i] = map.createLayer(i, tileset)
 			this.layers[i].setDepth(i)
 			this.layers[i].setCollisionByProperty({
 				collides: true
@@ -319,7 +313,14 @@ export default class GameScene extends BaseScene {
 
 		//// Quests
 		// Object that contains all the quests is  this.player.quests, created in Player.js
-		if (DEBUG) console.log('pnjsGroup', this.pnjsGroup.getChildren())
+		if (DEBUG) console.log(`👥 pnjsGroup`, this.pnjsGroup.getChildren())
+		// Collisions between the player and the NPCs
+		let NPCPlayerCollider = this.physics.add.collider(this.player, this.pnjsGroup.getChildren(), (p, j) => {
+				if (DEBUG) console.log(`💥 collision between player and NPC`, j)
+				j.handlePlayerCollision(p, j)
+				p.handleBumpyCollision(p, j)
+			}, null, this)
+		if (DEBUG) console.log(`NPC/player collider added`, NPCPlayerCollider)
 
 		const andres = this.pnjsGroup.getChildren().find(p => p.name === 'Andrés')
 		this.andres = andres // dirty to faciltate test of aavegotchi
@@ -328,9 +329,28 @@ export default class GameScene extends BaseScene {
 				'catch-transactions',
 				andres,
 				`You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!`,
-				`Congratulations for collecting the transactions! Now to mine them, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 9000. You must be the first one! `,
+				`Congratulations for collecting the transactions! `,
 				'mine-a-block'
 			)
+			this.player.quests.addQuest(
+				'mine-a-block',
+				andres,
+				`Now to mine a block of transactoins, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 1000. You must be the first one! `,
+				`Congratulations for mining a block! Join the fox near the lake to collect your reward`,
+				''
+			)
+
+			globalEvents.on('mine-a-block-complete', () => {
+				const eng = this.pnjsGroup.getChildren().find(p => p.name === 'engineer')
+				eng.says(
+					``
+				)
+				this.quest = 'get a fox'
+				this.sound.play('holy')
+				if (localStorageAvailable()) {
+					window.localStorage.setItem('blockQuestComplete', true)
+				}
+			})
 			// we probably need a generic picable object class
 			const net = this.add.image(andres.x + 10, andres.y - 14, 'actions', 0)
 			net.setDepth(10)
@@ -389,17 +409,7 @@ export default class GameScene extends BaseScene {
 		const portalObj = map.findObject('Helpers', obj => obj.name === 'Portal')
 		this.addPortal(portalObj.x, portalObj.y)
 
-		globalEvents.on('mining-complete', () => {
-			const eng = this.pnjsGroup.getChildren().find(p => p.name === 'engineer')
-			eng.says(
-				`Congratulations for mining a block! You have earned 12 Reales, an antique currency. To collect them and join the game, talk to the fox near the lake`
-			)
-			this.quest = 'get a fox'
-			this.sound.play('holy')
-			if (localStorageAvailable()) {
-				window.localStorage.setItem('blockQuestComplete', true)
-			}
-		})
+
 
 		// Exit Zone
 		// const toGovernanceCheat = map.findObject("Helpers", obj => obj.name === "toGovernanceCheat")
