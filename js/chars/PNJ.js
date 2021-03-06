@@ -9,6 +9,7 @@ export const Type = {
 
 export const TypeArray = ['MALE', 'FEMALE', 'CYBORG']
 
+// PNJ is French for NPC.
 export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	constructor(scene, x, y, texture, frame, name, type) {
 		super(scene, x, y, texture, frame)
@@ -75,34 +76,44 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	contact() {
+		if (DEBUG) console.log(`Contact with`, this.name)
 		switch (this.name) {
 			case 'Fox':
 				this.says(`Welcome stranger ! How about connecting your wallet? `)
+				this.scene.sound.play('Fox-Welcome')
 
 				setTimeout(async () => {
 					globalEth
 						.initialiseMetaMask()
 						.then(async () => {
-							// if (DEBUG)
-							// 	console.log(globalEth)
+							// TODO : Registration in the game Smart Contract
 							// const isparticipant = await globalEth.realContract.participants(globalEth.account)
-							const ethBalance = await globalEth.getETHBalance()
-
 							// if (isparticipant) {
 							// 	this.says("Sly as a fox I see, you have already joined!")
 							// 	globalEvents.emit('real-transaction', 0)
+							const ethBalance = await globalEth.getETHBalance()
 
-							// } else
-							if (!ethBalance) {
-								this.says(
-									'You seem to miss Matic or ETH. If you go the lake and press spacebar, it will open a faucet'
-								)
+							if (globalEth.network.name != "kovan"){
+								this.says(`Please connect to Kovan testnet and talk to me again`)
 							} else {
-								// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
-								// globalEth.participate().then(() => {
-								// 	globalEvents.emit('real-transaction', 12)
-								// 	this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
-								// })
+								if (!ethBalance) {
+									this.says(
+										'You seem to miss basic assets. Go the lake and press spacebar to open a faucet'
+									)
+								} else {
+									if (globalEth.ename) {
+										this.says(
+											`I see that you have already registered a name! Welcome ${globalEth.ename}`
+										)
+									} else {
+										this.says(`Have a look to the market in the East to exchange some of your tokens`)
+									}									
+									// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
+									// globalEth.participate().then(() => {
+									// 	globalEvents.emit('real-transaction', 12)
+									// 	this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
+									// })
+								}
 							}
 						})
 						.catch(err => {
@@ -115,31 +126,46 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 			case 'Dexie':
 				// this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
 				this.says(
-					`Welcome to our decentralised exchange ! You can buy DAI on your left and AAVE on your right.`
+					`Welcome to our decentralised exchange ! You can buy DAI on your left and AAVE on your right. [i]It might not be fully operationnal yet. Join our Discord or follow us on Twitter to be update!.[/i]`
 				)
+				this.scene.sound.play('Dexie-Welcome')
+
 				break
 			case 'Unicorn':
-				this.says(`I'm a Unicorn. What do you expect?`)
+				this.says(`I'm a Unicorn. What did you expect?`)
+				this.scene.sound.play('glitter')
 				break
 			case 'Kevin':
-				this.says(`Welcome The Block Café, a working café in Lisbon. Buy a coffee at the panel for 1 USDC`)
+				this.says(`Bem-vindo to The Block, a working café in Lisbon. Buy a coffee at the panel for 1 USDC`)
+				this.scene.sound.play('Kevin-Welcome')
 				break
+			case 'engineer':
+				this.says(`I've been optimising this mining hardware for years. Check it out!`)
+				break
+			case 'Laura':
+				this.says(`¡Hola!\nTalk to the fisherman in the house North from here to learn fundamentals or to the Fox near the lake behind me to connect a wallet.`)
+				this.scene.sound.play('Laura-Hola')
+
+				break	
 			case 'Andrés':
 				if (this.scene.player.quests['catch-transactions'] && this.scene.player.quests['catch-transactions'].isActive) {
-					this.says(
-						`Bienvenido! If you want to learn how to learn the basics of blockhain, grap the net next to me.`
-					)
+					this.says(`Go to the mempool in the West and catch five green transactions`)
 				} else {
-					this.says(`Go to the mempool in the west and catch five green transactions`)
+					this.says(
+						`Bienvenido! To learn the basics of blockchains, grab the net next to me and let's make a block!`
+					)
+					this.scene.sound.play('Andres-Bienvenido')
+
 				}
 				break
 			case 'Guide':
-				this.says(
-					`Welcome to AAVE! You can deposit DAI to the pool, take a loan or go to the governance building`
-				)
+				this.says(`Welcome to AAVE! You can deposit asset in the pool, take a loan or participate in the governance building`)
+				this.scene.sound.play('Ghost-Welcome')
+
 				break
 			case 'GuideGov':
-				this.says(`Welcome to AAVE Governance building. Read proposals on the wall, discuss and vote !`)
+				this.says(`You are the chosen one... \n\n\nI'm kidding. Eternity is long, AAVE owner. Read proposals on the wall, discuss and vote.`)
+				this.scene.sound.play('GhostGov-Welcome')
 				break
 			case 'LoanOfficer':
 				this.says(`Welcome! You need to make a deposit into the pool to be able to take a loan.`)

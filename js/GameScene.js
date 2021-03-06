@@ -328,29 +328,18 @@ export default class GameScene extends BaseScene {
 			this.player.quests.addQuest(
 				'catch-transactions',
 				andres,
-				`You need to collect 5 transactions in the mempool, west from here. You can navigate with the arrow keys and launch your net with the space bar [i](Sorry mobile users, touch controls are on the roadmap).[/i] Be careful, you must only collect valid transactions in green!`,
+				`You need to collect 5 transactions in the mempool, West from here. You can launch your net with the space bar. Be careful, you must only collect valid transactions in green!`,
 				`Congratulations for collecting the transactions! `,
 				'mine-a-block'
 			)
 			this.player.quests.addQuest(
 				'mine-a-block',
 				andres,
-				`Now to mine a block of transactoins, go to the mining farm in the south and activate one of the mining rigs pressing [i]space[/i] until you have a number below 1000. You must be the first one! `,
+				`Now to mine a block of transactions, go to the mining farm in the South and activate one of the mining rigs pressing [i]space[/i] until you have a number below 1000.`,
 				`Congratulations for mining a block! Join the fox near the lake to collect your reward`,
 				''
 			)
 
-			globalEvents.on('mine-a-block-complete', () => {
-				const eng = this.pnjsGroup.getChildren().find(p => p.name === 'engineer')
-				eng.says(
-					``
-				)
-				this.quest = 'get a fox'
-				this.sound.play('holy')
-				if (localStorageAvailable()) {
-					window.localStorage.setItem('blockQuestComplete', true)
-				}
-			})
 			// we probably need a generic picable object class
 			const net = this.add.image(andres.x + 10, andres.y - 14, 'actions', 0)
 			net.setDepth(10)
@@ -385,7 +374,7 @@ export default class GameScene extends BaseScene {
 		setTimeout(() => {
 			globalEvents.emit(
 				'says',
-				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk to the fox or Andrés in the house. Note that this game is in early alpha.`
+				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk or interact with objects. Note that this game is in early alpha.`
 			)
 			this.quest = 'get a fox'
 		}, timeout)

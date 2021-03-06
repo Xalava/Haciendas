@@ -129,6 +129,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 							this.scene.sound.play('swing')
 						} else {
 							this.scene.transactionsCaptured = 0
+							this.scene.sound.play('poo')
 							this.scene.cameras.main.shake(100) // Alt: flash, fade
 						}
 						// Victory case

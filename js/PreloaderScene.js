@@ -54,15 +54,30 @@ export default class PreloaderScene extends Phaser.Scene {
 		// this.load.tilemapTiledJSON('marketMap', 'maps/market.json')
 		this.load.tilemapTiledJSON('majorMap', 'maps/major.json')
 
-		this.load.audio('machine', 'assets/audio/net.wav')
+		this.load.audio('machine', 'assets/audio/net.mp3')
 		this.load.audio('MALE-hurt', 'assets/audio/male-hit.ogg')
 		this.load.audio('FEMALE-hurt', 'assets/audio/female-hit.ogg')
 		this.load.audio('holy', 'assets/audio/holy.ogg')
-		this.load.audio('swing', 'assets/audio/swing.wav')
+		this.load.audio('swing', 'assets/audio/swing.mp3')
 		this.load.audio('gold', 'assets/audio/gold.ogg')
+		this.load.audio('glitter', 'assets/audio/glitter.mp3')
+		this.load.audio('poo', 'assets/audio/poo.mp3')
+		this.load.audio('coin', 'assets/audio/coin.mp3')
+		this.load.audio('coin-muted', 'assets/audio/coin-muted.mp3')
+		this.load.audio('coin-ringing', 'assets/audio/coin-ringing.mp3')
+
 
 		this.load.audio('guitara', 'assets/audio/AsIFigure.mp3')
 		this.load.audio('notas', 'assets/audio/AsIFigureShort.mp3')
+
+		this.load.audio('Laura-Hola', 'assets/speech/Laura-Hola.mp3')
+		this.load.audio('Andres-Bienvenido', 'assets/speech/Andres-Bienvenido.mp3')
+		this.load.audio('Ghost-Welcome', 'assets/speech/Ghost-Welcome.mp3')
+		this.load.audio('GhostGov-Welcome', 'assets/speech/GhostGov-Welcome.mp3')
+		this.load.audio('Dexie-Welcome', 'assets/speech/Dexie-Welcome.mp3')
+		this.load.audio('Fox-Welcome', 'assets/speech/Fox-Welcome.mp3')
+		this.load.audio('Kevin-Welcome', 'assets/speech/Kevin-Welcome.mp3')
+
 	}
 
 	create() {
