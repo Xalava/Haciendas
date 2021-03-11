@@ -347,6 +347,7 @@ export default class InterfaceScene extends Phaser.Scene {
 							this.sound.play('notas')
 							let amount = document.querySelector('#amount').value
 							actionFunction(token, amount)
+							this.addItemToInventory(gameObject)
 						} else {
 							console.error('Action not available')
 						}

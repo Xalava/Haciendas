@@ -43,6 +43,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 	handleBumpyCollision(player, obj) {
 		this.x = this.x + Math.round((this.x - obj.x) / 2)
 		this.y = this.y + Math.round((this.y - obj.y) / 2)
+		this.tint = 0xff0000
+		setTimeout(() => {
+			this.clearTint()
+		}, 500)
 	}
 
 	update(inputKeys, t, dt) {
