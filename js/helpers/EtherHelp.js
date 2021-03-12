@@ -178,6 +178,19 @@ export default class EtherHelp {
 		globalEvents.emit('ongoing-transaction', tx)
 	}
 
+	async sendToken(token, receiverAddress, amount) {
+		const tx = ''
+		if (token == 'ETH'){
+			tx = this.signer.sendTransaction({
+				to: receiverAddress,
+				value: ethers.utils.parseEther(amount)
+			})
+		} else {
+			tx = this.tokenContract[token].transfer(receiverAddress, amount) 
+		}
+		globalEvents.emit('ongoing-transaction', tx)
+	}
+
 	getGovernanceItems() {
 		let govItems = [
 			{

@@ -407,7 +407,7 @@ export default class GameScene extends BaseScene {
 			if (globalEth.assets['AAVE'] > 0) return true
 			else throw `You don't have any AAVE in your account`
 		})
-		this.addGateway('toGovernanceCheat', 'startGovernance', map)
+		if (DEBUG) this.addGateway('toGovernanceCheat', 'startGovernance', map)
 
 		// const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
 		// const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")

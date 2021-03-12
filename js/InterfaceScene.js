@@ -278,7 +278,7 @@ export default class InterfaceScene extends Phaser.Scene {
 					let nameTxt = this.add.text(264, PADDING + INTERLINE, counterpartyName.slice(0, 10), INTERFACEFONT)
 					this.transactionDialog.add(nameTxt)
 				}
-				actionFunction = (token, amount) => globalEth.sendETH(counterpartyAddress, amount)
+				actionFunction = (token, amount) => globalEth.sendToken(token, counterpartyAddress, amount)
 				break
 
 			case 'Swap':
