@@ -141,7 +141,9 @@ export default class InterfaceScene extends Phaser.Scene {
 				if (scene.invSlotsArray[scene.lastSlot].item === undefined) {
 					// Controller
 					scene.invSlotsArray[scene.lastSlot].item = gameObject
-					delete scene.invSlotsArray[gameObject.priorPosition].item
+					if (scene.invSlotsArray[gameObject.priorPosition]){
+						delete scene.invSlotsArray[gameObject.priorPosition].item
+					}
 
 					// View (could use a global refresh function)
 					gameObject.x = scene.invSlotsArray[scene.lastSlot].invX
@@ -182,8 +184,7 @@ export default class InterfaceScene extends Phaser.Scene {
 		item.setInteractive({draggable: true})
 		// item.alpha= 1
 		this.input.setDraggable(item)
-		item.on('pointerover', function () {
-			// TODO display tooltip
+		item.on('pointerover', (i) => {
 			// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
 			// coin.setTint(brighter);
 			// item.setTint(0x44ff44)
@@ -192,9 +193,17 @@ export default class InterfaceScene extends Phaser.Scene {
 			// graph.lineStyle(1, 0xffffff)
 			// graph.fillStyle(color, 1)
 			// graph.fillRoundedRect(x, y, w, h,4)
-			// graph.strokeRoundedRect(x, y, w, h,4)		this.input.setDefaultCursor('url(assets/cursor.png), pointer');
+			// graph.strokeRoundedRect(x, y, w, h,4)	
+			// this.input.setDefaultCursor('url(assets/cursor.png), pointer');
+			
+			// MAYBETODO display tooltip
+			// i.tooltipText = this.add.text(i.x, i.y, globalEth.assets[item.token], INTERFACEFONT)
 		})
-		item.on('pointerout', function () {
+		item.on('pointerout', i => {
+			// If tooltip
+			// if (i.tooltipText)
+			// 	i.tooltipText.destroy()
+
 			// coin.clearTint();
 		})
 		// item.setInteractive()
@@ -247,11 +256,16 @@ export default class InterfaceScene extends Phaser.Scene {
 			let item = items.find(x => x.token == token)
 			// item.
 			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-			console.log(`refresh`, token, item.list[1].text, '>', globalEth.assets[token])
-			if (globalEth.assets[token] > 1000) {
-				item.list[1].text = Math.trunc(globalEth.assets[token] / 1000) + 'k'
-			} else {
-				item.list[1].text = Math.trunc(globalEth.assets[token])
+			if (item!==undefined){
+				console.log(`refresh`, token, item.list[1].text, '>', globalEth.assets[token])
+				if (globalEth.assets[token] > 1000) {
+					item.list[1].text = Math.trunc(globalEth.assets[token] / 1000) + 'k'
+				} else {
+					item.list[1].text = Math.trunc(globalEth.assets[token])
+				}
+			}
+			else {
+				console.error(`Token ${token} not found in items`)
 			}
 			// this.createItem(token)
 		}
