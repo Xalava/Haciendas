@@ -60,7 +60,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 		if (inputKeys.left.isDown || inputKeys.leftA.isDown) {
 			this.body.setVelocityX(-stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-left', true)
-			// TODO (maybe)
+			// MAYBETODO
 			// this.play('steps')
 			// var music = this.sound.add('steps')
 			// music.play()
