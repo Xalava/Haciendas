@@ -20,6 +20,7 @@ const INTERLINE = 14
 const DEBUGINTERFACE = false
 
 const NAMES = ['Aiden', 'Alex', 'Billie', 'Casey', 'Erin', 'Harley', 'Jade', 'Kim', 'AE-X3']
+const randomName = NAMES[Math.floor(Math.random() * NAMES.length)]
 
 export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
@@ -477,6 +478,67 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.chat.scrollTop = this.chat.scrollHeight
 	}
 
+	jitsiChat(){
+		if (!this.jistiIsUp){
+			this.jistiIsUp = true
+			let name = globalEth.ename ? globalEth.ename : randomName
+
+			const jitsiWindow = this.add
+			.dom(-140, -50)
+			.createFromHTML(
+				'<div style="text-align:left"><div id="meet" ></div></div>'
+			)
+			jitsiWindow.scale = 0.3
+	
+			const domain = 'meet.jit.si';
+			const options = {
+				roomName: 'HaciendasXYZ',
+				width: 400,
+				height: 200,
+				parentNode: document.querySelector('#meet'),
+				userInfo: {
+					// email: 'email@jitsiexamplemail.com',
+					displayName: name
+				},
+				configOverwrite: { 
+					hideLobbyButton: true,
+					enableCalendarIntegration: false,
+					disableProfile: true,
+					startAudioOnly: true, 
+					TOOLBAR_BUTTONS: [   'microphone', 'hangup', 'settings'], 
+					TOOLBAR_ALWAYS_VISIBLE: true 
+				},
+				interfaceConfigOverwrite: { 
+					DEFAULT_BACKGROUND: '#57E757',
+					DEFAULT_LOCAL_DISPLAY_NAME: 'me',
+					DEFAULT_LOGO_URL: '../assets/hacienda.png',
+					DEFAULT_REMOTE_DISPLAY_NAME: 'Haciendero',
+					DISPLAY_WELCOME_FOOTER: false,
+					SHOW_BRAND_WATERMARK: false,
+	
+					SHOW_CHROME_EXTENSION_BANNER: false,
+					SHOW_DEEP_LINKING_IMAGE: false,
+					SHOW_JITSI_WATERMARK: false,
+					SHOW_POWERED_BY: false,
+					SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+				},
+	
+			}
+			this.jitsiApi = new JitsiMeetExternalAPI(domain, options);
+		}
+	
+	}
+	nameChange(){
+		this.jitsiApi.executeCommand('displayName', globalEth.ename);
+
+		// this.jitsiApi.executeCommands({
+
+		// 	displayName: [ globalEth.ename],
+		// 		toggleAudio: []
+		// })
+
+	}
+
 	create() {
 		this.gameScene = this.scene.get('gameScene')
 
@@ -632,7 +694,9 @@ export default class InterfaceScene extends Phaser.Scene {
 			// globalGame.input.enabled = true
 
 		})
-		let randomName = NAMES[Math.floor(Math.random() * NAMES.length)]
+		// TODO : we need to require an earlier connection
+
+
 
 
 

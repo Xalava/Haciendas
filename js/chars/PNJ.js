@@ -166,6 +166,10 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 			case 'GuideGov':
 				this.says(`You are the chosen one... \n\n\nI'm kidding. Eternity is long, AAVE owner. Read proposals on the wall, discuss and vote.`)
 				this.scene.sound.play('GhostGov-Welcome')
+				setTimeout(() => {
+					globalGame.scene.getScene('interfaceScene').jitsiChat()
+
+				}, 10000);
 				break
 			case 'LoanOfficer':
 				this.says(`Welcome! You need to make a deposit into the pool to be able to take a loan.`)

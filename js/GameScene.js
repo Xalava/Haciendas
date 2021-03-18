@@ -71,7 +71,7 @@ export default class GameScene extends BaseScene {
 
 		return {map, tileset, startPosition}
 	}
-	addGateway(fromStr, toStr, map, condition) {
+	addGateway(fromStr, toStr, map, condition,callback) {
 		// TODO : Gateways should be a distinct object build from the same parameters
 		// From and to are strings for an object in Helpers
 		// Condition is a function to check the availability for the current user
@@ -87,11 +87,15 @@ export default class GameScene extends BaseScene {
 
 			this.physics.add.collider(this.player, exitZone, (p, n) => {
 				try {
-					if (condition) condition()
-					console.log('ETeleport!')
-					this.player.x = to.x
-					this.player.y = to.y
-					// this.scene.start('marketScene',  { currentChar: this.player.char })
+					let cond = condition? condition() : true // ugly, I need some rest
+					if (cond){
+						console.log('ETeleport!')
+						this.player.x = to.x
+						this.player.y = to.y
+						// this.scene.start('marketScene',  { currentChar: this.player.char })
+						if(callback)
+							callback()
+					}
 				} catch (error) {
 					globalEvents.emit('says', `Sorry! You can't enter here. ${error}`)
 					console.error(error)
@@ -100,6 +104,7 @@ export default class GameScene extends BaseScene {
 		} else {
 			console.error(`Zones not found`)
 		}
+
 	}
 	addAavegotchi(ag, agsvg) {
 		if (DEBUG) console.log('Adding ag', ag[1])
