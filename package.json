@@ -7,23 +7,26 @@
     "test": "test"
   },
   "dependencies": {
-    "@opengsn/gsn": "^2.0.1",
-    "@openzeppelin/contracts": "^3.2.0",
+    "@opengsn/gsn": "^2.1.0",
+    "@openzeppelin/contracts": "^3.4.1",
     "axios": "^0.21.1",
+    "liveserver": "^0.1.20",
     "tabookey-gasless": "^0.4.5",
     "usingtellor": "^2.0.1"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.0",
-    "@nomiclabs/hardhat-waffle": "^2.0.0",
-    "chai": "^4.2.0",
-    "ethereum-waffle": "^3.1.1",
-    "ethers": "^5.0.18",
-    "hardhat": "^2.0.0"
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "browser-sync": "^2.26.14",
+    "chai": "^4.3.4",
+    "ethereum-waffle": "^3.3.0",
+    "ethers": "^5.0.32",
+    "hardhat": "^2.1.1"
   },
   "scripts": {
     "test": "mocha",
-    "dev": "live-server --watch=\"js,html,assets\""
+    "dev": "live-server --watch=\"js,html,assets\"",
+    "devBS":"npx browser-sync start --config bs-config.js"
   },
   "repository": {
     "type": "git",

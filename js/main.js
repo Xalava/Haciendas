@@ -8,6 +8,8 @@ import EtherHelp from './helpers/EtherHelp.js'
 import Network from './helpers/network.js'
 
 const config = {
+	title: 'Haciendas', 
+	gameURL: 'https://haciendas.xyz',
 	width: 400,
 	height: 300,
 	scale: {
@@ -16,7 +18,10 @@ const config = {
 		zoom: 2
 	},
 	backgroundColor: '#111111',
-	pixelArt: true, // supposed to avoid blur in scaling. I didn't experience any anyway
+	render: {
+		// supposed to avoid blur in scaling. I don't really see the difference
+		pixelArt: true,
+    },
 	type: Phaser.AUTO,
 	parent: 'game',
 	scene: [
