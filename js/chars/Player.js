@@ -57,7 +57,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 		// } 
 		// console.log(this.isAG)
 		// console.log(inputKeys, t, dt)
-		if (inputKeys.left.isDown || inputKeys.leftA.isDown) {
+		if (inputKeys.left.isDown || inputKeys.leftA.isDown || inputKeys.jleft) {
 			this.body.setVelocityX(-stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-left', true)
 			// MAYBETODO
@@ -68,21 +68,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				globalNetwork.reportPosition(this.x, this.y, Directions.LEFT, true)
 			this.timerSinceReport = 0
 			this.direction = Directions.LEFT
-		} else if (inputKeys.right.isDown || inputKeys.rightA.isDown) {
+		} else if (inputKeys.right.isDown || inputKeys.rightA.isDown||inputKeys.jright ) {
 			this.body.setVelocityX(stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-right', true)
 			if (this.direction != Directions.RIGHT && globalNetwork)
 				globalNetwork.reportPosition(this.x, this.y, Directions.RIGHT, true)
 			this.timerSinceReport = 0
 			this.direction = Directions.RIGHT
-		} else if (inputKeys.up.isDown || inputKeys.upA.isDown) {
+		} else if (inputKeys.up.isDown || inputKeys.upA.isDown || inputKeys.jup) {
 			this.body.setVelocityY(-stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-up', true)
 			if (this.direction != Directions.UP && globalNetwork)
 				globalNetwork.reportPosition(this.x, this.y, Directions.UP, true)
 			this.timerSinceReport = 0
 			this.direction = Directions.UP
-		} else if (inputKeys.down.isDown || inputKeys.downA.isDown) {
+		} else if (inputKeys.down.isDown || inputKeys.downA.isDown ||inputKeys.jdown) {
 			this.body.setVelocityY(stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-down', true)
 			// ALT: this.flipX = false
@@ -109,11 +109,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 		}
 
 		// should be moved to interface to not catch chat space
-		if (Phaser.Input.Keyboard.JustDown(inputKeys.space)) {
+		if (Phaser.Input.Keyboard.JustDown(inputKeys.space)||inputKeys.action) {
 			// alt: inputKeys.space.Down
 			// if (this.ongoingAction == false ){
 			//     this.ongoingAction = true
-
+			inputKeys.action = false
 			this.triggered = false
 			if (DEBUG)console.log(`?`,this.quests)
 			if (this.quests['catch-transactions'].isActive) {

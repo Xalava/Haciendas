@@ -13,7 +13,7 @@ const MAXINVENTORY = 12
 const ACTIONSLOT = MAXINVENTORY + 1
 // const HANDSLOT = MAXINVENTORY + 2
 const INTERFACEFONT = {fontSize: 8, font: '"Press Start 2P"'}
-
+const INTERFACEFONTWITHBG = {fontSize: 8, font: '"Press Start 2P"', backgroundColor: 'rgba(20,20,20,0.4'}
 const PADDING = 28
 const INTERLINE = 14
 
@@ -42,7 +42,11 @@ export default class InterfaceScene extends Phaser.Scene {
 		})
 		// version for phaser 3.24
 		// 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/dc73922707dc7dc861f73a93d9be139ceca20fdc/dist/rexuiplugin.min.js',
-
+		this.load.plugin(
+			'rexvirtualjoystickplugin',
+			'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js', 
+	   		true
+		)
 		this.load.image(
 			'nextPage',
 			'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png'
@@ -509,18 +513,26 @@ export default class InterfaceScene extends Phaser.Scene {
 					TOOLBAR_ALWAYS_VISIBLE: true 
 				},
 				interfaceConfigOverwrite: { 
+					APP_NAME: 'Haciendas',
+
 					DEFAULT_BACKGROUND: '#57E757',
 					DEFAULT_LOCAL_DISPLAY_NAME: 'me',
 					DEFAULT_LOGO_URL: '../assets/hacienda.png',
 					DEFAULT_REMOTE_DISPLAY_NAME: 'Haciendero',
+					DEFAULT_WELCOME_PAGE_LOGO_URL: '../assets/hacienda.png',
+
 					DISPLAY_WELCOME_FOOTER: false,
-					SHOW_BRAND_WATERMARK: false,
-	
+					SHOW_BRAND_WATERMARK: false,					
+					DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+					DISABLE_VIDEO_BACKGROUND: true,					
+					HIDE_INVITE_MORE_HEADER: true,
 					SHOW_CHROME_EXTENSION_BANNER: false,
 					SHOW_DEEP_LINKING_IMAGE: false,
 					SHOW_JITSI_WATERMARK: false,
 					SHOW_POWERED_BY: false,
 					SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+					SHOW_WATERMARK_FOR_GUESTS: false,
+					MOBILE_APP_PROMO: false,
 				},
 	
 			}
@@ -541,7 +553,7 @@ export default class InterfaceScene extends Phaser.Scene {
 
 	create() {
 		this.gameScene = this.scene.get('gameScene')
-
+		
 		//// Inputs
 		this.letterI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I)
 		this.letterI.on(
@@ -556,6 +568,40 @@ export default class InterfaceScene extends Phaser.Scene {
 			},
 			this
 		)
+		if (TOUCH || DEBUG){
+			let joystick = this.plugins.get('rexvirtualjoystickplugin').add(this,  {
+				x: 50,
+				y: 250,
+				radius: 40,
+				base: this.add.circle(0, 0, 40, 0x888888, 0.4), //
+				thumb: this.add.circle(0, 0, 20, 0xcccccc, 0.6),
+				// dir: '8dir',
+				// forceMin: 16,
+				// fixed: true,
+				// enable: true
+			}).on('update', ()=>{
+				globalGame.scene.getScene('gameScene').inputKeys.jleft = joystick.left
+				globalGame.scene.getScene('gameScene').inputKeys.jright = joystick.right
+				globalGame.scene.getScene('gameScene').inputKeys.jup = joystick.up
+				globalGame.scene.getScene('gameScene').inputKeys.jdown = joystick.down
+				globalGame.scene.getScene('gameScene').inputKeys.jnokey = joystick.noKey
+			}, 
+			this)
+			joystick.setVisible(true)
+
+			// let touchAction = this.add.rectangle(370, 270, 30, 10, 0xcccccccc, 0.4)
+			let textAction = this.add.text(368,268,'🖐️',INTERFACEFONTWITHBG)
+			textAction.setInteractive({})
+			textAction.on('pointerdown', i => {
+				globalGame.scene.getScene('gameScene').inputKeys.action = true
+				if(DEBUG) console.log(`tap on action`)
+			})
+
+			// rect.on('tiledown', function(tap, tileXY) {
+			// 	globalGame.scene.getScene('gameScene').inputKeys.action = true
+			// 	if(DEBUG) console.log(`tap on action`)
+			// })
+		}
 
 		// Super hacky to solve WASD collision with chat
 		// this.input.keyboard.on('keydown_W', event => {
