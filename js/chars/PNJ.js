@@ -118,7 +118,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 						})
 						.catch(err => {
 							this.says(
-								`I can't. Please use a browser wallet, such as Brave or MetaMask. Contact use if you have a prefered option.`
+								`I can't. Please use a browser wallet, such as Brave or MetaMask. Contact us if you have a prefered option.`
 							)
 						})
 				}, 2800)
@@ -144,12 +144,13 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				break
 			case 'Laura':
 				this.says(`¡Hola!\nTalk to the fisherman in the house North from here to learn fundamentals or to the Fox near the lake behind me to connect a wallet.`)
-				this.scene.sound.play('Laura-Hola')
-
-				break	
+				break
+			case 'Diara':
+				this.says(`Welcome to our art gallery. Press click on an art piece to see it better`)
+				break
 			case 'Andrés':
 				if (this.scene.player.quests['catch-transactions'] && this.scene.player.quests['catch-transactions'].isActive) {
-					this.says(`Go to the mempool in the West and catch five green transactions`)
+					this.says(`Go to the mempool in the West and catch five green transactions using spacebar or the action button on mobiles`)
 				} else {
 					this.says(
 						`Bienvenido! To learn the basics of blockchains, grab the net next to me and let's make a block!`

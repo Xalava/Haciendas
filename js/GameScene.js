@@ -234,6 +234,15 @@ export default class GameScene extends BaseScene {
 
 		//// Player
 		this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
+		this.tweens.add({
+			targets: this.player,
+			alpha: { start: 0,from: 0, to:1},
+			delay: 1500,
+			duration: 4000,
+			ease: "Cubic",
+			yoyo: false,
+			loop: 0
+		})
 		//// Trying camera
 		if (!DEBUG) {
 			// debug shortcut
@@ -379,7 +388,7 @@ export default class GameScene extends BaseScene {
 		setTimeout(() => {
 			globalEvents.emit(
 				'says',
-				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk or interact with objects or the touch controls.                        This game is in early alpha. Feel free to join our discord on the upper righ corner for to give feedback.`
+				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk or interact with objects or the touch controls.                        This game is in early alpha and works on desktop and android. Feel free to join our discord on the upper right corner to give feedback.`
 			)
 			this.quest = 'get a fox'
 		}, timeout)
@@ -417,6 +426,62 @@ export default class GameScene extends BaseScene {
 		// const toMainland = map.findObject("Helpers", obj => obj.name === "toMainland")
 		// const startMainland = map.findObject("Helpers", obj => obj.name === "startMainland")
 		this.addGateway('toMainland', 'startMainland', map)
+
+		this.addGateway('toArtGallery', 'startArtGallery', map)
+		this.addGateway('leaveArtGallery', 'outArtGallery', map)
+
+		// Art gallery 
+		const options = {method: 'GET'};
+		const firstPiece = map.findObject('Helpers', obj => obj.name === 'Piece1')
+		this.artGroup = this.physics.add.group()
+
+		fetch('https://api.opensea.io/api/v1/assets?asset_contract_address=0x41a322b28d0ff354040e2cbc676f0320d8c8850d&order_direction=desc&offset=0&limit=12', options)
+		.then(response => response.json())
+		.then(r => {
+			let assets = r.assets
+			for (let i = 0; i < assets.length; i++) {
+				// TODO: Create container
+				const artData = assets[i]
+				console.log(artData)
+				let localx = firstPiece.x+(i%4)*48
+				let localy = firstPiece.y+(Math.floor(i/4)*32)
+				let newArt = {}
+				if (artData.image_thumbnail_url){
+					newArt = this.add.dom(localx, localy).createFromHTML(`<img src="${artData.image_thumbnail_url}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
+					.setDepth(10)
+					.setOrigin(0,0)
+					// .setScale(0.1)
+					newArt.data = artData
+					newArt.setInteractive()
+					newArt.on('pointerup', () => {
+						console.log(`art display`, artData)
+						document.getElementById('artpiece').src = `${artData.image_url}`
+						document.getElementById('modal_art').checked = true; // open modal
+						// document.getElementById('modal_1').checked = false; // close modal
+						
+						// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
+						// artDisplay.setInteractive()
+						// artDisplay.on('pointerup', () => {
+						// 	artDisplay.setActive(false).setVisible(false);
+						// 	artDisplay.destroy()
+						// })
+					})
+				} else {
+					newArt = this.add.image(localx,localy , 'things2', 23).setDepth(5).setOrigin(0,0)
+				}
+				// this.artGroup.add(newArt)
+			}
+		})
+		.catch(err => console.error(err));
+		// this.physics.add.collider(
+		// 	this.player,
+		// 	this.artGroup.getChildren(),
+		// 	(p, a) => {
+		// 		a.body.setVelocity(0, 0)
+		// 	},
+		// 	null,
+		// 	this
+		// )
 
 		// Faucet (interaction in handled with action in Player.js)
 		const faucet = map.findObject('Helpers', obj => obj.name === 'Faucet')
@@ -545,6 +610,14 @@ export default class GameScene extends BaseScene {
 
 			newPlayer.playerId = id
 			newPlayer.direction = globalNetwork.players[id].dir
+			this.tweens.add({
+				targets: newPlayer,
+				alpha: {from: 0, to:1},
+				duration: 2000,
+				ease: "Cubic",
+				yoyo: false,
+				loop: 0
+			})
 			globalNetwork.players[id].sprite = newPlayer
 			// console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
 		})
