@@ -175,7 +175,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 			case 'LoanOfficer':
 				this.says(`Welcome! You need to make a deposit into the pool to be able to take a loan.`)
 				break
-			case 'Makoto':
+			case 'matoken.eth':
 				//TODO check if name is registered
 				this.says(`Hi! let me open for you the page to register a name. Preferably use Ropsten`)
 				setTimeout(() => {

@@ -46,7 +46,21 @@ export default class GameScene extends BaseScene {
 		})
 	}
 
-	preload() {}
+	preload() {
+		// Idea to circumvent physics bugs, but won't work with gif 
+		// fetch('https://api.opensea.io/api/v1/assets?asset_contract_address=0x41a322b28d0ff354040e2cbc676f0320d8c8850d&order_direction=desc&offset=0&limit=12', options)
+		// .then(response => response.json())
+		// .then(r => {
+		// 	this.artAssets = r.assets// array of art pieces
+		// 	for (let i = 0; i < this.artAssets.length; i++) {
+		// 		this.load.image('art-'+i,this.artAssets.image_thumbnail_url)
+		// 		this.artAssets[i].localImg = 'art-'+i
+		// 	}
+		// })
+
+
+
+	}
 
 	initialiseMap(mapKey) {
 		//// Map loading (see layer below)
@@ -429,7 +443,7 @@ export default class GameScene extends BaseScene {
 
 		this.addGateway('toArtGallery', 'startArtGallery', map)
 		this.addGateway('leaveArtGallery', 'outArtGallery', map)
-
+		
 		// Art gallery 
 		const options = {method: 'GET'};
 		const firstPiece = map.findObject('Helpers', obj => obj.name === 'Piece1')
@@ -450,16 +464,20 @@ export default class GameScene extends BaseScene {
 					newArt = this.add.dom(localx, localy).createFromHTML(`<img src="${artData.image_thumbnail_url}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
 					.setDepth(10)
 					.setOrigin(0,0)
-					// .setScale(0.1)
 					newArt.data = artData
 					newArt.setInteractive()
-					newArt.on('pointerup', () => {
-						console.log(`art display`, artData)
-						document.getElementById('artpiece').src = `${artData.image_url}`
-						document.getElementById('modal_art').checked = true; // open modal
-						// document.getElementById('modal_1').checked = false; // close modal
-						
-						// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
+					newArt.on('pointerdown', () => {
+						if (artData.image_url){
+
+							document.getElementById('modal_art').checked = false; // close modal
+							console.log(`art display`, artData)
+							document.getElementById('artpiece').src = `${artData.image_url}`
+							document.getElementById('modal_art').checked = true; // open modal
+							
+							// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
+						} else {
+							console.error(`image not found`)
+						}
 						// artDisplay.setInteractive()
 						// artDisplay.on('pointerup', () => {
 						// 	artDisplay.setActive(false).setVisible(false);
@@ -469,19 +487,23 @@ export default class GameScene extends BaseScene {
 				} else {
 					newArt = this.add.image(localx,localy , 'things2', 23).setDepth(5).setOrigin(0,0)
 				}
-				// this.artGroup.add(newArt)
+				// this.physics.add.existing(newArt)
+				this.artGroup.add(newArt)
+				newArt.body.setSize(14, 14, true)
+
+
 			}
 		})
 		.catch(err => console.error(err));
-		// this.physics.add.collider(
-		// 	this.player,
-		// 	this.artGroup.getChildren(),
-		// 	(p, a) => {
-		// 		a.body.setVelocity(0, 0)
-		// 	},
-		// 	null,
-		// 	this
-		// )
+		this.physics.add.collider(
+			this.player,
+			this.artGroup.getChildren(),
+			(p, a) => {
+				a.body.setVelocity(0, 0)
+			},
+			null,
+			this
+		)
 
 		// Faucet (interaction in handled with action in Player.js)
 		const faucet = map.findObject('Helpers', obj => obj.name === 'Faucet')
