@@ -8,6 +8,8 @@ import Transaction from './object/Transaction.js'
 import EthTransaction from './object/EthTransaction.js'
 
 import PNJ from './chars/PNJ.js'
+import NetworkPlayer from './chars/networkPlayer.js'
+
 import Mine from './object/Mine.js'
 import FloatingCrypto from './object/FloatingCrypto.js'
 import Actionnable from './object/Actionnable.js'
@@ -613,35 +615,35 @@ export default class GameScene extends BaseScene {
 		this.physics.add.existing(this.BuyCoffee)
 
 		// Network players logic. Data in globalNetwork.players TODO move both to dedicated object
-		this.playersGroup = this.physics.add.group()
-		// Basic player collision
-		this.physics.add.collider(this.player, this.playersGroup, (p, g) => {
-			p.handleBumpyCollision(p, g)
-			g.body.setVelocity(0, 0)
-		})
+		// this.playersGroup = this.physics.add.group()
+		// // Basic player collision
+		// this.physics.add.collider(this.player, this.playersGroup, (p, g) => {
+		// 	if (DEBUG)
+		// 		console.log(`Collision with network player!`,g)
+		// 	p.handleBumpyCollision(p, g)
+		// 	g.handleBumpyCollision(g, p)
+		// })
 
 		globalEvents.on('playerAdd', id => {
-			const newPlayer = this.add.sprite(
+			const newPlayer = this.add.networkPlayer(
 				globalNetwork.players[id].x,
 				globalNetwork.players[id].y,
 				globalNetwork.players[id].char.texture,
-				globalNetwork.players[id].char.frame
+				globalNetwork.players[id].char.frame,
+				globalNetwork.players[id].dir,
+				id
 			)
-			this.playersGroup.add(newPlayer)
-			newPlayer.setDepth(10)
-
-			newPlayer.playerId = id
-			newPlayer.direction = globalNetwork.players[id].dir
-			this.tweens.add({
-				targets: newPlayer,
-				alpha: {from: 0, to:1},
-				duration: 2000,
-				ease: "Cubic",
-				yoyo: false,
-				loop: 0
-			})
+			// this.tweens.add({
+			// 	targets: sprite,
+			// 	alpha: {from: 0, to:1},
+			// 	duration: 2000,
+			// 	ease: "Cubic",
+			// 	yoyo: false,
+			// 	loop: 0
+			// })
 			globalNetwork.players[id].sprite = newPlayer
-			// console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
+			if (DEBUG)
+				console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
 		})
 
 		globalEvents.on('ongoing-transaction', tx => {

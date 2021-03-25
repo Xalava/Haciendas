@@ -28,7 +28,7 @@ export default class Network {
 			this.players = list // shallow copy?
 			if (DEBUG) console.log(`Players list`, this.players)
 			for (const pid in this.players) {
-				globalEvents.emit('playerAdd', pid)
+				this.receiveAdd(this.players[pid])
 			}
 		})
 		// We receive a message, the event is captured by the interface for display
