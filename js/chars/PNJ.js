@@ -20,7 +20,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 		} else {
 			this.type = type
 		}
-		if (DEBUG) console.log(this.name, `type was`, type, `and now`, this.type)
+		if (DEBUG) console.log(`🙋`, this.name, `type was`, type, `and now`, this.type)
 
 		this.createPNJtalks(scene, texture, frame, name) // ! We assume that talking movement are the next 2 frames
 		// this.says("hello !")
@@ -79,7 +79,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 		if (DEBUG) console.log(`Contact with`, this.name)
 		switch (this.name) {
 			case 'Fox':
-				this.says(`Welcome stranger ! How about connecting your wallet? `)
+				this.says(`Welcome stranger ! How about connecting your wallet?`)
 				this.scene.sound.play('Fox-Welcome')
 
 				setTimeout(async () => {
@@ -94,19 +94,19 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 							const ethBalance = await globalEth.getETHBalance()
 
 							if (globalEth.network.name != "kovan"){
-								this.says(`Please connect to Kovan testnet and talk to me again`)
+								this.says(`Please connect to Kovan testnet and talk to me again.`)
 							} else {
 								if (!ethBalance) {
 									this.says(
-										'You seem to miss basic assets. Go the lake and press spacebar to open a faucet'
+										'You seem to miss basic assets. Go the lake and press spacebar to open a faucet.'
 									)
 								} else {
 									if (globalEth.ename) {
 										this.says(
-											`I see that you have already registered a name! Welcome ${globalEth.ename}`
+											`I see that you have already registered a name! Welcome ${globalEth.ename}.`
 										)
 									} else {
-										this.says(`Have a look to the market in the East to exchange some of your tokens`)
+										this.says(`Have a look to the market in the East to exchange some of your tokens.`)
 									}									
 									// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
 									// globalEth.participate().then(() => {
@@ -146,7 +146,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				this.says(`¡Hola!\nTalk to the fisherman in the house North from here to learn fundamentals or to the Fox near the lake behind me to connect a wallet.`)
 				break
 			case 'Diara':
-				this.says(`Welcome to our art gallery. Press click on an art piece to see it better`)
+				this.says(`Welcome to our art gallery. Click on an art piece to see it better.`)
 				break
 			case 'Andrés':
 				if (this.scene.player.quests['catch-transactions'] && this.scene.player.quests['catch-transactions'].isActive) {
@@ -177,7 +177,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				break
 			case 'matoken.eth':
 				//TODO check if name is registered
-				this.says(`Hi! let me open for you the page to register a name. Preferably use Ropsten`)
+				this.says(`Hi! let me open for you the page to register a name. Preferably use Ropsten.`)
 				setTimeout(() => {
 					window.open('https://app.ens.domains/')
 				}, 3000);
