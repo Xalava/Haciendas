@@ -144,6 +144,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				break
 			case 'Laura':
 				this.says(`¡Hola!\nTalk to the fisherman in the house North from here to learn fundamentals or to the Fox near the lake behind me to connect a wallet.`)
+				this.scene.sound.play('Laura-Hola')
 				break
 			case 'Diara':
 				this.says(`Welcome to our art gallery. Click on an art piece to see it better.`)

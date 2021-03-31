@@ -87,6 +87,9 @@ export const cryptos = {
 		decimals: 18,
 		mainnet: {
 			token: '0xef13C0c8abcaf5767160018d268f9697aE4f5375'
+		},
+		kovan: {
+			token: '0xef13C0c8abcaf5767160018d268f9697aE4f5375'
 		}
 	},
 	WETH: {

@@ -14,6 +14,16 @@ export default function createDebugSwitch(scene) {
 	if (DEBUG) {
 		createDebugShortcuts(scene)
 	}
+
+	const style = { font: "bold 14px Arial", fill: "#fff" }
+	scene.debugText = scene.add.text(0, 40, ``, style)
+	
+	globalEvents.on('dbg', 
+		message => scene.debugText.setText(message)
+	)
+	globalEvents.emit('dbg',`debug text`)
+
+	
 }
 
 function createDebugShortcuts(scene) {
