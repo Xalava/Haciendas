@@ -45,11 +45,13 @@ export default class Network {
 	}
 	reportPosition(x, y, dir, moves) {
 		let position = {}
-		position.x = x
-		position.y = y
+		position.x = Math.round(x)
+		position.y = Math.round(y)
 		position.dir = Object.assign({}, dir) // bug later as it is an object and some copies are shallow
 		position.moves = moves
 		this.socket.emit('reportPosition', position)
+		if (DEBUG)
+			console.log(`report position:`, position)
 	}
 	receiveAdd(player) {
 		// Skip if it is about the current player

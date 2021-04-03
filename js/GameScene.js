@@ -512,6 +512,7 @@ export default class GameScene extends BaseScene {
 		this.faucet = this.add.image(faucet.x + 30, faucet.y + 30)
 		this.physics.add.existing(this.faucet)
 		this.faucet.setDepth(10)
+		this.faucet.body.setSize(60, 60, true)
 		// this.faucet = this.add.actionnable(
 		//                     ()=> {window.open("https://faucet.matic.network/")},
 		//                     faucet.x+30,faucet.y+30,
@@ -614,9 +615,15 @@ export default class GameScene extends BaseScene {
 		this.BuyCoffee.setDepth(5)
 		this.physics.add.existing(this.BuyCoffee)
 
-		// Network players logic. Data in globalNetwork.players TODO move both to dedicated object
-		// this.playersGroup = this.physics.add.group()
-		// // Basic player collision
+		// // Network players logic. Data in globalNetwork.players
+
+		// Moved inside networkPlayer object
+		// this.playersGroup = this.physics.add.group(
+		// 	{
+		// 		"collideWorldBounds":true,
+		// 	}
+		// )
+		// // Basic player collision 
 		// this.physics.add.collider(this.player, this.playersGroup, (p, g) => {
 		// 	if (DEBUG)
 		// 		console.log(`Collision with network player!`,g)

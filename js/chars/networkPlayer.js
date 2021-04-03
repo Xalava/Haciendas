@@ -31,18 +31,23 @@ Phaser.GameObjects.GameObjectFactory.register('networkPlayer', function (x, y, t
 	this.displayList.add(sprite)
 	this.updateList.add(sprite)
 
-    // sprite.playerId = id
-
-	this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)
 
 	sprite.setDepth(6) // Tree level, should be just below
     
-    sprite.body.setMaxVelocity(50, 50)
-	sprite.body.setMass(10)
-	sprite.body.setBounce(0.1)
-	sprite.body.setSize(8, 12, true) // Smaller collision surface for our character (x,y, centered)
+	// Physics part
+	sprite.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)
+    // sprite.body.setMaxVelocity(50, 50)
+	// sprite.body.setMass(10)
+	// sprite.body.setBounce(0.1)
+	// sprite.body.setSize(8, 12, true) // Smaller collision surface for our character (x,y, centered)
 	// altsprite.body.setSize(sprite.width * 0.5, sprite.height * 0.8)
-	sprite.body.setCollideWorldBounds()
+	// sprite.body.setCollideWorldBounds()
+	this.scene.physics.add.collider(this.scene.player, this, (p, g) => {
+		if (DEBUG)
+			console.log(`Collision with network player!`,g)
+		// p.handleBumpyCollision(p, g)
+		// g.handleBumpyCollision(g, p)
+	})
 
 	return sprite
 })
