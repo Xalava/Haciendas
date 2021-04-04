@@ -294,7 +294,7 @@ Phaser.GameObjects.GameObjectFactory.register('player', function (x, y, char) {
 	sprite.body.setMass(10)
 	sprite.body.setBounce(0.1)
 	sprite.body.setSize(8, 12, true) // Smaller collision surface for our character (x,y, centered)
-	// altsprite.body.setSize(sprite.width * 0.5, sprite.height * 0.8)
+	// alt: sprite.body.setSize(sprite.width * 0.5, sprite.height * 0.8)
 	sprite.body.setCollideWorldBounds()
 
 	// global group to add collisions from objects unless we move to a mouse interface first

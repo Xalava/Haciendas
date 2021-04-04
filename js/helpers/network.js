@@ -60,26 +60,27 @@ export default class Network {
 			globalEvents.emit('playerAdd', player.id)
 		}
 	}
-	receiveUpdate(player) {
-		if (this.socket.id !== player.id) {
-			console.log(`received update`)
+	receiveUpdate(netPlayer) {
+		if (this.socket.id !== netPlayer.id) {
+			if (DEBUG)
+				console.log(`received update for`, this.socket.id)
 			//If we don't now this player, we simply add it instead
-			if (this.players[player.id].sprite === undefined) {
-				this.receiveAdd(player)
+			if (this.players[netPlayer.id].sprite === undefined) {
+				this.receiveAdd(netPlayer)
 				return
 			}
-			this.players[player.id].x = player.x
-			this.players[player.id].y = player.y
-			this.players[player.id].dir = Object.assign({}, player.dir)
-			this.players[player.id].moves = player.moves
-			this.players[player.id].sprite.x = player.x
-			this.players[player.id].sprite.y = player.y
-			if (player.moves) {
-				this.players[player.id].sprite.body.setVelocity(player.dir.x * stdVelocity, player.dir.y * stdVelocity)
-				this.players[player.id].sprite.anims.play(player.char.name + '-' + player.dir.name)
+			this.players[netPlayer.id].x = netPlayer.x
+			this.players[netPlayer.id].y = netPlayer.y
+			this.players[netPlayer.id].dir = Object.assign({}, netPlayer.dir)
+			this.players[netPlayer.id].moves = netPlayer.moves
+			this.players[netPlayer.id].sprite.body.x = netPlayer.x // Body is key to keep collisions
+			this.players[netPlayer.id].sprite.body.y = netPlayer.y 
+			if (netPlayer.moves) {
+				this.players[netPlayer.id].sprite.body.setVelocity(netPlayer.dir.x * stdVelocity, netPlayer.dir.y * stdVelocity)
+				this.players[netPlayer.id].sprite.anims.play(netPlayer.char.name + '-' + netPlayer.dir.name)
 			} else {
-				this.players[player.id].sprite.body.setVelocity(0, 0)
-				this.players[player.id].sprite.anims.play(player.char.name + '-' + 'idle-' + player.dir.name)
+				this.players[netPlayer.id].sprite.body.setVelocity(0, 0)
+				this.players[netPlayer.id].sprite.anims.play(netPlayer.char.name + '-' + 'idle-' + netPlayer.dir.name)
 			}
 		}
 	}
