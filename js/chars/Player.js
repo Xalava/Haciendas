@@ -41,8 +41,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	handleBumpyCollision(player, obj) {
-		this.x = this.x + Math.round((this.x - obj.x) / 2)
-		this.y = this.y + Math.round((this.y - obj.y) / 2)
+		this.x = this.x + Math.round((this.x - obj.x) *2 )
+		this.y = this.y + Math.round((this.y - obj.y) *2 )
 		this.tint = 0xff0000
 		setTimeout(() => {
 			this.clearTint()
@@ -91,7 +91,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 			this.timerSinceReport = 0
 			this.direction = Directions.DOWN
 		} else {
+			// No action press
 			if (this.body.speed != 0) {
+				// Player was moving, he then stops
 				if (globalNetwork) globalNetwork.reportPosition(this.x, this.y, this.direction, false)
 				this.timerSinceReport = 0
 				this.body.setVelocityX(0)
@@ -99,13 +101,16 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				if (this.anims.currentAnim && this.anims.currentAnim.key.substring(0, 4) !== 'idle') {
 					if (!this.isAG) this.anims.play(this.char.name + '-idle-' + this.direction.name)
 				}
-			}
+			} 
 		}
+
+		// If there was no change, position is still reported sometimes
+		// Not a great solution, but avoids large discrepencies. It should be every 4 steps on average
 		this.timerSinceReport += dt
-		// console.log(dt)
-		// Not a great solution, but avoid large discrepencies. It should be every 4 steps on average
-		if ((this.timerSinceReport = 0 > 60)) {
-			globalNetwork.reportPosition(this.x, this.y, this.direction, this.body.speed > 0 ? true : false)
+		if ((this.timerSinceReport > 60)) {
+			if(globalNetwork)
+				globalNetwork.reportPosition(this.x, this.y, this.direction, this.body.speed > 0 ? true : false)
+			this.timerSinceReport = 0
 		}
 
 		// should be moved to interface to not catch chat space
@@ -191,8 +196,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 					}
 				})
 
-				this.scene.physics.add.overlap(actionSprite, this.scene.playersGroup, (a, p) => {
+				this.scene.physics.add.overlap(actionSprite, this.scene.networkPlayersGroup, (a, p) => {
 					if (this.triggered == false) {
+						if (DEBUG){
+							console.log(`triggered player`, p.playerId)
+						}
 						globalGame.scene
 							.getScene('interfaceScene')
 							.openTransactionDialog(

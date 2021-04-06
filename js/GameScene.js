@@ -615,21 +615,20 @@ export default class GameScene extends BaseScene {
 		this.BuyCoffee.setDepth(5)
 		this.physics.add.existing(this.BuyCoffee)
 
-		// // Network players logic. Data in globalNetwork.players
+		// #NetworkPlayer  Network players logic. Data in globalNetwork.players
 
-		// Moved inside networkPlayer object
-		// this.playersGroup = this.physics.add.group(
-		// 	{
-		// 		"collideWorldBounds":true,
-		// 	}
-		// )
-		// // Basic player collision 
-		// this.physics.add.collider(this.player, this.playersGroup, (p, g) => {
-		// 	if (DEBUG)
-		// 		console.log(`Collision with network player!`,g)
-		// 	p.handleBumpyCollision(p, g)
-		// 	g.handleBumpyCollision(g, p)
-		// })
+		this.networkPlayersGroup = this.physics.add.group(
+			{
+				"collideWorldBounds":true,
+			}
+		)
+		// Basic player collision 
+		this.physics.add.collider(this.player, this.networkPlayersGroup, (p, g) => {
+			if (DEBUG)
+				console.log(`Collision with network player!`,g)
+			p.handleBumpyCollision(p, g)
+			g.handleBumpyCollision(g, p)
+		})
 
 		globalEvents.on('playerAdd', id => {
 			const newPlayer = this.add.networkPlayer(
@@ -640,18 +639,12 @@ export default class GameScene extends BaseScene {
 				globalNetwork.players[id].dir,
 				id
 			)
-			// this.tweens.add({
-			// 	targets: sprite,
-			// 	alpha: {from: 0, to:1},
-			// 	duration: 2000,
-			// 	ease: "Cubic",
-			// 	yoyo: false,
-			// 	loop: 0
-			// })
 			globalNetwork.players[id].sprite = newPlayer
 			if (DEBUG)
 				console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
 		})
+
+		// #NetworkPlayerEnd
 
 		globalEvents.on('ongoing-transaction', tx => {
 			let txSprite = this.add.ethtransaction(this.player.x, this.player.y)

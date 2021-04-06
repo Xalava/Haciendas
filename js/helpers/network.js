@@ -50,7 +50,7 @@ export default class Network {
 		position.dir = Object.assign({}, dir) // bug later as it is an object and some copies are shallow
 		position.moves = moves
 		this.socket.emit('reportPosition', position)
-		if (DEBUG)
+		if (DEBUG_NETWORK)
 			console.log(`report position:`, position)
 	}
 	receiveAdd(player) {
@@ -62,19 +62,21 @@ export default class Network {
 	}
 	receiveUpdate(netPlayer) {
 		if (this.socket.id !== netPlayer.id) {
-			if (DEBUG)
-				console.log(`received update for`, this.socket.id)
 			//If we don't now this player, we simply add it instead
 			if (this.players[netPlayer.id].sprite === undefined) {
 				this.receiveAdd(netPlayer)
+				if (DEBUG)
+					console.log(`Added sprite update for`, this.socket.id)
 				return
 			}
-			this.players[netPlayer.id].x = netPlayer.x
-			this.players[netPlayer.id].y = netPlayer.y
+			if (DEBUG_NETWORK)
+				console.log(`received update for`, this.socket.id,`x was at`, this.players[netPlayer.id].sprite.body.x, `and now is`, netPlayer.x)
+			// this.players[netPlayer.id].x = netPlayer.x
+			// this.players[netPlayer.id].y = netPlayer.y
 			this.players[netPlayer.id].dir = Object.assign({}, netPlayer.dir)
 			this.players[netPlayer.id].moves = netPlayer.moves
-			this.players[netPlayer.id].sprite.body.x = netPlayer.x // Body is key to keep collisions
-			this.players[netPlayer.id].sprite.body.y = netPlayer.y 
+			this.players[netPlayer.id].sprite.x = netPlayer.x // Body is key to keep collisions
+			this.players[netPlayer.id].sprite.y = netPlayer.y 
 			if (netPlayer.moves) {
 				this.players[netPlayer.id].sprite.body.setVelocity(netPlayer.dir.x * stdVelocity, netPlayer.dir.y * stdVelocity)
 				this.players[netPlayer.id].sprite.anims.play(netPlayer.char.name + '-' + netPlayer.dir.name)
