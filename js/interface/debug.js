@@ -13,15 +13,15 @@ export default function createDebugSwitch(scene) {
 	// If it was set, activate other shortcuts
 	if (DEBUG) {
 		createDebugShortcuts(scene)
+		const style = { font: "bold 14px Arial", fill: "#fff" }
+		scene.debugText = scene.add.text(0, 40, ``, style)
+		
+		globalEvents.on('dbg', 
+			message => scene.debugText.setText(message)
+		)
+		globalEvents.emit('dbg',`debug text`)
 	}
 
-	const style = { font: "bold 14px Arial", fill: "#fff" }
-	scene.debugText = scene.add.text(0, 40, ``, style)
-	
-	globalEvents.on('dbg', 
-		message => scene.debugText.setText(message)
-	)
-	globalEvents.emit('dbg',`debug text`)
 
 	
 }
