@@ -14,10 +14,10 @@ import Mine from './object/Mine.js'
 import FloatingCrypto from './object/FloatingCrypto.js'
 import Actionnable from './object/Actionnable.js'
 // characters and objects helpers
-import {charactersList} from './chars/charactersList.js'
-import {createObjectsAnims, createCharAnims} from './chars/createAnims.js'
+import { charactersList } from './chars/charactersList.js'
+import { createObjectsAnims, createCharAnims } from './chars/createAnims.js'
 
-import {cryptos} from './helpers/cryptos.js'
+import { cryptos } from './helpers/cryptos.js'
 import Quests from './helpers/quests.js'
 
 //// Global objects
@@ -85,9 +85,9 @@ export default class GameScene extends BaseScene {
 				y: 600
 			}
 
-		return {map, tileset, startPosition}
+		return { map, tileset, startPosition }
 	}
-	addGateway(fromStr, toStr, map, condition,callback) {
+	addGateway(fromStr, toStr, map, condition, callback) {
 		// TODO : Gateways should be a distinct object build from the same parameters
 		// From and to are strings for an object in Helpers
 		// Condition is a function to check the availability for the current user
@@ -103,13 +103,13 @@ export default class GameScene extends BaseScene {
 
 			this.physics.add.collider(this.player, exitZone, (p, n) => {
 				try {
-					let cond = condition? condition() : true // ugly, I need some rest
-					if (cond){
+					let cond = condition ? condition() : true // ugly, I need some rest
+					if (cond) {
 						console.log('ETeleport!')
 						this.player.x = to.x
 						this.player.y = to.y
 						// this.scene.start('marketScene',  { currentChar: this.player.char })
-						if(callback)
+						if (callback)
 							callback()
 					}
 				} catch (error) {
@@ -170,7 +170,7 @@ export default class GameScene extends BaseScene {
 						pl.isChanging = true
 						this.tweens.add({
 							targets: this.player,
-							alpha: {start: 1, from: 0, to: 1},
+							alpha: { start: 1, from: 0, to: 1 },
 							duration: 1000,
 							ease: 'Cubic',
 							//  function (t) {
@@ -198,7 +198,7 @@ export default class GameScene extends BaseScene {
 						pl.isChanging = true
 						this.tweens.add({
 							targets: this.player,
-							alpha: {start: 1, from: 0, to: 1},
+							alpha: { start: 1, from: 0, to: 1 },
 							duration: 1000,
 							ease: 'Cubic',
 							delay: 100
@@ -233,7 +233,7 @@ export default class GameScene extends BaseScene {
 
 	create() {
 		//// Map loading
-		const {map, tileset, startPosition} = this.initialiseMap('majorMap')
+		const { map, tileset, startPosition } = this.initialiseMap('majorMap')
 
 		//// World collision
 		this.physics.world.setBounds(0, 0, map.width * 16, map.heigth * 16) // (x, y, width, height)
@@ -252,7 +252,7 @@ export default class GameScene extends BaseScene {
 		this.player = this.add.player(startPosition.x, startPosition.y, this.currentChar)
 		this.tweens.add({
 			targets: this.player,
-			alpha: { start: 0,from: 0, to:1},
+			alpha: { start: 0, from: 0, to: 1 },
 			delay: 1500,
 			duration: 4000,
 			ease: "Cubic",
@@ -305,7 +305,7 @@ export default class GameScene extends BaseScene {
 			const newPNJ = this.add.pnj(pnjObj.x, pnjObj.y, 'pnj', frame, pnjObj.name, type)
 			this.pnjsGroup.add(newPNJ)
 		})
-		if (DEBUG) console.log("PNJs Group",this.pnjsGroup)
+		if (DEBUG) console.log("PNJs Group", this.pnjsGroup)
 
 		// timeout is hack to avoid a random bug
 		// setTimeout(() => {
@@ -346,10 +346,10 @@ export default class GameScene extends BaseScene {
 		if (DEBUG) console.log(`👥 pnjsGroup`, this.pnjsGroup.getChildren())
 		// Collisions between the player and the NPCs
 		let NPCPlayerCollider = this.physics.add.collider(this.player, this.pnjsGroup.getChildren(), (p, j) => {
-				if (DEBUG) console.log(`💥 collision between player and NPC`, j)
-				j.handlePlayerCollision(p, j)
-				p.handleBumpyCollision(p, j)
-			}, null, this)
+			if (DEBUG) console.log(`💥 collision between player and NPC`, j)
+			j.handlePlayerCollision(p, j)
+			p.handleBumpyCollision(p, j)
+		}, null, this)
 		if (DEBUG) console.log(`NPC/player collider added`, NPCPlayerCollider)
 
 		const andres = this.pnjsGroup.getChildren().find(p => p.name === 'Andrés')
@@ -445,58 +445,58 @@ export default class GameScene extends BaseScene {
 
 		this.addGateway('toArtGallery', 'startArtGallery', map)
 		this.addGateway('leaveArtGallery', 'outArtGallery', map)
-		
+
 		// Art gallery 
-		const options = {method: 'GET'};
+		const options = { method: 'GET' };
 		const firstPiece = map.findObject('Helpers', obj => obj.name === 'Piece1')
 		this.artGroup = this.physics.add.group()
 
 		fetch('https://api.opensea.io/api/v1/assets?asset_contract_address=0x41a322b28d0ff354040e2cbc676f0320d8c8850d&order_direction=desc&offset=0&limit=12', options)
-		.then(response => response.json())
-		.then(r => {
-			let assets = r.assets
-			for (let i = 0; i < assets.length; i++) {
-				// TODO: Create container
-				const artData = assets[i]
-				console.log(artData)
-				let localx = firstPiece.x+(i%4)*48
-				let localy = firstPiece.y+(Math.floor(i/4)*32)
-				let newArt = {}
-				if (artData.image_thumbnail_url){
-					newArt = this.add.dom(localx, localy).createFromHTML(`<img src="${artData.image_thumbnail_url}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
-					.setDepth(10)
-					.setOrigin(0,0)
-					newArt.data = artData
-					newArt.setInteractive()
-					newArt.on('pointerdown', () => {
-						if (artData.image_url){
+			.then(response => response.json())
+			.then(r => {
+				let assets = r.assets
+				for (let i = 0; i < assets.length; i++) {
+					// TODO: Create container
+					const artData = assets[i]
+					console.log(artData)
+					let localx = firstPiece.x + (i % 4) * 48
+					let localy = firstPiece.y + (Math.floor(i / 4) * 32)
+					let newArt = {}
+					if (artData.image_thumbnail_url) {
+						newArt = this.add.dom(localx, localy).createFromHTML(`<img src="${artData.image_thumbnail_url}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
+							.setDepth(10)
+							.setOrigin(0, 0)
+						newArt.data = artData
+						newArt.setInteractive()
+						newArt.on('pointerdown', () => {
+							if (artData.image_url) {
 
-							document.getElementById('modal_art').checked = false; // close modal
-							console.log(`art display`, artData)
-							document.getElementById('artpiece').src = `${artData.image_url}`
-							document.getElementById('modal_art').checked = true; // open modal
-							
-							// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
-						} else {
-							console.error(`image not found`)
-						}
-						// artDisplay.setInteractive()
-						// artDisplay.on('pointerup', () => {
-						// 	artDisplay.setActive(false).setVisible(false);
-						// 	artDisplay.destroy()
-						// })
-					})
-				} else {
-					newArt = this.add.image(localx,localy , 'things2', 23).setDepth(5).setOrigin(0,0)
+								document.getElementById('modal_art').checked = false; // close modal
+								console.log(`art display`, artData)
+								document.getElementById('artpiece').src = `${artData.image_url}`
+								document.getElementById('modal_art').checked = true; // open modal
+
+								// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
+							} else {
+								console.error(`image not found`)
+							}
+							// artDisplay.setInteractive()
+							// artDisplay.on('pointerup', () => {
+							// 	artDisplay.setActive(false).setVisible(false);
+							// 	artDisplay.destroy()
+							// })
+						})
+					} else {
+						newArt = this.add.image(localx, localy, 'things2', 23).setDepth(5).setOrigin(0, 0)
+					}
+					// this.physics.add.existing(newArt)
+					this.artGroup.add(newArt)
+					newArt.body.setSize(14, 14, true)
+
+
 				}
-				// this.physics.add.existing(newArt)
-				this.artGroup.add(newArt)
-				newArt.body.setSize(14, 14, true)
-
-
-			}
-		})
-		.catch(err => console.error(err));
+			})
+			.catch(err => console.error(err));
 		this.physics.add.collider(
 			this.player,
 			this.artGroup.getChildren(),
@@ -523,7 +523,7 @@ export default class GameScene extends BaseScene {
 		// this.physics.add.collider(this.poolTokensGroup, this.layers[0])
 		// In the faucet
 		for (let i = 0; i < 2; i++) {
-			let ftk = this.add.floatingCrypto(faucet.x + 30 + 40 * i, faucet.y + 30 + 20 * i, 'MATIC')
+			let ftk = this.add.floatingCrypto(faucet.x + 30 + 40 * i, faucet.y + 30 + 20 * i, 'ETH')
 			this.poolTokensGroup.add(ftk)
 		}
 		// In the liquidity pool
@@ -619,13 +619,13 @@ export default class GameScene extends BaseScene {
 
 		this.networkPlayersGroup = this.physics.add.group(
 			{
-				"collideWorldBounds":true,
+				"collideWorldBounds": true,
 			}
 		)
 		// Basic player collision 
 		this.physics.add.collider(this.player, this.networkPlayersGroup, (p, g) => {
 			if (DEBUG)
-				console.log(`Collision with network player!`,g)
+				console.log(`Collision with network player!`, g)
 			p.handleBumpyCollision(p, g)
 			g.handleBumpyCollision(g, p)
 		})
@@ -641,7 +641,7 @@ export default class GameScene extends BaseScene {
 			)
 			globalNetwork.players[id].sprite = newPlayer
 			if (DEBUG)
-				console.log(` Network player added ${id}`,globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
+				console.log(` Network player added ${id}`, globalNetwork.players[id].sprite, `Full list`, globalNetwork.players)
 		})
 
 		// #NetworkPlayerEnd
@@ -650,7 +650,7 @@ export default class GameScene extends BaseScene {
 			let txSprite = this.add.ethtransaction(this.player.x, this.player.y)
 			tx.then(
 				async result => {
-					console.log({tx})
+					console.log({ tx })
 					await result.wait()
 					txSprite.destroy()
 				},

@@ -1,6 +1,6 @@
-import {Directions, stdVelocity} from '../helpers/directions.js'
+import { Directions, stdVelocity } from '../helpers/directions.js'
 import globalEvents from '../helpers/globalEvents.js'
-import {cryptos} from '../helpers/cryptos.js'
+import { cryptos } from '../helpers/cryptos.js'
 import Quests from '../helpers/quests.js'
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
@@ -41,8 +41,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 	}
 
 	handleBumpyCollision(player, obj) {
-		this.x = this.x + Math.round((this.x - obj.x) *2 )
-		this.y = this.y + Math.round((this.y - obj.y) *2 )
+		this.x = this.x + Math.round((this.x - obj.x) * 2)
+		this.y = this.y + Math.round((this.y - obj.y) * 2)
 		this.tint = 0xff0000
 		setTimeout(() => {
 			this.clearTint()
@@ -68,7 +68,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				globalNetwork.reportPosition(this.x, this.y, Directions.LEFT, true)
 			this.timerSinceReport = 0
 			this.direction = Directions.LEFT
-		} else if (inputKeys.right.isDown || inputKeys.rightA.isDown||inputKeys.jright ) {
+		} else if (inputKeys.right.isDown || inputKeys.rightA.isDown || inputKeys.jright) {
 			this.body.setVelocityX(stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-right', true)
 			if (this.direction != Directions.RIGHT && globalNetwork)
@@ -82,7 +82,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				globalNetwork.reportPosition(this.x, this.y, Directions.UP, true)
 			this.timerSinceReport = 0
 			this.direction = Directions.UP
-		} else if (inputKeys.down.isDown || inputKeys.downA.isDown ||inputKeys.jdown) {
+		} else if (inputKeys.down.isDown || inputKeys.downA.isDown || inputKeys.jdown) {
 			this.body.setVelocityY(stdVelocity)
 			if (!this.isAG) this.anims.play(this.char.name + '-down', true)
 			// ALT: this.flipX = false
@@ -101,26 +101,26 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				if (this.anims.currentAnim && this.anims.currentAnim.key.substring(0, 4) !== 'idle') {
 					if (!this.isAG) this.anims.play(this.char.name + '-idle-' + this.direction.name)
 				}
-			} 
+			}
 		}
 
 		// If there was no change, position is still reported sometimes
 		// Not a great solution, but avoids large discrepencies. It should be every 4 steps on average
 		this.timerSinceReport += dt
 		if ((this.timerSinceReport > 60)) {
-			if(globalNetwork)
+			if (globalNetwork)
 				globalNetwork.reportPosition(this.x, this.y, this.direction, this.body.speed > 0 ? true : false)
 			this.timerSinceReport = 0
 		}
 
 		// should be moved to interface to not catch chat space
-		if (Phaser.Input.Keyboard.JustDown(inputKeys.space)||inputKeys.action) {
+		if (Phaser.Input.Keyboard.JustDown(inputKeys.space) || inputKeys.action) {
 			// alt: inputKeys.space.Down
 			// if (this.ongoingAction == false ){
 			//     this.ongoingAction = true
 			inputKeys.action = false
 			this.triggered = false
-			if (DEBUG)console.log(`?`,this.quests)
+			if (DEBUG) console.log(`?`, this.quests)
 			if (this.quests['catch-transactions'].isActive) {
 				console.log('capture?')
 				// We initialise this flag to allow one capture only
@@ -191,14 +191,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 				this.scene.physics.add.overlap(actionSprite, this.scene.faucet, (f, p) => {
 					if (this.triggered == false) {
-						window.open('https://faucet.matic.network/')
+						window.open('https://cloud.google.com/application/web3/faucet/ethereum/sepolia')
 						this.triggered = true
 					}
 				})
 
 				this.scene.physics.add.overlap(actionSprite, this.scene.networkPlayersGroup, (a, p) => {
 					if (this.triggered == false) {
-						if (DEBUG){
+						if (DEBUG) {
 							console.log(`triggered player`, p.playerId)
 						}
 						globalGame.scene
