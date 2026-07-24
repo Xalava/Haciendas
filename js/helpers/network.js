@@ -11,8 +11,8 @@ export default class Network {
 		this.players = {}
 		let serverURL = 'https://glacial-gorge-97084.herokuapp.com/'
 		// testing local server
-		// if(location.hostname == "127.0.0.1" || location.hostname == "localhost")
-		//     serverURL = "ws://127.0.0.1:3232"
+		if(location.hostname == "127.0.0.1" || location.hostname == "localhost")
+		    serverURL = "ws://127.0.0.1:3232"
 
 		this.socket = io(serverURL, {
 			query: {

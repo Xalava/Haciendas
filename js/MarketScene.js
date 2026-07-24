@@ -48,7 +48,7 @@ export default class MarketScene extends BaseScene {
 		const {map, tileset, startPosition} = this.initialiseMap('marketMap')
 
 		//// World collision
-		this.physics.world.setBounds(0, 0, map.width * 16, map.heigth * 16) // (x, y, width, height)
+		this.physics.world.setBounds(0, 0, map.width * 16, map.height * 16) // (x, y, width, height)
 		//// Create animations
 		createObjectsAnims(this.anims)
 

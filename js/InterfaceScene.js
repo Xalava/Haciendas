@@ -35,24 +35,18 @@ export default class InterfaceScene extends Phaser.Scene {
 	preload() {
 		// the version from PreloaderScene does not seem available.
 		this.load.spritesheet('things2bis', 'assets/things2.png', {frameWidth: 16, frameHeight: 16})
+		const REX_CDN = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/e69398835e78c9b65e9de7347a6be7d9acd4b642'
 		this.load.scenePlugin({
 			key: 'rexuiplugin',
-			url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/e69398835e78c9b65e9de7347a6be7d9acd4b642/dist/rexuiplugin.min.js',
+			url: `${REX_CDN}/dist/rexuiplugin.min.js`,
 			sceneKey: 'rexUI'
 		})
-		// Latest version
-		//	'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
-		// For Phaser 3.24
-		// 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/b46817469a1d830445053bf407a1e3b4f09543b0/dist/rexuiplugin.min.js',
 		this.load.plugin(
 			'rexvirtualjoystickplugin',
-			'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js', 
+			`${REX_CDN}/dist/rexvirtualjoystickplugin.min.js`,
 	   		true
 		)
-		this.load.image(
-			'nextPage',
-			'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png'
-		)
+		this.load.image('nextPage', `${REX_CDN}/assets/images/arrow-down-left.png`)
 		this.load.html('message', 'html/message.html')
 		this.load.html('pretransaction', 'html/pretransaction.html')
 	}

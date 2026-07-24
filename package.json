@@ -17,16 +17,17 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "browser-sync": "^2.26.14",
+    "browser-sync": "^2.29.3",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.0.32",
-    "hardhat": "^2.1.1"
+    "hardhat": "^2.1.1",
+    "live-server": "^1.2.2"
   },
   "scripts": {
     "test": "mocha",
     "dev": "live-server --watch=\"js,html,assets\"",
-    "devBS":"npx browser-sync start --config bs-config.js"
+    "devBS": "npx browser-sync start --config bs-config.js"
   },
   "repository": {
     "type": "git",

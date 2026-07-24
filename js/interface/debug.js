@@ -19,7 +19,7 @@ export default function createDebugSwitch(scene) {
 		globalEvents.on('dbg', 
 			message => scene.debugText.setText(message)
 		)
-		globalEvents.emit('dbg',`debug text`)
+		globalEvents.emit('dbg',`debug mode`)
 	}
 
 
