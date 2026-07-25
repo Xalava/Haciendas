@@ -15,8 +15,6 @@ npm run dev
 ```
 
 ### Network
-Haciendas can be used on testnets and mainnet. Currently the game expect a browser wallet such as Metamask connected to **Kovan**. ENS names are retrieved on Ropsten if available. 
+Haciendas can be used on testnets and mainnet, primarily built for **Sepolia**. Talk to the fox in-game to connect a browser wallet. The fox will point you at a faucet if you have no test ETH.
 
-The game uses Polygon for its Smart Contract on mainnet. To connect metamask to matic https://docs.matic.network/docs/develop/metamask/config-matic/
-
-
+ENS names are retrieved on Sepolia.
