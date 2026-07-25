@@ -446,57 +446,77 @@ export default class GameScene extends BaseScene {
 		this.addGateway('toArtGallery', 'startArtGallery', map)
 		this.addGateway('leaveArtGallery', 'outArtGallery', map)
 
-		// Art gallery 
-		const options = { method: 'GET' };
+
+		// Art gallery
 		const firstPiece = map.findObject('Helpers', obj => obj.name === 'Piece1')
 		this.artGroup = this.physics.add.group()
+		
+		// `POST auth/keys` hands out a free read-only one (60 requests/minute, valid 30 days,
+		// at most 3 creations per hour and per IP), so we ask for one and keep it in local
+		// storage. A read-only key on a static site is public by nature, which suits a gallery.
+		const artAPI = 'https://api.opensea.io/api/v2/'
+		const artCollection = 'chain/ethereum/contract/0x41a322b28d0ff354040e2cbc676f0320d8c8850d' // SuperRare
+		const artKeyItem = 'openseaKey' // local storage entry
+		const artWallSize = 12 // pieces the room can hang
 
-		fetch('https://api.opensea.io/api/v1/assets?asset_contract_address=0x41a322b28d0ff354040e2cbc676f0320d8c8850d&order_direction=desc&offset=0&limit=12', options)
-			.then(response => response.json())
-			.then(r => {
-				let assets = r.assets
-				for (let i = 0; i < assets.length; i++) {
-					// TODO: Create container
-					const artData = assets[i]
-					console.log(artData)
-					let localx = firstPiece.x + (i % 4) * 48
-					let localy = firstPiece.y + (Math.floor(i / 4) * 32)
-					let newArt = {}
-					if (artData.image_thumbnail_url) {
-						newArt = this.add.dom(localx, localy).createFromHTML(`<img src="${artData.image_thumbnail_url}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
-							.setDepth(10)
-							.setOrigin(0, 0)
-						newArt.data = artData
-						newArt.setInteractive()
-						newArt.on('pointerdown', () => {
-							if (artData.image_url) {
+		// The stored key, or a fresh one
+		const getArtKey = async () => {
+			const storedKey = localStorageAvailable() && window.localStorage.getItem(artKeyItem)
+			if (storedKey) return storedKey
+			const response = await fetch(artAPI + 'auth/keys', { method: 'POST' })
+			const { api_key } = await response.json()
+			if (!api_key) throw new Error(`no key given (${response.status})`)
+			if (localStorageAvailable()) window.localStorage.setItem(artKeyItem, api_key)
+			return api_key
+		}
 
-								document.getElementById('modal_art').checked = false; // close modal
-								console.log(`art display`, artData)
-								document.getElementById('artpiece').src = `${artData.image_url}`
-								document.getElementById('modal_art').checked = true; // open modal
+		// Hangs the piece on the ith spot of the wall, an empty frame if it has no image
+		const hangPiece = (artData, i) => {
+			const x = firstPiece.x + (i % 4) * 48
+			const y = firstPiece.y + Math.floor(i / 4) * 32
+			// v2 names its images display_image_url (resized) and image_url (full size)
+			const thumbnail = artData.display_image_url || artData.image_url
 
-								// let artDisplay =  this.add.dom(this.cameras.main.width/2, this.cameras.main.heigth/2).createFromHTML(`<img src="${artData.image_url}" style="max-width: 300px; max-heigth: 200px;border-style: solid;border-width:1px">`)
-							} else {
-								console.error(`image not found`)
-							}
-							// artDisplay.setInteractive()
-							// artDisplay.on('pointerup', () => {
-							// 	artDisplay.setActive(false).setVisible(false);
-							// 	artDisplay.destroy()
-							// })
-						})
-					} else {
-						newArt = this.add.image(localx, localy, 'things2', 23).setDepth(5).setOrigin(0, 0)
-					}
-					// this.physics.add.existing(newArt)
-					this.artGroup.add(newArt)
-					newArt.body.setSize(14, 14, true)
+			let newArt
+			if (thumbnail) {
+				newArt = this.add
+					.dom(x, y)
+					.createFromHTML(`<img src="${thumbnail}" style="max-width: 16px;border-style: solid;border-width:0.1px">`)
+					.setDepth(10)
+					.setOrigin(0, 0)
+				newArt.setInteractive()
+				newArt.on('pointerdown', () => {
+					document.getElementById('modal_art').checked = false // close modal
+					document.getElementById('artpiece').src = artData.image_url || thumbnail
+					document.getElementById('modal_art').checked = true // open modal
+				})
+			} else {
+				newArt = this.add.image(x, y, 'things2', 23).setDepth(5).setOrigin(0, 0)
+			}
+			this.artGroup.add(newArt)
+			newArt.body.setSize(14, 14, true)
+		}
+
+		const fetchArt = async () => {
+			const url = `${artAPI}${artCollection}/nfts?limit=${artWallSize}`
+			const response = await fetch(url, { headers: { 'x-api-key': await getArtKey() } })
+			// Keys expire after 30 days: a refused one is dropped, the next visit asks for a new one
+			if (!response.ok) {
+				if (localStorageAvailable()) window.localStorage.removeItem(artKeyItem)
+				throw new Error(`OpenSea answered ${response.status}`)
+			}
+			const { nfts } = await response.json()
+			if (DEBUG) console.log(`🖼 Art pieces received`, nfts)
+			nfts.slice(0, artWallSize).forEach(hangPiece)
+		}
+
+		// The room is furnished with empty frames if any of this fails
+		fetchArt().catch(err => {
+			console.error(`Art gallery source unavailable:`, err.message)
+			for (let i = 0; i < artWallSize; i++) hangPiece({}, i)
+		})
 
 
-				}
-			})
-			.catch(err => console.error(err));
 		this.physics.add.collider(
 			this.player,
 			this.artGroup.getChildren(),
