@@ -207,7 +207,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 								'Send',
 								globalNetwork.players[p.playerId].char.frame,
 								globalNetwork.players[p.playerId].address,
-								globalNetwork.players[p.playerId].name
+								globalNetwork.players[p.playerId].name // TODO bug on name
 							)
 						this.triggered = true
 					}
@@ -238,25 +238,21 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 				this.scene.physics.add.overlap(
 					actionSprite,
 					this.scene.buyGroup.getChildren(),
-					(a, p) => {
+					(a, b) => {
 						if (globalEth) {
 							if (this.triggered == false) {
 								this.triggered = true
+								// Each stand carries the token it sells, set from the map in GameScene
+								const asset = cryptos[b.token]
+								const assetOnThisNetwork = asset && asset[globalEth.network.name]
 								if (!globalEth.account) {
 									globalEvents.emit('says', 'You must get connected first. Go see the fox')
-								} else if (globalEth) {
+								} else if (!assetOnThisNetwork || !assetOnThisNetwork.token) {
+									globalEvents.emit('says', `There is no ${b.token} on ${globalEth.network.name} yet.`)
+								} else {
 									globalGame.scene
 										.getScene('interfaceScene')
-										.openTransactionDialog(
-											'Swap',
-											cryptos['DAI'].frame,
-											cryptos['DAI'].kovan.token,
-											'Dai'
-										)
-									// globalEth.swapETHforDAI(1)
-								} else {
-									globalEvents.emit('says', 'You must get connected first. Go see the fox')
-									this.triggered = true
+										.openTransactionDialog('Swap', asset.frame, assetOnThisNetwork.token, asset.name)
 								}
 							}
 						}

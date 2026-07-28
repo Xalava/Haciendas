@@ -15,6 +15,5 @@ npm run dev
 ```
 
 ### Network
-Haciendas can be used on testnets and mainnet, primarily built for **Sepolia**. Talk to the fox in-game to connect a browser wallet. The fox will point you at a faucet if you have no test ETH.
+Haciendas can be used on testnets and mainnet, primarily built for **Sepolia**. Talk to the fox in-game to connect a browser wallet such as Metamask or Rabby. The fox will point you at a faucet if needed.
 
-ENS names are retrieved on Sepolia.

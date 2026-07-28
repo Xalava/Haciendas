@@ -2,20 +2,11 @@
 
 export const INFURA_ID = '6e5c698dd2a640079e23abe0231c4f9b'
 
-export const DEFAULT_NETWORK = 'sepolia'
+// The chain the game is played on: a key of NETWORKS below
+export const GAME_NETWORK = 'sepolia'
 
 //MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = 'PSW8C433Q667DVEX5BCRMGNAH9FSGFZ7Q8'
-
-
-// chainId may be a number, a decimal string or a hex string ('0xaa36a7'): `==` handles all three
-export const NETWORK = chainId => {
-	for (let n in NETWORKS) {
-		if (NETWORKS[n].chainId == chainId) {
-			return NETWORKS[n]
-		}
-	}
-}
 
 export const NETWORKS = {
 	localhost: {
@@ -54,5 +45,3 @@ export const NETWORKS = {
 		nativeCurrency: {name: 'POL', symbol: 'POL', decimals: 18}
 	}
 }
-
-export const chainIdHex = chainId => '0x' + chainId.toString(16)

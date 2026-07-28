@@ -5,32 +5,35 @@ import createTextBox from './interface/textBox.js'
 import EtherHelp from './helpers/EtherHelp.js'
 import Network from './helpers/network.js'
 import {cryptos} from './helpers/cryptos.js'
+import {formatBalance, shortAddress, suggestedAmount} from './helpers/format.js'
 
 const BASEBLUE = 0x00031f6c
 const BASEBROWN = 0x8b4513
 const BASEWHITE = 0xeeeeee
-const MAXINVENTORY = 12
+const MAXINVENTORY = 10
+
+// Panels geometry
+const PANEL = {x: 10, y: 10, w: 180, h: 148}
+const SLOTS = {cols: 5, rows: 2, x: 23, y: 68, size: 24, step: 32}
+
+const TRANSACTIONPANEL = {x:268, w: 80, sloty: 80}
+const DROPZONESIZE = 40
 const ACTIONSLOT = MAXINVENTORY + 1
-// const HANDSLOT = MAXINVENTORY + 2
 const INTERFACEFONT = {fontSize: 8, font: '"Press Start 2P"'}
-const INTERFACEFONTWITHBG = {fontSize: 8, font: '"Press Start 2P"', backgroundColor: 'rgba(20,20,20,0.4'}
-const PADDING = 28
+const INTERFACEFONTWITHBG = {fontSize: 8, font: '"Press Start 2P"', backgroundColor: 'rgba(20,20,20,0.6'}
+const PADDING = 24
 const INTERLINE = 14
 
 const DEBUGINTERFACE = false
 
-const NAMES = ['Aiden', 'Alex', 'Billie', 'Casey', 'Erin', 'Harley', 'Jade', 'Kim', 'AE-X3']
-const randomName = NAMES[Math.floor(Math.random() * NAMES.length)]
+const NAMES = [ 'Alex', 'Billie', 'Casey', 'Daniel', 'Erin', 'Harley', 'Jade','Isabella', 'Kim', 'Mateo', 'Yanet', 'Ximena', 'Zoe']
+const randomName = NAMES[Math.floor(Math.random() * NAMES.length)] + Math.floor(Math.random()*99)
 
 export default class InterfaceScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'interfaceScene', active: false})
 		this.lastSlot = -1
 		this.invSlotsArray = [] // arrays of "slots", with .item attached
-
-		// Legacy :
-		this.usdc = 0
-		this.real = 0
 	}
 	preload() {
 		// the version from PreloaderScene does not seem available.
@@ -62,347 +65,338 @@ export default class InterfaceScene extends Phaser.Scene {
 		return graph
 	}
 
-	createSlot(x, y, reference) {
-		//proto class
-
-		// let element = this.add.rectangle(x, y, 24, 24, BASEBROWN).setInteractive()
-		// element.setStrokeStyle(1.4, BASEWHITE)
-		// Switch to image for facilitating
-		// const element = this.roundedBox(x, y, 26, 26,BASEBROWN)
+	createSlot(x, y, index) {
+		// Switched slots from roundedbox to image for facilitating
 		let element = this.add.image(x, y, 'slot').setInteractive()
 		element.setOrigin(0)
-		element.invX = x + 12
-		element.invY = y + 12
-		element.on('pointerover', pointer => {
-			if (element.item) {
-				if (DEBUGINTERFACE) console.log('hovering', reference, element.item.token)
-				this.lastSlot = reference
-			} else {
-				this.lastSlot = reference
-				if (DEBUGINTERFACE) console.log('hovering empty', reference)
-			}
+		element.invX = x + SLOTS.size / 2
+		element.invY = y + SLOTS.size / 2
+		element.on('pointerover', () => {
+			if (DEBUGINTERFACE) console.log('hovering', index, element.item && element.item.token)
+			this.lastSlot = index
 		})
-		// element.setOrigin(0) // not possible, graphics are not game object
+		// Without this, lastSlot keeps the last square the pointer *crossed*. Might be ok behavior
+		element.on('pointerout', () => {
+		    if (this.lastSlot === index) this.lastSlot = -1
+		})
 		return element
 	}
+
+	// How the player is named in the inventory header, the chat and Jitsi.
+	get playerName() {
+		return globalEth.ename || randomName
+	}
+
+	// Interesting idea to keep for the full wallet. It does not make sense within the game context
+	// createExplorerLink(x, y) {
+	// 	this.explorerText = this.add.text(x, y, '🔍', {...INTERFACEFONT, color: '#7fd0ff'})
+	// 	this.explorerText.setInteractive({useHandCursor: true})
+	// 	this.explorerText.on('pointerdown', () => window.open(globalEth.explorerWalletLink, '_blank'))
+	// 	this.invGraphics.add(this.explorerText)
+	// }
+
+	updateWalletHeader() {
+		if (!this.walletHeader) return // panel not built yet: a connection can beat it
+		const {network} = globalEth
+		this.walletHeader.setText(this.playerName)
+		this.walletAddress.setText(shortAddress(globalEth.account))
+		this.walletSubHeader.setText(globalEth.isConnected ? network.label || network.name : 'Not connected')
+		this.walletSubHeader.setColor(network.color || '#ffffff')
+		// this.explorerText.setVisible(!!this.inventoryOpen && !!this.explorerAddressLink)
+	}
+
+	// ── The inventory ────────────────────────────────────────────────────────────
+	// Three structures, and keeping them straight is most of the panel's logic:
+	//   globalEth.assets   the truth — ticker -> amount, owned by the wallet, rebuilt from the chain on  connection and network change
+	//   this.items         one draggable Container per token, created on demand and then kept forever 
+	//   invSlotsArray      the 10 squares of the grid, in reading order. A square that holds a coin has `.item`; an empty one has no such property
 
 	createInventoryDialog() {
 		// Inventory dialog, available pressing 'i', created once
 		this.invGraphics = this.add.group()
 
-		let invBox = this.roundedBox(20, 20, 220, 200, BASEBLUE)
-		this.invGraphics.add(invBox)
-
-		let playerSprite = this.add.image(30, 32, 'characters', this.gameScene.player.char.frame)
+		this.invGraphics.add(this.roundedBox(PANEL.x, PANEL.y, PANEL.w, PANEL.h, BASEBLUE))
+		let playerSprite = this.add.image(PADDING, PADDING+2, 'characters', this.gameScene.player.char.frame)
 		this.invGraphics.add(playerSprite)
 
 		// Create a of inventory slots and display them
-		this.invSlotsGroup = this.add.group()
-		for (let j = 0; j < 2; j++) {
-			for (let i = 0; i < 6; i++) {
-				const x = 36 + 32 * i
-				const y = 60 + 32 * j
-				let slot = this.createSlot(x, y, i + j * 6)
-				this.invSlotsGroup.add(slot)
+		//this.invSlotsGroup = this.add.group()
+		for (let j = 0; j < SLOTS.rows; j++) {
+			for (let i = 0; i < SLOTS.cols; i++) {
+				const x = SLOTS.x + SLOTS.step * i
+				const y = SLOTS.y + SLOTS.step * j
+				const slot = this.createSlot(x,y , this.invSlotsArray.length)
 				this.invGraphics.add(slot)
 				this.invSlotsArray.push(slot)
 			}
 		}
-		if (DEBUG) console.log('inventory slots', this.invSlotsGroup.getChildren())
-		this.itemsGroup = this.add.group()
-		for (const token in globalEth.assets) {
-			this.createItem(token) // last step before new object
-		}
-		// this.invGraphics.add(this.itemsGroup)
-		// this.input.setDraggable(this.itemsGroup.getChildren());
+		// if (DEBUG) console.log('inventory slots', this.invSlotsGroup.getChildren())
+
+		this.items = {} // update logic within updateInventory
+
+		// Header section
+		this.walletHeader = this.add.text(PADDING +10, PADDING, '', INTERFACEFONT)
+		this.walletAddress = this.add.text(PADDING +10 , PADDING + INTERLINE, '', INTERFACEFONT)
+		// Right-aligned against the panel edge, so a long network name grows leftwards
+		this.walletSubHeader = this.add.text(PANEL.x + PANEL.w - 10, PADDING + INTERLINE, '', INTERFACEFONT).setOrigin(1, 0)
+		this.invGraphics.addMultiple([this.walletHeader, this.walletAddress, this.walletSubHeader])
+		// this.createExplorerLink(PANEL.x + PANEL.w -14 , PANEL.y + PANEL.h - 14)
+
 		this.input.setTopOnly(false)
-		this.input.on('dragstart', function (pointer, gameObject) {
-			console.log('↑ drag start from', this.scene.lastSlot)
+
+		this.input.on('dragstart', (pointer, item) => {
+			if (item.type !== 'Container') return
+			if (DEBUGINTERFACE) console.log('↑ drag start from', this.lastSlot)
 			// when draged we look darker
-			if (gameObject.type == 'Container') {
-				gameObject.list[0].setTint(0x4f4f4f)
-				gameObject.list[1].setStyle({color: '#999'})
-				gameObject.priorPosition = this.scene.lastSlot
+			item.list[0].setTint(0x4f4f4f)
+			item.list[1].setStyle({color: '#999'})
+		})
+
+		this.input.on('drag', (pointer, item, dragX, dragY) => {
+			item.x = dragX
+			item.y = dragY
+		})
+
+	
+		this.input.on('dragend', (pointer, item, dropped) => {
+			if (DEBUGINTERFACE) console.log('↓ Dragend to', this.lastSlot)
+			if (!dropped && !this.placeItem(item, this.invSlotsArray[this.lastSlot])) {
+				item.x = item.input.dragStartX
+				item.y = item.input.dragStartY
 			}
+			if (item.type !== 'Container') return
+			item.list[0].clearTint()
+			item.list[1].setStyle({color: '#FFF', eeestrokeThickness: 1, stroke: '#000'})
 		})
 
-		this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
-			gameObject.x = dragX
-			gameObject.y = dragY
-		})
-
-		this.input.on('dragend', function (pointer, gameObject, dropped) {
-			if (!dropped) {
-				//Empty slot case
-				// !! Context is input pluing
-				let scene = this.scene
-				if (DEBUG) {
-					console.log('↓ Dragend to', scene.lastSlot, 'with', scene.invSlotsArray[scene.lastSlot].item)
-				}
-				if (scene.invSlotsArray[scene.lastSlot].item === undefined) {
-					// Controller
-					scene.invSlotsArray[scene.lastSlot].item = gameObject
-					if (scene.invSlotsArray[gameObject.priorPosition]){
-						delete scene.invSlotsArray[gameObject.priorPosition].item
-					}
-
-					// View (could use a global refresh function)
-					gameObject.x = scene.invSlotsArray[scene.lastSlot].invX
-					gameObject.y = scene.invSlotsArray[scene.lastSlot].invY
-				} else {
-					gameObject.x = gameObject.input.dragStartX
-					gameObject.y = gameObject.input.dragStartY
-				}
-			}
-
-			if (gameObject.type == 'Container') gameObject.list[0].clearTint()
-			gameObject.list[1].setStyle({color: '#FFF', eeestrokeThickness: 1, stroke: '#000'})
-		})
-
-		// this.invGraphics.add(tokenText)
+		this.updateWalletHeader()
 		this.updateInventory()
-		this.invGraphics.setVisible(false)
+		this.setInventoryVisible(false)
 	}
+
+	slotOf(item) {
+		return this.invSlotsArray.find(slot => slot.item === item)
+	}
+
+	placeItem(item, slot) {
+		if (!slot || (slot.item && slot.item !== item)) return false
+		const priorSlot = this.slotOf(item)
+		if (priorSlot && priorSlot !== slot) delete priorSlot.item
+		slot.item = item
+		item.x = slot.invX
+		item.y = slot.invY
+		return true
+	}
+
 	createItem(token) {
-		let coin = this.add.image(0, 0, 'cryptos', cryptos[token].frame)
-		let txt = this.add.text(0, 0, globalEth.assets[token], {
+		const coin = this.add.image(0, 0, 'cryptos', cryptos[token].frame)
+		// Empty on purpose — updateInventory writes the balance immediately after creating an item and on every refresh afterwards. The text is drawn from its top-left, so it trails down and right of the coin.
+		const label = this.add.text(0, 0, '', {
 			fontSize: 8,
 			font: '"Press Start 2P"',
 			strokeThickness: 1,
 			stroke: '#000'
 		})
-		// We need a solution to manage large numbers. Attempt :
-		// txt.setFixedSize(12, 0)
 
 		// let coin = this.add.sprite(slot.invX, slot.invY,'cryptos',cryptos[token].frame ).setInteractive()
 		// let txt = this.add.text(slot.invX+8, slot.invY+8,inventory[token], { fontSize: 8,font: '"Press Start 2P"' , strokeThickness: 1, stroke: "#000"})
-		let item = this.add.container(0, 0, [coin, txt])
-		item.token = token // To keep it at hand
-		this.addItemToInventory(item)
-		// item.add(coin)
-		// item.add(txt)
-		item.setSize(20, 20)
+		// MAYBETODO: a tooltip on hover, showing the unabbreviated balance
+		const item = this.add.container(0, 0, [coin, label])
+		item.token = token // to keep it at hand
+		item.setSize(SLOTS.size, SLOTS.size)
 		item.setInteractive({draggable: true})
-		// item.alpha= 1
 		this.input.setDraggable(item)
-		item.on('pointerover', (i) => {
-			// const brighter = new Phaser.Display.Color(255, 255, 255, 255);
-			// coin.setTint(brighter);
-			// item.setTint(0x44ff44)
-			// Tooltip
-			// let graph = this.add.graphics()
-			// graph.lineStyle(1, 0xffffff)
-			// graph.fillStyle(color, 1)
-			// graph.fillRoundedRect(x, y, w, h,4)
-			// graph.strokeRoundedRect(x, y, w, h,4)	
-			// this.input.setDefaultCursor('url(assets/cursor.png), pointer');
-			
-			// MAYBETODO display tooltip
-			// i.tooltipText = this.add.text(i.x, i.y, globalEth.assets[item.token], INTERFACEFONT)
-		})
-		item.on('pointerout', i => {
-			// If tooltip
-			// if (i.tooltipText)
-			// 	i.tooltipText.destroy()
-
-			// coin.clearTint();
-		})
-		// item.setInteractive()
-
-		// this.invGraphics.add(txt)
-
 		item.setDepth(20)
-		item.setVisible(this.invGraphics.visible)
-		this.itemsGroup.add(item)
+		item.setVisible(this.inventoryOpen)
 		this.invGraphics.add(item)
+		this.items[token] = item
 
-		// inventoryCoinObjects.push(item)
+		return item
 	}
+
+	// Give a coin a square, or take its square back once its balance reaches zero. To be renamed
 	addItemToInventory(item) {
+		const currentSlot = this.slotOf(item)
 		if (globalEth.assets[item.token] > 0) {
-			let idx = this.invSlotsArray.findIndex(x => {
-				if (x) return x.token == item.token
-			})
-			if (DEBUGINTERFACE) {
-				console.log(`token exists at ${idx}`)
+			if (currentSlot) {
+				item.setVisible(this.inventoryOpen)
+				return
 			}
-			if (idx !== -1) {
-				// the item is above 0 and exists is in a slot
-				//  item.setVisible(true)
-			} else {
-				let emptyID = this.invSlotsArray.findIndex(x => {
-					if (x) return x.item === undefined
-				})
-				if (emptyID == -1) {
+			const emptySlot = this.invSlotsArray.find(slot => slot.item === undefined)
+			if (!emptySlot) {
 					// TODO check case above max size of the inventory
-					console.error(`No space left in inventory`)
-				} else {
-					if (DEBUGINTERFACE) console.log(`There is a slot`, this.invSlotsArray[emptyID])
-					this.invSlotsArray[emptyID].item = item
-					item.x = this.invSlotsArray[emptyID].invX
-					item.y = this.invSlotsArray[emptyID].invY
-					item.setVisible(true)
-				}
+				console.warn(`No space left in inventory for ${item.token}`)
+				return
 			}
-		} else {
+			if (DEBUGINTERFACE) console.log(`Placing ${item.token} in a free slot`, emptySlot)
+			this.placeItem(item, emptySlot)
+			item.setVisible(this.inventoryOpen)
+		}else {
 			item.setVisible(false)
+			if (currentSlot) delete currentSlot.item
 		}
 	}
-	updateInventory() {
-		// this.itemsGroup.clear(true,true)
-		let items = this.itemsGroup.getChildren()
 
-		// console.log(items)
-		for (let token in globalEth.assets) {
-			let item = items.find(x => x.token == token)
-			// item.
-			// let idx = this.invSlotsArray.findIndex(x=> x.token == token)
-			if (item!==undefined){
-				console.log(`refresh`, token, item.list[1].text, '>', globalEth.assets[token])
-				if (globalEth.assets[token] > 1000) {
-					item.list[1].text = Math.trunc(globalEth.assets[token] / 1000) + 'k'
-				} else {
-					item.list[1].text = Math.trunc(globalEth.assets[token])
-				}
+	setInventoryVisible(visible) {
+		this.inventoryOpen = visible
+		// Group.setVisible reaches every child, including the coins of empty tokens…
+		this.invGraphics.setVisible(visible)
+		// …so reconcile right after to hide those again
+		if (visible) this.updateInventory()
+	}
+
+	toggleInventory() {
+		this.setInventoryVisible(!this.inventoryOpen)
+	}
+
+	// Bring the panel back in line with globalEth.assets.
+	updateInventory() {
+		if (!this.items) return // panel not built yet
+
+		for (const token in globalEth.assets) {
+			if (!cryptos[token]) continue // no coin sprite for this ticker
+			const item = this.items[token] || this.createItem(token)
+			item.list[1].text = formatBalance(globalEth.assets[token])
+			this.addItemToInventory(item)
+		}
+		for (const token in this.items) {
+			if (globalEth.assets[token] === undefined) {
+				this.addItemToInventory(this.items[token]) // no balance: hides it 
 			}
-			else {
-				console.error(`Token ${token} not found in items`)
-			}
-			// this.createItem(token)
 		}
 	}
 
 	// Open transactions panel, Created and destroyed each time.
-	// CounterpartyName is an address for players and a name for NPC
+	// CounterpartyName is an address for players and a name for NPC	
 	openTransactionDialog(action, counterpartyFrame, counterpartyAddress, counterpartyName) {
 		if (DEBUG) console.log('Open Transaction Dialog with Counterparty: (sprite)', counterpartyAddress)
+		this.closeTransactionDialog()
 		// We first open the regular inventory panel
-		this.invGraphics.setVisible(true)
+		this.setInventoryVisible(true)
 
 		this.transactionDialog = this.add.group()
-		let actionBox = this.roundedBox(254, 20, 60, 200, BASEBLUE)
+		const actionBox = this.roundedBox(TRANSACTIONPANEL.x, PANEL.y, TRANSACTIONPANEL.w, PANEL.h, BASEBLUE)
 		this.transactionDialog.add(actionBox)
 
-		let spritesheet = ''
-		let actionFunction = undefined
+		if (!counterpartyName){
+			console.warn("No counterparty name in dialog")
+		}
+		let spritesheet, label, actionFunction
 		switch (action) {
-			// Mostly for reference
 			case 'Send':
 				spritesheet = 'characters'
-				if (counterpartyName) {
-					let nameTxt = this.add.text(264, PADDING + INTERLINE, counterpartyName.slice(0, 10), INTERFACEFONT)
-					this.transactionDialog.add(nameTxt)
-				}
+				label = counterpartyName && counterpartyName.slice(0, 10)
 				actionFunction = (token, amount) => globalEth.sendToken(token, counterpartyAddress, amount)
 				break
 
 			case 'Swap':
 				spritesheet = 'cryptos'
-				if (counterpartyName) {
-					let nameTxt = this.add.text(
-						264,
-						PADDING + INTERLINE,
-						`Swap ` + counterpartyName.slice(0, 4),
-						INTERFACEFONT
-					)
-					this.transactionDialog.add(nameTxt)
-				}
+				label = counterpartyName && `Swap ${counterpartyName.slice(0, 4)}`
 				actionFunction = (token, amount) => globalEth.swapETHforX(token, amount)
 				break
 
 			case 'Deposit':
 				spritesheet = 'things2'
-				let nameTxt = this.add.text(275, PADDING, `Deposit`, INTERFACEFONT)
-				this.transactionDialog.add(nameTxt)
-				actionFunction = (amount, token) => globalEth.deposit(amount, token)
+				label = 'Deposit'
+				actionFunction = (token, amount) => globalEth.deposit(amount, token)
 				break
 
-			case 'Vote':
-				// Needs a full different interface
+			case 'Vote': 
+				// Needs an interface of its own
 				spritesheet = 'things2'
 				break
-
 			default:
-				break
+				console.error("Action do not exist")
+
 		}
 
 		if (counterpartyFrame) {
-			let counterpartySprite = this.add.image(264, 32, spritesheet, counterpartyFrame)
-			this.transactionDialog.add(counterpartySprite)
+			this.transactionDialog.add(this.add.image(TRANSACTIONPANEL.x + 14, PADDING+ 4, spritesheet, counterpartyFrame))
 		}
 		if (counterpartyAddress) {
-			let addressTxt = this.add.text(274, PADDING, counterpartyAddress.slice(0, 6), INTERFACEFONT)
-			this.transactionDialog.add(addressTxt)
+			this.transactionDialog.add(this.add.text(TRANSACTIONPANEL.x + PADDING, PADDING, counterpartyAddress.slice(0, 6), INTERFACEFONT))
 		}
-		// let actionText = this.add.text(275, 30, action, INTERFACEFONT)
-		// this.transactionDialog.add(actionText)
-		let slot = this.createSlot(276, 78, ACTIONSLOT)
-		this.transactionDialog.add(slot)
+		if (label) {
+			const y = counterpartyAddress ? PADDING + INTERLINE : PADDING
+			this.transactionDialog.add(this.add.text(TRANSACTIONPANEL.x + PADDING, y, label, INTERFACEFONT))
+		}
+		const actionSlot = this.createSlot(
+			TRANSACTIONPANEL.x + (TRANSACTIONPANEL.w - SLOTS.size) / 2,
+			TRANSACTIONPANEL.sloty,
+			ACTIONSLOT
+		)
+		this.transactionDialog.add(actionSlot)
 
-		this.input.on('drop', (pointer, gameObject, dropZone) => {
-			gameObject.x = dropZone.x + 20
-			gameObject.y = dropZone.y + 20
-			// TODO MAYBE : handle if a coin is present already
-			if (gameObject.token) {
-				// We have a token!
-				let token = gameObject.token
-				// Let's add the appropriate dialog
-				const el = this.add.dom(285, 150).createFromCache('pretransaction')
-				document.querySelector('#amount').value = globalEth.assets[token]
-				document.querySelector('#actionButton').innerHTML = action
-				console.log(`Drop of : ${token} (${globalEth.assets[token]}`)
-				// let el = document.querySelector('#actionButton')
-				console.log({gameObject})
-				el.addListener('click').on('click', event => {
-					if (event.target.localName === 'button') {
-						console.log('Transaction button click:', event, globalEth)
-						if (globalEth.account === '') {
-							globalEvents.emit('says', 'Sorry, you need to be connected to do that. Talk to the fox.')
-						} else if (actionFunction) {
-							this.sound.play('notas')
-							let amount = document.querySelector('#amount').value
-							actionFunction(token, amount)
-							this.addItemToInventory(gameObject)
-						} else {
-							console.error('Action not available')
-						}
-						this.closeTransactionDialog()
-					}
-				})
-				this.transactionDialog.add(el)
+		this.dropHandler = (pointer, item, dropZone) => {
+			if (!item.token) return
+			// Check for a prior item
+			if (this.droppedItem && this.droppedItem !== item) {
+				this.placeItem(this.droppedItem, this.slotOf(this.droppedItem))
 			}
-		})
+			if (this.preTransactionForm) this.preTransactionForm.destroy()
+			this.droppedItem = item
+			item.x = dropZone.x
+			item.y = dropZone.y
+			const token = item.token
+			
+			const el = this.add.dom(TRANSACTIONPANEL.x + TRANSACTIONPANEL.w/2, PANEL.y + PANEL.h - 24).createFromCache('pretransaction')
+			this.preTransactionForm = el
+			const amountInput = document.querySelector('#amount')
+			amountInput.value = suggestedAmount(globalEth.assets[token], cryptos[token].decimals)
+			amountInput.max = globalEth.assets[token]
+			// Default step is 1, which makes any fraction of ETH invalid. To be tested
+			amountInput.step = cryptos[token].decimals === 0 ? 1 : 'any'
+			document.querySelector('#actionButton').innerHTML = action
+			if(DEBUG) console.log(`Drop of : ${token} (${globalEth.assets[token]})`)
 
-		//  A drop zone
-		var zone = this.add.zone(267, 69, 40, 40).setDropZone()
-		zone.setOrigin(0) // otherwise zone is centered around point above. This is messy in the documentation and phaser examples
+			el.addListener('click').on('click', event => {
+				if (event.target.localName !== 'button') return
+				if (!globalEth.isConnected) {
+					globalEvents.emit('says', 'Sorry, you need to be connected to do that. Talk to the fox.')
+				} else if (actionFunction) {
+					this.sound.play('notas')
+					actionFunction(token, amountInput.value)
+				} else {
+					console.error(`No action available for ${action}`)
+				}
+				this.closeTransactionDialog()
+			})
+			this.transactionDialog.add(el)
+		}
+		this.input.on('drop', this.dropHandler)
+
+		const zone = this.add.zone(actionSlot.invX, actionSlot.invY, DROPZONESIZE, DROPZONESIZE).setDropZone()
+		this.transactionDialog.add(zone)
 
 		//  Just a visual display of the drop zone
 		if (DEBUG) {
-			var graphics = this.add.graphics()
+			const bounds = zone.getBounds()
+			const graphics = this.add.graphics()
 			graphics.lineStyle(1, 0xffff00)
-			console.log('Zone', zone, zone.getBounds())
-			graphics.strokeRect(zone.x, zone.y, zone.input.hitArea.width, zone.input.hitArea.height)
+			graphics.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height)
 			graphics.setDepth(19)
-			this.invGraphics.add(graphics)
+			this.transactionDialog.add(graphics)
 		}
 		// let tokenText = this.add.text(40, 60, 'Tokens' , { fontSize: 10})
 		// let iTokenText = this.add.text(40, 180, 'Interest bearing tokens', { fontSize: 10})
 	}
 
-	closeTransactionDialog() {
-		// let elements = this.transactionDialog.getChildren()
-		// console.log(elements)
-		// let el = Phaser.Utils.Array.RemoveRandomElement(elements)
-		// el.destroy(true)
-		// this.transactionDialog.destroy(true) // true: destroy contained elements too
-		if (this.transactionDialog) {
-			this.transactionDialog.clear(true, true)
 
-			console.log(this.transactionDialog)
+	closeTransactionDialog() {
+		if (this.transactionDialog) {
+			// true, true: remove from the group and destroy, taking the drop zone and form with it
+			this.transactionDialog.clear(true, true)
 			this.transactionDialog = null
 		}
-		this.invGraphics.setVisible(false)
+		if (this.dropHandler) {
+			// Removed by reference. It is registered on the scene's input, not on the dialog.
+			this.input.off('drop', this.dropHandler)
+			this.dropHandler = null
+		}
+		this.preTransactionForm = null // destroyed with the group above
+		if (this.droppedItem) this.placeItem(this.droppedItem, this.slotOf(this.droppedItem))
+		this.droppedItem = null
+		this.setInventoryVisible(false)
 	}
 
 	handleTransactionsChange(nbTransactions) {
@@ -414,65 +408,6 @@ export default class InterfaceScene extends Phaser.Scene {
 			}
 		})
 	}
-	async handleRealChange(value) {
-		if (DEBUG) console.log('real change...', this.real, value)
-
-		if (this.real == 0 && value == 0) {
-			// refreshing case
-			this.real = parseInt(await this.gameScene.eth.getRealBalance())
-			//Math.floor( floatvalue )
-			if (DEBUG) console.log('Current balance', this.real)
-		}
-		this.real += value
-		if (this.real == value) {
-			// first time is a show
-			this.realDisplay.children.each((obj, idx) => {
-				setTimeout(() => {
-					if (idx < this.real) {
-						obj.visible = true
-						if (idx % 2) this.sound.play('gold')
-					} else {
-						obj.visible = false
-					}
-				}, idx * 800)
-			})
-		} else {
-			this.realDisplay.children.each((obj, idx) => {
-				if (idx < this.real) {
-					obj.visible = true
-				} else {
-					obj.visible = false
-				}
-			})
-		}
-	}
-
-	handleUSDCChange(value) {
-		if (DEBUG) console.log('USDC change...', this.usdc, value)
-
-		this.usdc += value
-		if (this.usdc == value) {
-			this.USDCDisplay.children.each((obj, idx) => {
-				setTimeout(() => {
-					if (idx < this.usdc) {
-						obj.visible = true
-						if (idx % 2) this.sound.play('gold')
-					} else {
-						obj.visible = false
-					}
-				}, idx * 800)
-			})
-		} else {
-			this.USDCDisplay.children.each((obj, idx) => {
-				if (idx < this.usdc) {
-					obj.visible = true
-				} else {
-					obj.visible = false
-				}
-			})
-		}
-	}
-
 	updateChat(name, message) {
 		this.chat.innerHTML += `<div> ${name}: <i>${message}</i></div>`
 		this.chat.scrollTop = this.chat.scrollHeight
@@ -481,7 +416,7 @@ export default class InterfaceScene extends Phaser.Scene {
 	jitsiChat(){
 		if (!this.jistiIsUp){
 			this.jistiIsUp = true
-			let name = globalEth.ename ? globalEth.ename : randomName
+			let name = this.playerName
 
 			const jitsiWindow = this.add
 			.dom(-140, -50)
@@ -558,8 +493,7 @@ export default class InterfaceScene extends Phaser.Scene {
 				if (document.activeElement === chatInput) {
 					this.chatInput.value = this.chatInput.value + 'i'
 				} else {
-					this.updateInventory()
-					this.invGraphics.toggleVisible()
+					this.toggleInventory()
 				}
 			},
 			this
@@ -652,7 +586,7 @@ export default class InterfaceScene extends Phaser.Scene {
 			this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R).on(
 				'down',
 				function (event) {
-					globalEth.initialiseMetaMask()
+					globalEth.initialiseMetaMask().catch(err => console.warn('Connection failed:', err.message))
 				},
 				this
 			)
@@ -720,11 +654,7 @@ export default class InterfaceScene extends Phaser.Scene {
 				this.chatInput.value = ''
 					this.chatInput.blur()
 					if (message == '') return
-					let myname = globalEth.ename ? globalEth.ename : randomName
-					if (this.gameScene.eth) {
-						myname = this.gameScene.eth.account.substr(0, 6)
-					}
-					globalNetwork.says(myname, message)
+					globalNetwork.says(this.playerName, message)
 				// element.destroy()
 				}
 			})
@@ -776,39 +706,13 @@ export default class InterfaceScene extends Phaser.Scene {
 			quantity: 5,
 			visible: false
 		})
-		this.realDisplay = this.add.group()
-
-		this.realDisplay.createMultiple({
-			key: 'real',
-			frame: [0, 1],
-			setXY: {
-				x: 10,
-				y: 10,
-				stepX: 12
-			},
-			quantity: 24,
-			visible: false,
-			setScale: {x: 0.6, y: 0.6}
-		})
-
-		this.USDCDisplay = this.add.group()
-
-		this.USDCDisplay.createMultiple({
-			key: 'cryptos',
-			frame: 10,
-			setXY: {
-				x: 10,
-				y: 26,
-				stepX: 12
-			},
-			quantity: 24,
-			visible: false,
-			setScale: {x: 0.6, y: 0.6}
-		})
-		const discordButton = this.add
-			.dom(380, 15)
+		// Top of the right-hand column, above the wallet badge and the coffee. It is a DOM
+		// element, so it lives in a container above the canvas and takes the pointer from
+		// anything it overlaps — hence the vertical spacing between the three.
+		this.add
+			.dom(380, 0)
 			.createFromHTML(
-				'<a href="https://discord.gg/n5xTJXNbwF"><button class="shyButton" style="font-size:2.5px"><i>Discord</i></button> </a>'
+				'<a href="https://discord.gg/n5xTJXNbwF"><button class="shyButton" style="font-size:2.5px"><i>Discord</i></button></a>'
 			)
 		//// Handling events
 		globalEvents.on('transaction-captured', nb => this.handleTransactionsChange(nb), this)
@@ -817,23 +721,27 @@ export default class InterfaceScene extends Phaser.Scene {
 				obj.visible = false
 			})
 		})
-		globalEvents.on('real-transaction', value => this.handleRealChange(value), this)
-		globalEvents.on('usdc-transaction', value => this.handleUSDCChange(value), this)
-		globalEvents.on('connected', (account, ename) => {
-			this.connected = this.add.image(380, 10, 'cryptos', cryptos['ETH'].frame)
-			this.connected.setTint(0xa9c9a9)
-			globalNetwork.sendNameUpdate(account, ename)
-			this.sound.play('holy')
-			this.invGraphics.add(
-				this.add.text(44, PADDING, account.slice(0, 6), INTERFACEFONT).setVisible(this.invGraphics.visible)
-			)
-			console.log('ename', ename)
-			if (ename) {
-				this.invGraphics.add(
-					this.add.text(40, PADDING + INTERLINE, ename, INTERFACEFONT).setVisible(this.invGraphics.visible)
-				)
+		// 'connected' fires on the first connection and again on every account or network change
+		globalEvents.on('connected', (account, ename, network) => {
+			if (!this.connectedImage) {
+				this.connectedImage = this.add.image(380, PADDING, 'cryptos', cryptos['ETH'].frame)
+				this.sound.play('holy')
 			}
+
+			//TODO: give a tint and link to the badge
+			globalNetwork.sendNameUpdate(account, ename)
+			this.updateWalletHeader()
+			this.updateInventory()
 		})
+		globalEvents.on('disconnected', () => {
+			if (this.connectedImage) {
+				this.connectedImage.destroy()
+				this.connectedImage = null
+			}
+			this.updateWalletHeader()
+			this.updateInventory()
+		})
+		globalEvents.on('assets-updated', () => this.updateInventory(), this)
 		globalEvents.on('adding-coffee', () => {
 			this.coffee = this.add.image(380, 30, 'coffee')
 			// this.connected.setTint(0x9bfb9b)

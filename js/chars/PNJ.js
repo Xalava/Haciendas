@@ -1,5 +1,7 @@
 import globalEvents from '../helpers/globalEvents.js'
 import EtherHelp from '../helpers/EtherHelp.js'
+import {NETWORKS, GAME_NETWORK} from '../helpers/ethConstants.js'
+import {formatBalance, shortAddress} from '../helpers/format.js'
 
 export const Type = {
 	MALE: 0,
@@ -75,58 +77,77 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 		// this.direction = randomDirection(this.direction)
 	}
 
+	async foxConnects() {
+		try {
+			await globalEth.initialiseMetaMask()
+		} catch (err) {
+			switch (err.code) {
+				case 'no-wallet':
+					this.says(
+						`I can't see a wallet in this browser. Install MetaMask, Rabby, or use Brave and come back.`
+					)
+					break
+				case 'rejected':
+					this.says(`You refused the connection? Come back to me whenever you want to connect.`)
+					break
+				case 'pending':
+					this.says(`Your wallet is asking you to connect. Have a look at its window!`)
+					break
+				default:
+					console.error(err)
+					this.says(`I could not reach your wallet: ${err.message}.`)
+			}
+			return
+		}
+		this.foxGreets()
+	}
+
+	async foxGreets() {
+		if (!globalEth.isOnGameNetwork) {
+			const target = NETWORKS[GAME_NETWORK]
+			this.says(`We play on ${target.label}, and you are on ${globalEth.network.name}. Let me ask your wallet.`)
+			const greetAfterSwitch = () => this.foxGreets()
+			globalEvents.once('connected', greetAfterSwitch)
+			try {
+				await globalEth.switchNetwork(GAME_NETWORK)
+			} catch (err) {
+				globalEvents.off('connected', greetAfterSwitch)
+				this.says(`Please switch to ${target.label} in your wallet, then talk to me again.`)
+			}
+			return
+		}
+
+		const ethBalance = await globalEth.getETHBalance()
+		if (!ethBalance) {
+			this.says(`You have no ETH yet. Go to the lake and press spacebar to open a faucet.`)
+		} else {
+			this.says(
+				`You are connected as ${shortAddress(globalEth.account)} with ${formatBalance(
+					ethBalance)} test ETH. Press [i]i[/i] to open your wallet.`
+				)} 
+			if (globalEth.ename) {
+				setTimeout(() => {
+					this.says(`I see that you have already registered a name! Welcome ${globalEth.ename}.`)
+				}, 3800)
+		}
+	}
+
 	contact() {
 		if (DEBUG) console.log(`Contact with`, this.name)
 		switch (this.name) {
 			case 'Fox':
-				this.says(`Welcome stranger ! How about connecting your wallet?`)
-				this.scene.sound.play('Fox-Welcome')
-
-				setTimeout(async () => {
-					globalEth
-						.initialiseMetaMask()
-						.then(async () => {
-							// TODO : Registration in the game Smart Contract
-							// const isparticipant = await globalEth.realContract.participants(globalEth.account)
-							// if (isparticipant) {
-							// 	this.says("Sly as a fox I see, you have already joined!")
-							// 	globalEvents.emit('real-transaction', 0)
-							const ethBalance = await globalEth.getETHBalance()
-
-							if (globalEth.network.name != "kovan"){
-								this.says(`Please connect to Kovan testnet and talk to me again.`)
-							} else {
-								if (!ethBalance) {
-									this.says(
-										'You seem to miss basic assets. Go the lake and press spacebar to open a faucet.'
-									)
-								} else {
-									if (globalEth.ename) {
-										this.says(
-											`I see that you have already registered a name! Welcome ${globalEth.ename}.`
-										)
-									} else {
-										this.says(`Have a look to the market in the East to exchange some of your tokens.`)
-									}									
-									// this.says("Great! Let me send 12 reales to you at" + globalEth.account)
-									// globalEth.participate().then(() => {
-									// 	globalEvents.emit('real-transaction', 12)
-									// 	this.says("Have fun with this! You can go to the market in village and exchange them for USDC with them or buy a coffee! ")
-									// })
-								}
-							}
-						})
-						.catch(err => {
-							this.says(
-								`I can't. Please use a browser wallet, such as Brave or MetaMask. Contact us if you have a prefered option.`
-							)
-						})
-				}, 2800)
+				if (globalEth.isConnected) {
+					this.foxGreets()
+				} else {
+					this.says(`Welcome stranger ! How about connecting your wallet?`)
+					this.scene.sound.play('Fox-Welcome')
+					setTimeout(() => this.foxConnects(), 2800)
+				}
 				break
 			case 'Dexie':
 				// this.says("Welcome to our decentralised exchange ! You can buy USDC here. The rate is 1 Real = 1/100 Ether ~ 3 USDC")
 				this.says(
-					`Welcome to our decentralised exchange ! You can buy DAI on your left and AAVE on your right. [i]It might not be fully operationnal yet. Join our Discord or follow us on Twitter to be update!.[/i]`
+					`Welcome to our decentralised exchange ! You can buy DAI on your left and AAVE on your right. Press the action button (spacebar on desktop) to start an exchange.`
 				)
 				this.scene.sound.play('Dexie-Welcome')
 
@@ -147,7 +168,7 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				this.scene.sound.play('Laura-Hola')
 				break
 			case 'Diara':
-				this.says(`Welcome to our art gallery. Click on an art piece to see it better.`)
+				this.says(`Welcome to our art gallery. Click on an art piece to see it better. These are all live NFTs.`)
 				break
 			case 'Andrés':
 				if (this.scene.player.quests['catch-transactions'] && this.scene.player.quests['catch-transactions'].isActive) {
@@ -161,12 +182,12 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 				}
 				break
 			case 'Guide':
-				this.says(`Welcome to AAVE! You can deposit asset in the pool, take a loan or participate in the governance building`)
+				this.says(`Welcome to decentralised lending! You can deposit asset in the pool, take a loan or participate in the governance building`)
 				this.scene.sound.play('Ghost-Welcome')
 
 				break
 			case 'GuideGov':
-				this.says(`You are the chosen one... \n\n\nI'm kidding. Eternity is long, AAVE owner. Read proposals on the wall, discuss and vote.`)
+				this.says(`You are the chosen one... \n\n\nI'm kidding. Eternity is long. Read proposals on the wall, discuss and vote.`)
 				this.scene.sound.play('GhostGov-Welcome')
 				setTimeout(() => {
 					globalGame.scene.getScene('interfaceScene').jitsiChat()
@@ -176,12 +197,14 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 			case 'LoanOfficer':
 				this.says(`Welcome! You need to make a deposit into the pool to be able to take a loan.`)
 				break
-			case 'matoken.eth':
-				//TODO check if name is registered
-				this.says(`Hi! let me open for you the page to register a name. Preferably use Ropsten.`)
+			case 'Makoto':
+				this.says(`Hi! Do you want to change your name?`)
+				setTimeout(() => {
+					this.says(`let me open for you the page to register a name. Preferably use Sepolia.`)
+				}, 2000);
 				setTimeout(() => {
 					window.open('https://app.ens.domains/')
-				}, 3000);
+				}, 5000);
 				break
 			default:
 				this.says(`Hello!`)

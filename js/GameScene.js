@@ -404,7 +404,7 @@ export default class GameScene extends BaseScene {
 		setTimeout(() => {
 			globalEvents.emit(
 				'says',
-				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk or interact with objects or the touch controls.                        This game is in early alpha and works on desktop and android. Feel free to join our discord on the upper right corner to give feedback.`
+				`Welcome to Haciendas!                    A decentralised game to learn and interact with digital assets.          Use WASD to move around and spacebar to talk or interact with objects or use the touch controls.                        This game is in early alpha and works on desktop and mobile. Feel free to join our discord on the upper right corner to give feedback.`
 			)
 			this.quest = 'get a fox'
 		}, timeout)
