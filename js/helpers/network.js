@@ -9,26 +9,43 @@ export default class Network {
 	// accessible via players[id].sprite and the Player phaser object
 	constructor(player) {
 		this.players = {}
-		let serverURL = 'https://glacial-gorge-97084.herokuapp.com/'
-		// testing local server
-		if(location.hostname == "127.0.0.1" || location.hostname == "localhost")
-		    serverURL = "ws://127.0.0.1:3232"
+		const serverURL = "https://haciendas-server.onrender.com/"
+		let currentServer 
+		const weAreLocal = location.hostname == "127.0.0.1" || location.hostname == "localhost"
+		if (weAreLocal) {
+			currentServer = "ws://127.0.0.1:3232"
+		} else {
+			currentServer = serverURL
+		}
 
-		this.socket = io(serverURL, {
+		this.socket = io(currentServer, {
 			query: {
 				x: player.x,
 				y: player.y,
 				dir: player.direction,
 				char: JSON.stringify(player.char), // ! This is an object
 				moves: false
+				//todo share player name?
+			}
+		})
+		// If the local server is not running, we fall back on the online one
+		this.socket.on('connect_error', () => {
+			if (weAreLocal) {
+				if (DEBUG) console.log(`🌐 No local server, switching to`, serverURL)
+				this.socket.io.uri = serverURL
 			}
 		})
 		// We receive the full list, we simply copy it. It should happen once at connection
 		this.socket.on('playersList', list => {
-			this.players = list // shallow copy?
-			if (DEBUG) console.log(`Players list`, this.players)
+			if (DEBUG) console.log(`Players list`, list)
 			for (const pid in this.players) {
-				this.receiveAdd(this.players[pid])
+				if (this.players[pid].sprite) {
+					this.players[pid].sprite.destroy()
+				}
+			}
+			this.players = {}
+			for (const pid in list) {
+				this.receiveAdd(list[pid])
 			}
 		})
 		// We receive a message, the event is captured by the interface for display
@@ -63,7 +80,7 @@ export default class Network {
 	receiveUpdate(netPlayer) {
 		if (this.socket.id !== netPlayer.id) {
 			//If we don't now this player, we simply add it instead
-			if (this.players[netPlayer.id].sprite === undefined) {
+			if (!this.players[netPlayer.id] || this.players[netPlayer.id].sprite === undefined) {
 				this.receiveAdd(netPlayer)
 				if (DEBUG)
 					console.log(`Added sprite update for`, this.socket.id)
