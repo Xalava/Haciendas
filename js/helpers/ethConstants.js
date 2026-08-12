@@ -24,7 +24,6 @@ export const NETWORKS = {
 		chainId: 11155111,
 		rpcUrl: `https://sepolia.infura.io/v3/${INFURA_ID}`,
 		blockExplorer: 'https://sepolia.etherscan.io/',
-		faucet: 'https://cloud.google.com/application/web3/faucet/ethereum/sepolia',
 		nativeCurrency: {name: 'Sepolia Ether', symbol: 'ETH', decimals: 18}
 	},
 	mainnet: {

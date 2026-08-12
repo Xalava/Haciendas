@@ -191,7 +191,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
 				this.scene.physics.add.overlap(actionSprite, this.scene.faucet, (f, p) => {
 					if (this.triggered == false) {
-						window.open('https://cloud.google.com/application/web3/faucet/ethereum/sepolia')
+						window.open('/faucets/')
 						this.triggered = true
 					}
 				})

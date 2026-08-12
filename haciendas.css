@@ -23,6 +23,11 @@ body {
     height:0;
 }
 
+.faucetcard {
+    font-size: 0.7em;
+    padding: 0.3rem;
+}
+
 .vresponsive iframe {
     left:0; 
     top:0; 

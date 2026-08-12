@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Haciendas — Faucets</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic">
+	<link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+	<link rel="stylesheet" href="../haciendas.css">
+</head>
+
+<body>
+	<div class="flex four demo">
+		<div></div>
+		<div class="half">
+			<br><br>
+			<h1 class="textcenter">Faucets</h1>
+			<div id="faucets"></div>
+			<p><i>Faucets</i> give crypto on a test network. It is not worth anything.</p>
+			<p>We currently use the <b>Sepolia</b> test network. Start with test ETH on Sepolia as every other transaction needs it for gas. </p>
+			<p>Faucets change often. If one doesn't work, try the next.</p>
+
+			<br>
+			<div class="textcenter">
+				<a href="/"><button class='error' data-tooltip="Play!">Game</button></a>
+				<a href="/infos/"><button>About</button></a>
+				<a href="https://discord.gg/n5xTJXNbwF"><button class='success'>Join Discord!</button></a>
+			</div>
+		</div>
+		<div></div>
+	</div>
+
+	<script type="module">
+		import {faucetsHTML} from '../js/helpers/faucets.js'
+		document.querySelector('#faucets').innerHTML = faucetsHTML()
+	</script>
+</body>
+
+</html>

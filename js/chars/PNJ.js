@@ -119,16 +119,16 @@ export default class PNJ extends Phaser.Physics.Arcade.Sprite {
 
 		const ethBalance = await globalEth.getETHBalance()
 		if (!ethBalance) {
-			this.says(`You have no ETH yet. Go to the lake and press spacebar to open a faucet.`)
+			this.says(`You have no ETH yet. Go to the lake and press spacebar to see the faucets.`)
 		} else {
 			this.says(
 				`You are connected as ${shortAddress(globalEth.account)} with ${formatBalance(
 					ethBalance)} test ETH. Press [i]i[/i] to open your wallet.`
-				)} 
-			if (globalEth.ename) {
-				setTimeout(() => {
-					this.says(`I see that you have already registered a name! Welcome ${globalEth.ename}.`)
-				}, 3800)
+		)} 
+		if (globalEth.ename) {
+			setTimeout(() => {
+				this.says(`I see that you have already registered a name! Welcome ${globalEth.ename}.`)
+			}, 3800)
 		}
 	}
 
