@@ -28,6 +28,61 @@ body {
     padding: 0.3rem;
 }
 
+/* Chat lines keep their height, so the column overflows past the top instead of squashing */
+#chat > div {
+    flex-shrink: 0;
+}
+
+/* Who spoke. Grey by default, which covers the server and anything unnamed */
+#chat span {
+    color: #aaa;
+}
+
+#chat .me {
+    color: #a8e6a8;
+}
+
+#chat .them {
+    color: #d0b0f0;
+}
+
+#chatForm {
+    position: relative;
+}
+
+#chatForm input {
+    padding-right: 1.8em;
+}
+
+#chatForm button {
+    position: absolute;
+    right: 0.3em;
+    top: 0.5em;
+    margin: 0;
+    font-size: 0.8em;
+    padding: 0.15em 0.4em; /* sizing the button, around the triangle below */
+    background: rgba(220, 220, 220, 0.8);
+    border: 0.2em solid #303050;
+    border-radius: 0.4em;
+    box-shadow: 0 0.2em 0 #303050;
+    transition: none; /* picnic fades buttons over .3s, too slow to read as a press */
+}
+
+/* The pointer drawn with borders: a text glyph moves with whichever font ends up loaded */
+#chatForm button::before {
+    content: '';
+    display: block; /* no line box, so no font metrics can shift it */
+    border: 0.35em solid transparent;
+    border-left-color: #303050;
+    border-right-width: 0; /* the box is then exactly the triangle, and centres on its own */
+}
+
+/* button pressed drops onto its own shadow */
+#chatForm button:active {
+    transform: translateY(0.2em);
+    box-shadow: none;
+}
+
 .vresponsive iframe {
     left:0; 
     top:0; 

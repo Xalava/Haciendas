@@ -1,18 +1,14 @@
-<div style="font-size: 5px;">
+<div style="font-size: 5px; width: 80px;">
 
-        <div style="max-width: 88px;  overflow:hidden; overflow-wrap: break-word; height: 150px; " id="chat">
-            
-            <br><br><br><br><br<br><br><br><br><br><br><br><br><br><br><br><br>
-
+        
+    <div style="max-width: 80px;  overflow:hidden; overflow-wrap: break-word; height: 80px; display:flex; flex-direction:column; justify-content:flex-end;" id="chat">
         </div>
 
     <br>
-    <fieldset class="flex two">
-        
-        <label><input style="background-color: rgba(0, 0, 0, 0.1);;" id="chatInput" type="text" placeholder="Message"></label>
-        <div>↩️</div>
-    
-    </fieldset>     
+    <form id="chatForm">
+        <label><input style="background-color: rgba(0, 0, 0, 0.1);" id="chatInput" type="text" placeholder="Message" autocomplete="off"></label>
+        <button type="submit" aria-label="Send"></button>
+    </form>
     
 </div>
     

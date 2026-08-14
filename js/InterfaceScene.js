@@ -20,7 +20,7 @@ const TRANSACTIONPANEL = {x:268, w: 80, sloty: 80}
 const DROPZONESIZE = 40
 const ACTIONSLOT = MAXINVENTORY + 1
 const INTERFACEFONT = {fontSize: 8, font: '"Press Start 2P"'}
-const INTERFACEFONTWITHBG = {fontSize: 8, font: '"Press Start 2P"', backgroundColor: 'rgba(20,20,20,0.6'}
+const INTERFACEFONTWITHBG = {fontSize: 8, font: '"Press Start 2P"', backgroundColor: 'rgba(20,20,20,0.6)'}
 const PADDING = 24
 const INTERLINE = 14
 
@@ -409,7 +409,13 @@ export default class InterfaceScene extends Phaser.Scene {
 		})
 	}
 	updateChat(name, message) {
-		this.chat.innerHTML += `<div> ${name}: <i>${message}</i></div>`
+		const who = document.createElement('span')
+		who.textContent = `${name}: `
+		// Default Grey, Green for user, violet for the others. To be refined with colors
+		if (name && name !== 'server') who.className = name === this.playerName ? 'me' : 'them'
+		const line = document.createElement('div')
+		line.append(who, message)
+		this.chat.append(line)
 		this.chat.scrollTop = this.chat.scrollHeight
 	}
 
@@ -490,21 +496,19 @@ export default class InterfaceScene extends Phaser.Scene {
 		this.letterI.on(
 			'down',
 			function (event) {
-				if (document.activeElement === chatInput) {
-					this.chatInput.value = this.chatInput.value + 'i'
-				} else {
-					this.toggleInventory()
-				}
+
+				if (document.activeElement === this.chatInput) return
+				this.toggleInventory()
 			},
 			this
 		)
 		if (TOUCH || DEBUG){
 			let joystick = this.plugins.get('rexvirtualjoystickplugin').add(this,  {
-				x: 50,
-				y: 250,
-				radius: 40,
-				base: this.add.circle(0, 0, 40, 0x888888, 0.4), //
-				thumb: this.add.circle(0, 0, 20, 0xcccccc, 0.6),
+				x: 46,
+				y: 254,
+				radius: 36,
+				base: this.add.circle(0, 0, 36, 0x888888, 0.3), //
+				thumb: this.add.circle(0, 0, 18, 0xcccccc, 0.6),
 				// dir: '8dir',
 				// forceMin: 16,
 				// fixed: true,
@@ -520,12 +524,19 @@ export default class InterfaceScene extends Phaser.Scene {
 			joystick.setVisible(true)
 
 			// let touchAction = this.add.rectangle(370, 270, 30, 10, 0xcccccccc, 0.4)
-			let textAction = this.add.text(368,268,'🖐️',INTERFACEFONTWITHBG)
-			textAction.setInteractive({})
-			textAction.on('pointerdown', i => {
+			// A round target in the corner opposite the joystick, built the same way it is. To be adjusted with it
+			let actionButton = this.add.circle(362, 264, 20, 0x888888, 0.3)
+			this.add.text(362, 264, '🖐️', {...INTERFACEFONT, fontSize: 16}).setOrigin(0.5)
+			actionButton.setInteractive({})
+			actionButton.on('pointerdown', i => {
 				globalGame.scene.getScene('gameScene').inputKeys.action = true
+				// The icon carries no backgroundColor: Phaser would fill a rectangle behind it
+				actionButton.setFillStyle(0xcccccc, 0.6)
 				if(DEBUG) console.log(`tap on action`)
 			})
+			// press style
+			actionButton.on('pointerup', i => actionButton.setFillStyle(0x888888, 0.4))
+			actionButton.on('pointerout', i => actionButton.setFillStyle(0x888888, 0.4))
 
 			// rect.on('tiledown', function(tap, tileXY) {
 			// 	globalGame.scene.getScene('gameScene').inputKeys.action = true
@@ -554,12 +565,6 @@ export default class InterfaceScene extends Phaser.Scene {
 		// 		this.chatInput.value = this.chatInput.value + 'd'
 		// 	} 
 		// })
-
-		this.input.keyboard.on('keydown_SPACE', event => {
-			if (document.activeElement === chatInput) {
-				this.chatInput.value = this.chatInput.value + ' '
-			}
-		})
 
 		// "T" to chat
 		// this.input.keyboard.on("keydown_T", (event) => {
@@ -629,35 +634,35 @@ export default class InterfaceScene extends Phaser.Scene {
 			this
 		)
 
+		// 'c' opens the chat. Once open, Enter sends
+		this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C).on(
+			'down',
+			// Phaser passes the key first, then the DOM event
+			function (key, event) {
+				// While any field holds the focus, c is just a letter being typed
+				if (document.activeElement?.tagName === 'INPUT') return
+				this.chatInput.focus()
+				// Focusing turned Phaser's own preventDefault off, so the c would land in the field
+				event.preventDefault()
+			},
+			this
+		)
+
 		// chat
 		globalNetwork = new Network(this.gameScene.player)
-		this.add.dom(380, 150).createFromCache('message')
+		// Centred on this point, so 88px wide keeps it inside the 400px canvas
+		this.add.dom(358, 182).createFromCache('message')
 		// this.chatElement.scale =
 		this.chat = document.getElementById('chat')
 		this.chatInput = document.getElementById('chatInput')
+		const chatForm = document.getElementById('chatForm') // only needed here, unlike the two above
 		// this.input.keyboard.on("keydown_TAB", event => {
 		// TODO : Disable input on focus,
-		// TODO : remove watch on letters
+		// While the chat holds the focus the game pauses, so W/A/S/D type instead of walking
 		this.chatInput.addEventListener('focus', event => {
 			globalGame.input.keyboard.preventDefault = false
 			this.gameScene.scene.pause()
 			// globalGame.input.enabled = false
-			this.chatInput.addEventListener('keypress', e => {
-			// this.input.keyboard.on('keydown_ENTER', event => {
-				if (e.key === 'Enter') {
-					this.gameScene.scene.resume()
-					// globalGame.input.enabled = true
-					globalGame.input.keyboard.preventDefault = true
-					
-					const message = this.chatInput.value
-					if (DEBUG) console.log(`Chat`, message)
-				this.chatInput.value = ''
-					this.chatInput.blur()
-					if (message == '') return
-					globalNetwork.says(this.playerName, message)
-				// element.destroy()
-				}
-			})
 		})
 
 		this.chatInput.addEventListener('focusout', event => {
@@ -666,6 +671,20 @@ export default class InterfaceScene extends Phaser.Scene {
 			// globalGame.input.enabled = true
 
 		})
+
+		// One handler for both ways of sending: the Enter key and the button
+		chatForm.addEventListener('submit', event => {
+			event.preventDefault() // a real submit would reload the page
+			const message = this.chatInput.value
+			if (DEBUG) console.log(`Chat`, message)
+			this.chatInput.value = ''
+			this.chatInput.blur()
+			if (message == '') return
+			globalNetwork.says(this.playerName, message)
+		})
+
+		// A click must not leave the focus on the button, or Enter and Space would press it again
+		chatForm.querySelector('button').addEventListener('mousedown', event => event.preventDefault())
 		// TODO : we need to require an earlier connection
 
 
